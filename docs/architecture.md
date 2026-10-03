@@ -34,8 +34,9 @@ olhovivo/                      npm workspaces monorepo
 
 ## Schema (first draft)
 
-**Locations** — `districts`, `municipalities`, `parishes`: DICO/DICOFRE code, slug, name,
-geometry (CAOP). Includes Açores and Madeira.
+**Locations** — a single `areas` table with level (district / municipality / parish), parent,
+CAOP code, slug, URL path (e.g. `lisboa/cascais`) and centroid. Açores and Madeira sit at the
+district level. Boundary geometry is added with SpatiaLite (not installed yet).
 
 **Listings** — `sources`, `listings` (canonical property), `listing_observations`
 (per source, per crawl: price, status), `listing_photos`, `price_history`.
@@ -48,17 +49,18 @@ geometry (CAOP). Includes Açores and Madeira.
 - `al_zones`: containment-zone polygons and status.
 - `pdm_zones`: zoning class polygons per municipality.
 
-**Parameters** — `parameter_sets` (kind, year, version, status, valid_from) and
-`parameter_values` (JSON payload validated per kind). Kinds: IMT, Imposto do Selo, notary,
-IMI per municipality, IRS (rental, AL, capital gains), financing.
+**Parameters** — `parameter_sets`: one complete engine `ParameterSet` (JSON, validated with
+Zod) per year, region and version, with status draft / active / archived (one active per year
+and region) and who verified it. Municipal IMI rates live in `imi_rates`, per year.
 
 **Valuations** — `valuations` (input, low/likely/high, €/m², confidence, model version) and
 `valuation_comparables`.
 
 **Users and saved items**
 
-- Auth.js tables: `users`, `accounts`, `sessions`, `verification_tokens`.
-- Roles and a premium plan flag; `consents`.
+- `users` with role, plan and locale. Session, account and token tables come with the auth
+  library (WBS 6.1).
+- `consents` (RGPD log).
 - `favourites`, `saved_searches` (filters JSON plus alert rules such as target yield or
   discount), `alerts_sent`.
 
@@ -72,8 +74,8 @@ status, counts, errors), `events` (analytics).
 
 1. Scaffold: monorepo, git, CI (format, lint, typecheck, test, build), README. ✅
 2. Engine: four scenarios, IRR, comparison, sensitivity, with unit tests. ✅
-3. DB: schema, migrations, seed data for 3–4 municipalities (Lisboa, Porto, Cascais, Braga)
-   with 2026 parameters.
+3. DB: schema, migrations, seed data for 4 municipalities (Lisboa, Cascais, Porto, Braga)
+   with 2025 parameters. ✅
 4. Web foundations: i18n, layout, dark/light theme; calculator and comparison view; Preços.
 5. Python service: comparables valuation and the Vender flow.
 
