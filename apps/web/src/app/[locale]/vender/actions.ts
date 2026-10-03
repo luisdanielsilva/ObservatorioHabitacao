@@ -2,7 +2,9 @@
 
 import { leads } from "@olhovivo/db";
 import { z } from "zod";
+import { getAreaBreadcrumb } from "@olhovivo/db";
 import { getDb } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
 import { getCurrentUser } from "@/lib/session";
 
 export type LeadState = { status: "idle" | "success" | "invalid" | "error" };
@@ -47,9 +49,48 @@ export async function requestSalesSupport(_prev: LeadState, form: FormData): Pro
         contactConsent: true,
       })
       .run();
+    await notifyTeam(parsed.data);
     return { status: "success" };
   } catch (error) {
     console.error("requestSalesSupport failed", error);
     return { status: "error" };
+  }
+}
+
+/**
+ * Tells the team about a new request (WBS 6.4.2) when TEAM_EMAIL is set. Failures are logged
+ * and never affect the person's request, which is already stored.
+ */
+async function notifyTeam(lead: {
+  name: string;
+  email: string;
+  phone: string;
+  areaId?: number;
+  message: string;
+}) {
+  const to = process.env.TEAM_EMAIL;
+  if (!to) return;
+  try {
+    const area = lead.areaId
+      ? getAreaBreadcrumb(getDb(), lead.areaId)
+          .map((a) => a.name)
+          .join(" › ")
+      : "—";
+    await sendEmail({
+      to,
+      subject: `Novo pedido de apoio à venda: ${lead.name}`,
+      text: [
+        `Nome: ${lead.name}`,
+        `Email: ${lead.email || "—"}`,
+        `Telefone: ${lead.phone || "—"}`,
+        `Localização: ${area}`,
+        "",
+        lead.message || "(sem mensagem)",
+        "",
+        "Ver no back-office: /admin",
+      ].join("\n"),
+    });
+  } catch (error) {
+    console.error("lead notification failed", error);
   }
 }

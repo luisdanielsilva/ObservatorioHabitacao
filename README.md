@@ -38,12 +38,15 @@ it, the app works with demo data for four municipalities, labelled as such.
 
 ### Environment variables
 
-| Variable                      | Default                         | Purpose                                                    |
-| ----------------------------- | ------------------------------- | ---------------------------------------------------------- |
-| `DATABASE_PATH`               | `data/olhovivo.db`              | SQLite database file                                       |
-| `NEXT_PUBLIC_SITE_URL`        | `https://olhovivo.pt`           | Canonical URLs and sitemap                                 |
-| `LINK_READER_ALLOWED_DOMAINS` | _(empty: link reader disabled)_ | Comma-separated domains whose terms allow reading listings |
-| `BACKUP_DIR` / `BACKUP_KEEP`  | `data/backups` / `14`           | Nightly backup location and number of copies kept          |
+| Variable                      | Default                          | Purpose                                                    |
+| ----------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| `DATABASE_PATH`               | `data/olhovivo.db`               | SQLite database file                                       |
+| `NEXT_PUBLIC_SITE_URL`        | `https://olhovivo.pt`            | Canonical URLs and sitemap                                 |
+| `LINK_READER_ALLOWED_DOMAINS` | _(empty: link reader disabled)_  | Comma-separated domains whose terms allow reading listings |
+| `BACKUP_DIR` / `BACKUP_KEEP`  | `data/backups` / `14`            | Nightly backup location and number of copies kept          |
+| `RESEND_API_KEY`              | _(empty: emails go to the log)_  | Resend key for sign-in links, reports and notifications    |
+| `EMAIL_FROM`                  | `OlhoVivo <noreply@olhovivo.pt>` | Sender of transactional emails                             |
+| `TEAM_EMAIL`                  | _(empty: no notification)_       | Receives an email for each new sales-support request       |
 
 ### Database commands
 
