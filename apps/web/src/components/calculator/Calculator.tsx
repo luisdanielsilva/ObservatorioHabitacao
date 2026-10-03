@@ -13,6 +13,7 @@ import { MarketValuesSection } from "./MarketValuesSection";
 import { PropertySection } from "./PropertySection";
 import { Results } from "./Results";
 import { SaveBar } from "./SaveBar";
+import { Sensitivity } from "./Sensitivity";
 
 export type Update = (patch: Partial<CalculatorState>) => void;
 
@@ -135,6 +136,8 @@ export function Calculator({ tree, params, euribor12m, initialAreaId, initial }:
           onGoalChange={(goal) => update({ goal })}
           paramsYear={params?.year ?? null}
         />
+        {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
+        <Sensitivity state={state} params={params} startMonth={startMonth} enabled />
       </div>
     </div>
   );

@@ -76,6 +76,31 @@
     "contractAssignmentShort": "Assignment",
     "contractAssignmentText": "Sell your position in the promissory contract (CPCV) before the deed: profit and return on the deposit."
   },
+  "sensitivity": {
+    "title": "Sensitivity analysis",
+    "intro": "See how results change if the price, rent, occupancy or interest rate turn out different from what you expect. Every scenario is recalculated.",
+    "variable": "Variable",
+    "variables": {
+      "price": "Price",
+      "rent": "Rent",
+      "occupancy": "Occupancy",
+      "interest": "Interest"
+    },
+    "variableLong": {
+      "price": "Change in purchase price",
+      "rent": "Change in rent and nightly rate",
+      "occupancy": "Change in occupancy (percentage points)",
+      "interest": "Change in interest rate (percentage points)"
+    },
+    "metric": "Metric",
+    "scenario": "Scenario",
+    "base": "Current",
+    "change": "Difference",
+    "tableCaption": "Chosen metric for each scenario, current and with the change",
+    "chartTitle": "Chosen metric across the whole range",
+    "noResults": "Enter the market values to see the sensitivity analysis.",
+    "premium": "Sensitivity analysis is included in the Premium plan."
+  },
   "metrics": {
     "totalInvestment": "Total investment",
     "totalInvestmentHelp": "Purchase price plus acquisition costs, renovation, furnishing and licences.",

@@ -76,6 +76,31 @@
     "contractAssignmentShort": "Cessão",
     "contractAssignmentText": "Venda da posição no CPCV antes da escritura: lucro e retorno sobre o sinal."
   },
+  "sensitivity": {
+    "title": "Análise de sensibilidade",
+    "intro": "Veja como os resultados mudam se o preço, a renda, a ocupação ou a taxa de juro forem diferentes do previsto. Todos os cenários são recalculados.",
+    "variable": "Variável",
+    "variables": {
+      "price": "Preço",
+      "rent": "Renda",
+      "occupancy": "Ocupação",
+      "interest": "Juro"
+    },
+    "variableLong": {
+      "price": "Variação do preço de compra",
+      "rent": "Variação da renda e do preço por noite",
+      "occupancy": "Variação da ocupação (pontos percentuais)",
+      "interest": "Variação da taxa de juro (pontos percentuais)"
+    },
+    "metric": "Indicador",
+    "scenario": "Cenário",
+    "base": "Atual",
+    "change": "Diferença",
+    "tableCaption": "Indicador escolhido em cada cenário, atual e com a variação",
+    "chartTitle": "Indicador escolhido ao longo de toda a variação",
+    "noResults": "Introduza os valores de mercado para ver a análise de sensibilidade.",
+    "premium": "A análise de sensibilidade está incluída no plano Premium."
+  },
   "metrics": {
     "totalInvestment": "Investimento total",
     "totalInvestmentHelp": "Preço de compra mais custos de aquisição, obras, mobiliário e licenças.",
