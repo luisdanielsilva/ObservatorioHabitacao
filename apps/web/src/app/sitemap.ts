@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   "/precos",
   "/vender",
   "/sobre",
+  "/metodologia",
   "/contactos",
   "/privacidade",
   "/termos",

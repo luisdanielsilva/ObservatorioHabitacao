@@ -18,6 +18,7 @@
   },
   "footer": {
     "about": "About",
+    "methodology": "How we calculate",
     "contacts": "Contacts",
     "privacy": "Privacy policy",
     "terms": "Terms and conditions",
@@ -75,6 +76,96 @@
     "contractAssignment": "Contract assignment",
     "contractAssignmentShort": "Assignment",
     "contractAssignmentText": "Sell your position in the promissory contract (CPCV) before the deed: profit and return on the deposit."
+  },
+  "methodology": {
+    "title": "How we calculate",
+    "metaDescription": "OlhoVivo's calculations explained: the four scenarios, the metrics, taxes, costs, financing, data sources and assumptions.",
+    "intro": "OlhoVivo applies costs, Portuguese taxes and financing to the market values you enter, and compares four strategies. This page explains how, in plain language.",
+    "contents": "On this page",
+    "scenariosTitle": "The four scenarios",
+    "scenariosIntro": "All scenarios start from the same property data. The purchase happens in month 0 and the calculation runs month by month until the sale or the assignment.",
+    "scenarioFlip": "Buy, renovate during the months you set and sell at the price after renovation. While you hold the property you pay IMI, condominium, insurance, utilities and loan payments. On the sale you pay the agency commission (with VAT), repay the loan and pay capital gains tax.",
+    "scenarioLongTerm": "Rent starts after the renovation, with the vacancy you set and a yearly increase. Operating costs (IMI, condominium, insurance, maintenance and management) are deducted from the rent for income tax; loan interest is not. At the end of the period the property is sold at its appreciated market value.",
+    "scenarioShortTerm": "For each month: booked nights = days × the season's occupancy; stays = nights ÷ average stay. Revenue includes the nights and the cleaning fees. You pay platform commissions, management, cleaning, consumables and utilities. Income tax follows the simplified regime (category B).",
+    "scenarioCessao": "You pay the deposit when signing the CPCV and, before the deed, assign your position to another buyer. You receive the assignment price (which includes the deposit reimbursement), pay commission on the premium and other costs, and pay tax on the gain.",
+    "metricsTitle": "The metrics",
+    "metricsIntro": "The same metrics for every scenario, so you can compare them.",
+    "acquisitionTitle": "Buying costs",
+    "acquisitionImt": "IMT (transfer tax): on the higher of the price and the tax value (VPT), using the table for the property's use (own permanent home or other housing); a flat rate for other urban property (6.5%) and rustic property (5%).",
+    "acquisitionNonResident": "Non-resident buyers: since 20 May 2026, housing bought by non-residents pays a flat 7.5% IMT, refunded if the buyer becomes resident in Portugal within 2 years or lets at a capped rent.",
+    "acquisitionStamp": "Stamp duty: 0.8% on the purchase, 0.6% on the loan and 4% on the interest paid to the bank.",
+    "acquisitionFees": "Deed, registry and bank fees: typical values, which you can change.",
+    "financingTitle": "Financing",
+    "financingText": "A fixed-instalment loan at the monthly nominal rate (TAN). By default: 70% of the price, 12-month Euribor plus a typical 1% spread, over 30 years. On the sale, the outstanding balance is repaid with a 0.5% early repayment fee. We warn you when the loan exceeds Banco de Portugal's limits (90% for your own home, 80% for other purposes).",
+    "taxesTitle": "Income taxes",
+    "taxesRental": "Rent (category F): a flat 25% rate, reduced to 15%, 10% or 5% for leases of 5, 10 or 20 years; or added to your other income at your marginal rate.",
+    "taxesAl": "Short-term rental (category B, simplified regime): 35% of revenue is taxed at your marginal rate (50% in containment zones). 6% VAT only applies if you are registered; we warn you when revenue exceeds the 15 000 € exemption threshold.",
+    "taxesGains": "Capital gains: 50% of the gain is taxed at your marginal rate. The gain is the sale price minus the selling commission, the purchase price, IMT, stamp duty, deed costs and renovation.",
+    "taxesCessao": "Contract assignment: 50% of the gain is taxed at your marginal rate (CIRS art. 43 with art. 10 no. 1 d)). If the CPCV allows assignment to a third party, IMT and stamp duty may be due when it is signed: you can include them.",
+    "exitTitle": "Sale at the end of the period",
+    "exitText": "In the rental scenarios, the property is sold at the end of the holding period. The starting price is the value after renovation (if you renovate) or the market value, grown at the annual appreciation you set. The sale counts in profit, ROI and IRR, but not in payback.",
+    "dataTitle": "Data sources",
+    "dataIne": "Prices and rents: INE medians by municipality and parish (sale price per m² over 12 months, quarterly; rent per m² of new leases, yearly). District figures are the median of the municipalities' medians, calculated by OlhoVivo.",
+    "dataCaop": "Administrative boundaries: CAOP 2025 from Direção-Geral do Território (CC BY 4.0), used to find the parish of an address.",
+    "dataEuribor": "Euribor: monthly averages published by the European Central Bank.",
+    "dataImi": "IMI rates: an open transcription (CC BY 4.0) of the rates published by the tax authority, still to be checked against the official source. Some municipalities set rates per parish and are not included.",
+    "dataOsm": "Addresses: OpenStreetMap search (Nominatim).",
+    "dataTax": "Tax parameters: stored by year and version, from the tax codes published on Portal das Finanças. Not yet reviewed by an accountant.",
+    "assumptionsTitle": "Default assumptions",
+    "assumptionsText": "You can change all of these under “Assumptions”.",
+    "assumptionsList": [
+      "Condominium 50 €/month, insurance 250 €/year, utilities while holding 50 €/month",
+      "Selling commission 5% + VAT; appreciation 3% a year",
+      "Long-term rental: 1 month vacant per year, 2% yearly increase, maintenance 5% of rent, no management",
+      "Short-term rental: platform commission 15%, management 20%, average stay 3 nights, cleaning fee charged 40 € and paid 35 €, consumables 4 €/night, utilities 150 €/month, furniture 10 000 €, registration 1 000 €",
+      "Contract assignment: 5% + VAT commission on the premium, 1 000 € other costs, 6 months to the assignment",
+      "Marginal income tax rate 35%; resale 12 months after purchase; rental and AL for 10 years",
+      "Opportunity signal: asking price more than 5% below the market value you entered"
+    ],
+    "simplificationsTitle": "Simplifications",
+    "simplificationsList": [
+      "Rental income tax is paid once per 12-month period; capital gains tax is paid in the month of the sale (in reality, the following year).",
+      "IMI is spread over the months (in reality, it is paid by whoever owns the property on 31 December).",
+      "Rental losses are not carried forward to later years.",
+      "If you do not know the VPT, we use the purchase price, which may overstate IMI.",
+      "The loan only finances the purchase and is drawn in full in month 0."
+    ],
+    "notModelledTitle": "What we do not calculate yet",
+    "notModelledList": [
+      "The young buyers' IMT table and the IMT Jovem and own-home reinvestment exemptions",
+      "Inflation correction coefficients for property held more than 24 months",
+      "Adicional ao IMI, social security contributions and purchases through a company",
+      "Capital gains on property used for short-term rental (category B rules)",
+      "Checking short-term rental registrations and containment zones (comes with the national AL registry)"
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      {
+        "q": "Why do I have to enter the market value and the rent?",
+        "a": "In this first version, OlhoVivo does not estimate these values automatically. We show the area's INE medians as a reference; individual properties can differ a lot."
+      },
+      {
+        "q": "Do the results replace an accountant?",
+        "a": "No. They are estimates to compare strategies. Before deciding, check taxes and costs with an accountant or lawyer."
+      },
+      {
+        "q": "Which tax year is used?",
+        "a": "The most recent active parameter set. The year is shown below the results."
+      },
+      {
+        "q": "Why can't I read links from some sites?",
+        "a": "We only read listings from sites whose terms of use allow it. You can always fill in the details yourself."
+      },
+      {
+        "q": "How do I save or share a scenario?",
+        "a": "Sign in with your email (no password) and use “Save”. Saved scenarios are under “Account”."
+      },
+      {
+        "q": "I found a mistake. How do I report it?",
+        "a": "Use the contacts page. Include the scenario link or the values you entered, so we can reproduce the calculation."
+      }
+    ],
+    "contactsLink": "Contacts"
   },
   "sensitivity": {
     "title": "Sensitivity analysis",
