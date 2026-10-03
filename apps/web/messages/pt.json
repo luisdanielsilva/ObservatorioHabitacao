@@ -142,6 +142,7 @@
     "linkNotAllowed": "Este site não permite a leitura automática dos anúncios. Preencha os dados manualmente.",
     "linkFailed": "Não foi possível ler o anúncio. Preencha os dados manualmente.",
     "linkInvalid": "O link não é válido.",
+    "rateLimited": "Demasiados pedidos seguidos. Aguarde alguns minutos e tente novamente.",
     "orManual": "ou preencha manualmente",
     "district": "Distrito",
     "municipality": "Concelho",

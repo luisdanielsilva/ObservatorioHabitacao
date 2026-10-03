@@ -19,7 +19,7 @@ import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
 import { NumberField, Section, SelectField } from "./fields";
 
-type LinkStatus = "idle" | "reading" | "ok" | "not_allowed" | "failed" | "invalid";
+type LinkStatus = "idle" | "reading" | "ok" | "not_allowed" | "failed" | "invalid" | "rate_limited";
 
 export function PropertySection({
   state,
@@ -38,7 +38,7 @@ export function PropertySection({
   const id = useId();
   const [linkStatus, setLinkStatus] = useState<LinkStatus>("idle");
   const [locateStatus, setLocateStatus] = useState<
-    { kind: "idle" | "locating" | "missing" } | { kind: "found"; name: string }
+    { kind: "idle" | "locating" | "missing" | "limited" } | { kind: "found"; name: string }
   >({ kind: "idle" });
 
   async function readLink() {
@@ -78,6 +78,7 @@ export function PropertySection({
     try {
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(state.address)}`);
       const body = (await res.json()) as GeocodeResponse;
+      if (body.status === "rate_limited") return setLocateStatus({ kind: "limited" });
       if (body.status !== "ok" || !body.areaId) return setLocateStatus({ kind: "missing" });
       update({ areaId: body.areaId });
       setLocateStatus({ kind: "found", name: body.areaName ?? "" });
@@ -93,6 +94,7 @@ export function PropertySection({
     not_allowed: t("linkNotAllowed"),
     failed: t("linkFailed"),
     invalid: t("linkInvalid"),
+    rate_limited: t("rateLimited"),
   }[linkStatus];
 
   return (
@@ -165,7 +167,9 @@ export function PropertySection({
             ? t("located", { area: locateStatus.name })
             : locateStatus.kind === "missing"
               ? t("notLocated")
-              : t("addressHelp")}{" "}
+              : locateStatus.kind === "limited"
+                ? t("rateLimited")
+                : t("addressHelp")}{" "}
           <span className="block">{t("osmAttribution")}</span>
         </p>
       </div>

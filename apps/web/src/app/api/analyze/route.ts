@@ -1,4 +1,11 @@
-import { cacheGet, cacheSet, createAnalysis, findAreaByPoint } from "@olhovivo/db";
+import {
+  cacheGet,
+  cacheSet,
+  clientIp,
+  createAnalysis,
+  findAreaByPoint,
+  rateLimit,
+} from "@olhovivo/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import { extractProperty, type ExtractedProperty } from "@/lib/linkReader/extract";
@@ -7,13 +14,28 @@ import { getCurrentUser } from "@/lib/session";
 
 export type AnalyzeResponse =
   | { status: "ok"; analysisId: string; property: ExtractedProperty; areaId: number | null }
-  | { status: "not_allowed" | "failed" | "invalid" };
+  | { status: "not_allowed" | "failed" | "invalid" | "rate_limited" };
+
+/** Per IP: each request may fetch a page from another site on the user's behalf. */
+const LIMIT = { requests: 20, windowSeconds: 600 };
 
 /**
  * Link analysis (WBS 6.2.2): reads one listing page from an allow-listed site, extracts the
  * property data and locates it. The analysis is stored so it can later be linked to an account.
  */
 export async function POST(request: NextRequest) {
+  const limit = rateLimit(
+    getDb(),
+    `analyze:${clientIp(request.headers)}`,
+    LIMIT.requests,
+    LIMIT.windowSeconds,
+  );
+  if (!limit.allowed) {
+    return NextResponse.json<AnalyzeResponse>(
+      { status: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
   let url: URL;
   try {
     const body = (await request.json()) as { url?: unknown };

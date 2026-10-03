@@ -142,6 +142,7 @@
     "linkNotAllowed": "This site does not allow listings to be read automatically. Please fill in the details.",
     "linkFailed": "We could not read the listing. Please fill in the details.",
     "linkInvalid": "The link is not valid.",
+    "rateLimited": "Too many requests in a row. Wait a few minutes and try again.",
     "orManual": "or fill in manually",
     "district": "District",
     "municipality": "Municipality",
