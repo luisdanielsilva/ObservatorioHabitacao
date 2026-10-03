@@ -1,6 +1,6 @@
 # OlhoVivo — Status
 
-Updated 2026-10-03 (end of day), against [product-spec.md](product-spec.md) version 2.
+Updated 2026-10-03 (evening, Phase 2 work in the working tree), against [product-spec.md](product-spec.md) version 2.
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
@@ -20,7 +20,7 @@ project owner or an outside expert
 | 3.2.2     | CI pipeline                        | 🟡     | `.github/workflows/ci.yml` written; runs once pushed to GitHub       |
 | 3.2.3     | Deployment script (systemd)        | ⬜     |                                                                      |
 | 3.3.1     | SQLite, WAL, R*Tree                | 🟡     | WAL on; R*Tree available, not used yet                               |
-| 3.3.2     | Cache and job tables               | ⬜     |                                                                      |
+| 3.3.2     | Cache and job tables               | 🟡     | Tables exist; `cache` used for rate limiting; no job worker yet      |
 | 3.4       | Logging, backups, SSL              | ⬜     | Nightly `.backup` + Nginx/SSL with the deployment                    |
 | 10.1–10.2 | Company setup, RGPD                | ⬜ 👤  |                                                                      |
 | 10.6      | Tax/legal review of scenario rules | ⬜ 👤  | Open questions listed in METHODOLOGY.md                              |
@@ -32,39 +32,58 @@ project owner or an outside expert
 | 4.1          | Database schema, location hierarchy    | ✅     | Adds `analyses`, `area_boundaries` + R*Tree, `cache`, `jobs`, `reference_rates`                          |
 | 4.2.1        | INE sale and rent medians              | ✅     | Sale €/m² quarterly 2019–2026 (306 municipalities, 356 parishes); rent €/m² yearly 2020–2025 (255 / 183) |
 | 4.2.2        | CAOP boundaries                        | ✅     | CAOP 2025: 308 municipalities, 3 259 parishes, simplified boundaries                                     |
-| 4.2.3        | Tax and financing sources              | 🟡 👤  | Euribor imported monthly from the ECB; 2025 tax parameters still unverified; no 2026 set                 |
+| 4.2.3        | Tax and financing sources              | 🟡 👤  | Euribor imported monthly from the ECB; 2025 set corrected, 2026 mainland set as a draft; all unverified  |
 | 4.3.1–4.3.2  | Import scripts, cleaning               | ✅     | `npm run import:all`; idempotent; logged in `ingestion_jobs`                                             |
 | 4.3.3        | Address geocoding, freguesia lookup    | ✅     | Nominatim (OSM) + CAOP point-in-polygon; name match fallback                                             |
 | 4.3.4        | Link reader                            | 🟡 👤  | Built (schema.org / Open Graph extraction, allow-list, safe fetch); off until the allow-list is decided  |
 | 4.3.5        | Scheduling and failure handling        | 🟡     | Weekly systemd timer prepared (`deploy/`); not installed yet                                             |
 | 4.4.1–4.4.3  | Median prices/rents, history           | ✅     | District figures derived as the median of municipal medians                                              |
 | 4.5.1        | IMT, Imposto do Selo, notary/registry  | ✅     | Versioned parameter set; values unverified                                                               |
-| 4.5.2        | IMI per municipality                   | 🟡     | Only 4 placeholder rates; the calculator falls back to 0.3 % (editable)                                  |
+| 4.5.2        | IMI per municipality                   | 🟡     | 2023–2025 rates for 300 municipalities (transcribed, unverified); fallback 0.3 %                         |
 | 4.5.3        | Rental, AL and capital gains tax rules | ✅     | Values unverified                                                                                        |
 | 4.5.4        | Euribor, spreads, LTV limits           | ✅     | Default loan rate = 12-month Euribor + typical spread                                                    |
-| 4.5.5        | Yearly update process                  | 🟡     | Draft → active versioning done; no admin screen yet                                                      |
+| 4.5.5        | Yearly update process                  | ✅     | Draft → verify → activate in `/admin/parametros`                                                         |
 | 5.3.1–5.3.6  | Scenarios, comparison                  | ✅     | User-entered market values; IRR fixed for long series                                                    |
 | 5.4          | Opportunity score                      | ✅     | Asking price vs. user's market value, ±5 % band                                                          |
 | 5.5          | Listing assessment flow                | ✅     | Link or manual entry → location → INE reference → four scenarios                                         |
-| 6.1          | Auth (Auth.js)                         | ⬜     | Waiting for the decision on MVP vs. Phase 2                                                              |
+| 6.1          | Auth (Auth.js)                         | ✅     | Email magic link (Resend); Google when `AUTH_GOOGLE_*` is set; admins from `ADMIN_EMAILS`; rate-limited  |
 | 6.2.2        | Link analysis endpoint                 | ✅     | `POST /api/analyze`, `GET /api/geocode`, `GET /api/reference`                                            |
 | 6.2.3        | Prices and rents endpoints             | ✅     | `GET /api/prices/[...path]`, `GET /api/areas`                                                            |
-| 6.2.5        | Scenario endpoints                     | 🟡     | Calculation runs in the browser; server endpoints come with saving (Phase 2)                             |
+| 6.2.5        | Scenario endpoints                     | ✅     | Calculation in the browser; save/duplicate by server actions; PDF route per scenario                     |
 | 7.1          | Foundations: i18n, layout, theming     | ✅     | PT/EN, dark default + light, header/footer, 404                                                          |
 | 7.2.1        | Home page                              | ✅     |                                                                                                          |
 | 7.2.4–7.2.5  | Calculator and comparison view         | ✅     | Table, goal selector, cash-flow chart, details and warnings                                              |
 | 7.2.7        | Avaliar anúncio                        | ✅     | `/avaliar`                                                                                               |
 | 7.2.8        | Preços pages                           | ✅     | Overview + district/municipality/parish pages, ISR, sitemap, JSON-LD                                     |
 | 7.2.9        | About, contacts, legal pages           | 🟡 👤  | Draft texts; need legal review                                                                           |
-| 7.4.1        | Responsiveness, accessibility          | 🟡     | No horizontal scroll at 375 px; labels, help texts, keyboard focus; no full WCAG audit yet               |
-| 11.3         | Engine vs. reference spreadsheet       | 🟡 👤  | 112 tests pass (49 engine, 51 db, 12 web); spreadsheet pending                                           |
+| 7.4.1        | Responsiveness, accessibility          | 🟡     | No horizontal scroll at 375 px; labels, help texts, focus, card titles are headings; no WCAG audit yet   |
+| 11.3         | Engine vs. reference spreadsheet       | 🟡 👤  | 162 tests pass (51 engine, 86 db, 25 web); spreadsheet pending                                           |
 | 3.2.3, 3.4.2 | Deployment, backups                    | 🟡 👤  | systemd/Nginx/deploy/backup files ready in `deploy/`; installing needs sudo                              |
+
+## Phase 2 — Engagement (in the working tree, not committed yet)
+
+| WBS         | Item                         | Status | Notes                                                                                      |
+| ----------- | ---------------------------- | ------ | ------------------------------------------------------------------------------------------ |
+| 5.3.7       | Sensitivity analysis         | ✅     | Price, rent, occupancy, interest; four metrics; chart and table                            |
+| 6.3.1       | Favourites, saved searches   | ⬜     | Tables only (Phase 3 with Comprar)                                                         |
+| 6.3.2       | Saved scenarios              | ✅     | Save, duplicate, delete; inputs typed before sign-in are restored                          |
+| 6.3.3       | PDF report                   | ✅     | React-PDF, for own and shared scenarios                                                    |
+| 6.3.4       | Sharing (X, Facebook, email) | ✅     | Public page `/partilha/[token]` with preview image; report by email                        |
+| 6.3.5       | Alerts engine                | ⬜     | Not started                                                                                |
+| 6.4.1–6.4.2 | Leads, team notifications    | ✅     | Vender requests; email to `TEAM_EMAIL`                                                     |
+| 7.3         | Private area                 | ✅     | `/conta`: scenarios, analyses, requests, settings, consents, data export, account deletion |
+| 8.1–8.5     | Admin back-office            | ✅     | Sources and imports, parameters, leads/CRM, users                                          |
+| 8.6         | Analytics dashboard          | 🟡     | Dashboard built, but `logEvent` is never called, so event counts stay empty                |
+| 9           | Content, SEO                 | 🟡     | `/metodologia` with FAQ; no analytics or conversion tracking                               |
+| 10.2        | Cookie consent               | 🟡 👤  | `/cookies` page; no banner (only essential cookies so far — confirm with legal review)     |
+| 11.5        | End-to-end tests             | ✅     | Playwright, 16 tests incl. sign-in (`E2E_SERVER_LOG`); all pass                            |
+| —           | Rate limiting                | ✅     | SQLite fixed window on analyze, geocode and sign-in                                        |
+| —           | Plans (freemium)             | ✅     | `entitlements.ts`; limits apply only with `ENFORCE_PLANS=true`                             |
 
 ## Done ahead of its phase
 
 | WBS   | Item                       | Phase | Notes                                                                                             |
 | ----- | -------------------------- | ----- | ------------------------------------------------------------------------------------------------- |
-| 5.3.7 | Sensitivity analysis       | 2     | Engine functions done; sliders in the UI come in Phase 2                                          |
 | 5.3.4 | AL licence check           | 3     | Engine supports AL status and containment-zone tax; hidden in the UI until the AL registry exists |
 | 4.4.4 | AL indicators              | 3     | Tables and queries done; synthetic seed data                                                      |
 | 6.3.1 | Favourites, saved searches | 2–3   | Tables only                                                                                       |
@@ -82,9 +101,9 @@ project owner or an outside expert
 
 ## Next steps (proposed)
 
-1. Decisions from the project owner: link-reader allow-list, login in the MVP or Phase 2,
-   domain, tax review.
-2. Install the services (`docs/deployment.md`) to put the site online.
-3. Real IMI rates per municipality (Portal das Finanças) and the 2026 tax parameters.
-4. Phase 2: accounts (Auth.js), saved scenarios, PDF reports, sharing, sensitivity sliders,
-   admin back-office.
+1. Commit the Phase 2 work.
+2. Record analytics events (`logEvent`) for searches, scenarios run and leads.
+3. Alerts engine (6.3.5).
+4. Decisions from the project owner: link-reader allow-list, domain, tax review, cookie banner.
+5. Install the services (`docs/deployment.md`) to put the site online.
+6. Verify the IMI rates and the 2025/2026 tax parameters (accountant review).

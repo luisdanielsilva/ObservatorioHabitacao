@@ -42,7 +42,13 @@ added later if ML training (automatic estimates, Phase 4) needs it.
 6. **Hosting on the existing VPS.** Next.js as a systemd service behind the existing Nginx
    (or Caddy) with HTTPS; import scripts as systemd timers; nightly `sqlite3 .backup` before
    the VPS backup.
-7. **Auth.js** for email magic link and Google (Phase 2).
+7. **Auth.js v5** (`next-auth@5` beta, Drizzle adapter, database sessions) for email magic
+   link and Google. Pages stay statically rendered: the header asks for the session in the
+   browser. Admins come from `ADMIN_EMAILS`. Transactional email goes through Resend's HTTP API
+   (`RESEND_API_KEY`); without a key, emails are written to the server log (development).
+8. **Freemium by entitlements.** `src/lib/entitlements.ts` lists what each plan includes
+   (saved-scenario limit, PDF, sensitivity, alerts). Limits only apply with `ENFORCE_PLANS=true`;
+   during the beta everything is open.
 
 ## Data flow for Avaliar anúncio
 
@@ -85,8 +91,8 @@ Scenarios point to the analysis they came from.
 **Scenarios** — `scenarios`: user, property snapshot, inputs, parameter-set id, results
 cache, duplicated-from. _Planned (Phase 2):_ public share token for X/Facebook links.
 
-**Users** — `users` (role, plan, locale), `consents` (RGPD log). Auth.js tables come with
-login (Phase 2).
+**Users** — `users` (role, plan, locale, Auth.js fields), `accounts`, `sessions`,
+`verification_tokens` (Auth.js), `consents` (RGPD log, one row per change).
 
 **Leads and operations** — `leads` (type, status, assignee, notes; used by Vender sales
 support), `ingestion_jobs` (import runs), `events` (analytics). _Planned:_ `cache`, `jobs`.
