@@ -8,11 +8,11 @@ cessão de posição contratual).
 
 ## Repository layout
 
-| Path              | What it is                                                         |
-| ----------------- | ------------------------------------------------------------------ |
-| `apps/web`        | Next.js web app (App Router, TypeScript, Tailwind)                 |
-| `packages/engine` | Pure TypeScript scenario engine — no I/O, no UI; fully unit tested |
-| `docs/`           | Architecture, schema and methodology notes                         |
+| Path              | What it is                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| `apps/web`        | Next.js web app (App Router, TypeScript, Tailwind)                                                 |
+| `packages/engine` | Pure TypeScript scenario engine — no I/O, no UI; see [METHODOLOGY](packages/engine/METHODOLOGY.md) |
+| `docs/`           | Architecture, schema and methodology notes                                                         |
 
 Planned: `packages/db` (schema + migrations), `packages/i18n`, `services/data` (Python
 ingestion + valuation). See [docs/architecture.md](docs/architecture.md).

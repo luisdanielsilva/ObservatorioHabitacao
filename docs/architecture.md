@@ -71,7 +71,7 @@ status, counts, errors), `events` (analytics).
 ## Phase 0–1 order of work
 
 1. Scaffold: monorepo, git, CI (format, lint, typecheck, test, build), README. ✅
-2. Engine: four scenarios, IRR, comparison, sensitivity, with unit tests.
+2. Engine: four scenarios, IRR, comparison, sensitivity, with unit tests. ✅
 3. DB: schema, migrations, seed data for 3–4 municipalities (Lisboa, Porto, Cascais, Braga)
    with 2026 parameters.
 4. Web foundations: i18n, layout, dark/light theme; calculator and comparison view; Preços.
