@@ -46,7 +46,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             <Card key={key}>
               <CardHeader>
                 <Icon className={`size-6 ${color}`} aria-hidden />
-                <CardTitle className="text-base">{ts(key)}</CardTitle>
+                <CardTitle as="h3" className="text-base">{ts(key)}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
                 {ts(`${key}Text`)}

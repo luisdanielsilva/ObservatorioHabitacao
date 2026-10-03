@@ -21,7 +21,7 @@ export default async function VerifyPage({ params }: PageProps<"/[locale]/entrar
       <Card>
         <CardHeader className="items-center text-center">
           <MailCheck className="mx-auto size-10 text-primary" aria-hidden />
-          <CardTitle>{t("checkTitle")}</CardTitle>
+          <CardTitle as="h1">{t("checkTitle")}</CardTitle>
           <CardDescription>{t("checkText")}</CardDescription>
         </CardHeader>
       </Card>

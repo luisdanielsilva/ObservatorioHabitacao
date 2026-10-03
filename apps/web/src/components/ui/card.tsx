@@ -32,9 +32,14 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+/** A heading (h2 by default); use `as` to match the page outline, or "div" for stat labels. */
+function CardTitle({
+  as: Tag = "h2",
+  className,
+  ...props
+}: React.ComponentProps<"h2"> & { as?: "h1" | "h2" | "h3" | "div" }) {
   return (
-    <div
+    <Tag
       data-slot="card-title"
       className={cn(
         "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
