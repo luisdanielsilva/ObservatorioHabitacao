@@ -13,6 +13,11 @@ export const PUBLIC_SOURCES = {
   caop: { name: "DGT — CAOP", baseUrl: "https://www.dgterritorio.gov.pt/" },
   ine: { name: "INE", baseUrl: "https://www.ine.pt/" },
   ecb: { name: "ECB Data Portal", baseUrl: "https://data.ecb.europa.eu/" },
+  imi: { name: "IMI rates (AT via flatin.pt, CC BY 4.0)", baseUrl: "https://flatin.pt/" },
+  rnal: {
+    name: "Turismo de Portugal — RNAL",
+    baseUrl: "https://dadosabertos.turismodeportugal.pt/",
+  },
 } as const;
 
 function sourceId(db: Db, key: keyof typeof PUBLIC_SOURCES): number {

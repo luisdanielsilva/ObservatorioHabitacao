@@ -23,6 +23,7 @@
     "import:caop": "npm run import:caop -w @olhovivo/db",
     "import:ine": "npm run import:ine -w @olhovivo/db",
     "import:euribor": "npm run import:euribor -w @olhovivo/db",
+    "import:imi": "npm run import:imi -w @olhovivo/db",
     "import:all": "npm run import:all -w @olhovivo/db"
   },
   "devDependencies": {

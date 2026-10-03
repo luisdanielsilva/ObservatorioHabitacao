@@ -10,13 +10,15 @@ import {
 import { listings } from "./listings";
 
 /**
- * Users. Sessions, OAuth accounts and magic-link tokens are added with the auth library
- * (WBS 6.1); this table only holds what the rest of the schema depends on.
+ * Users. The id, name, email, emailVerified and image columns follow the Auth.js adapter
+ * schema (WBS 6.1); role, plan and locale are OlhoVivo's own.
  */
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name"),
+  emailVerified: integer("email_verified", { mode: "timestamp_ms" }),
+  image: text("image"),
   role: text("role", { enum: ["user", "admin"] })
     .notNull()
     .default("user"),
@@ -105,4 +107,53 @@ export const alertsSent = sqliteTable(
       .default(sql`(datetime('now'))`),
   },
   (t) => [uniqueIndex("alerts_sent_once_idx").on(t.savedSearchId, t.listingId, t.channel)],
+);
+
+// ── Auth.js adapter tables ──────────────────────────────────────────────────
+
+/** OAuth accounts linked to a user (e.g. Google). Property names follow Auth.js. */
+export const accounts = sqliteTable(
+  "accounts",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").$type<"oauth" | "oidc" | "email" | "webauthn">().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.provider, t.providerAccountId] }),
+    index("accounts_user_idx").on(t.userId),
+  ],
+);
+
+export const sessions = sqliteTable(
+  "sessions",
+  {
+    sessionToken: text("session_token").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId)],
+);
+
+/** One-time tokens for email magic links. */
+export const verificationTokens = sqliteTable(
+  "verification_tokens",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );

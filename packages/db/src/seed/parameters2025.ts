@@ -1,8 +1,8 @@
 import type { ParameterSet } from "@olhovivo/engine";
 
 /**
- * Mainland 2025 parameters. NOT VERIFIED by a tax advisor (WBS 10.6): tax figures are
- * from public 2025 sources as understood by the developers; fees and LTV limits are
+ * Mainland 2025 parameters. NOT VERIFIED by a tax advisor (WBS 10.6). IMT tables checked against
+ * CIMT art. 17 as in force until December 2025 (Portal das Finanças, previous versions); fees and LTV limits are
  * typical values. Kept separate from the engine's test fixture on purpose, so editing
  * seed data never changes test expectations.
  */
@@ -24,7 +24,8 @@ export const parameters2025: ParameterSet = {
       { upTo: 142_618, rate: 0.02, deduction: 1_042.61 },
       { upTo: 194_458, rate: 0.05, deduction: 5_321.15 },
       { upTo: 324_058, rate: 0.07, deduction: 9_210.31 },
-      { upTo: 648_022, rate: 0.08, deduction: 12_450.89 },
+      // Other housing: the 8 % bracket ends at 621 501 (own permanent home: 648 022).
+      { upTo: 621_501, rate: 0.08, deduction: 12_450.89 },
       { upTo: 1_128_287, rate: 0.06, deduction: 0 },
       { upTo: null, rate: 0.075, deduction: 0 },
     ],

@@ -20,7 +20,10 @@
     "import:caop": "tsx src/scripts/import.ts caop",
     "import:ine": "tsx src/scripts/import.ts ine",
     "import:euribor": "tsx src/scripts/import.ts euribor",
+    "import:imi": "tsx src/scripts/import.ts imi",
+    "import:rnal": "tsx src/scripts/import.ts rnal",
     "import:all": "tsx src/scripts/import.ts all",
+    "params:2026": "tsx src/scripts/parameters.ts",
     "db:backup": "tsx src/scripts/backup.ts"
   },
   "devDependencies": {

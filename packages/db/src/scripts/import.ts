@@ -1,5 +1,5 @@
 /**
- * Imports public data: `tsx src/scripts/import.ts <caop|ine|euribor|all>`.
+ * Imports public data: `tsx src/scripts/import.ts <caop|ine|imi|rnal|euribor|all>`.
  * Each run is recorded in ingestion_jobs. Safe to re-run.
  */
 import { mkdirSync } from "node:fs";
@@ -7,7 +7,9 @@ import { dirname, join } from "node:path";
 import { createDb, defaultDatabasePath, migrateDb } from "../client";
 import { downloadCaop, importCaopFeatures, readCaopGeoPackage } from "../import/caop";
 import { importEuribor } from "../import/euribor";
+import { importImi } from "../import/imi";
 import { importIne } from "../import/ine";
+import { importRnal } from "../import/rnal";
 import { runImport } from "../import/run";
 
 const target = process.argv[2] ?? "all";
@@ -29,16 +31,23 @@ const tasks: Record<string, () => Promise<void>> = {
   ine: async () => {
     console.log("INE", await runImport(db, "ine", "ine-prices", () => importIne(db)));
   },
+  imi: async () => {
+    console.log("IMI", await runImport(db, "imi", "imi-rates", () => importImi(db)));
+  },
+  rnal: async () => {
+    const out = join(dirname(dbPath), "raw", "rnal");
+    console.log("RNAL", await runImport(db, "rnal", "rnal-counts", () => importRnal(db, out)));
+  },
   euribor: async () => {
     console.log("Euribor", await runImport(db, "ecb", "euribor", () => importEuribor(db)));
   },
 };
 
-const order = target === "all" ? ["caop", "ine", "euribor"] : [target];
+const order = target === "all" ? ["caop", "ine", "imi", "euribor"] : [target];
 for (const name of order) {
   const task = tasks[name];
   if (!task) {
-    console.error(`Unknown import "${name}". Use: caop, ine, euribor or all.`);
+    console.error(`Unknown import "${name}". Use: caop, ine, imi, rnal, euribor or all.`);
     process.exit(1);
   }
   await task();

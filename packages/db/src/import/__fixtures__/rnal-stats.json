@@ -1,0 +1,10 @@
+{
+  "features": [
+    { "attributes": { "DTMNFR": "110658", "Modalidade": "Apartamento", "n": 120, "guests": 480 } },
+    { "attributes": { "DTMNFR": "110658", "Modalidade": "Quartos", "n": 5, "guests": 10 } },
+    { "attributes": { "DTMNFR": "110601", "Modalidade": "Apartamento", "n": 30, "guests": 100 } },
+    { "attributes": { "DTMNFR": "030312", "Modalidade": "Moradia", "n": 2, "guests": null } },
+    { "attributes": { "DTMNFR": null, "Modalidade": "Apartamento", "n": 1, "guests": 2 } }
+  ],
+  "exceededTransferLimit": false
+}

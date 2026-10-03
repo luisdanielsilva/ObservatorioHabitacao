@@ -23,6 +23,7 @@ export const parameterSetSchema: z.ZodType<ParameterSet> = z.object({
     secondary: imtTable,
     otherUrbanRate: rate,
     rusticRate: rate,
+    nonResidentHousingRate: rate.optional(),
   }),
   stampDuty: z.object({ purchaseRate: rate, loanRate: rate, interestRate: rate }),
   transactionFees: z.object({
