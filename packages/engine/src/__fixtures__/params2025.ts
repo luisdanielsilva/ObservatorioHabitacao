@@ -34,7 +34,11 @@ export const params2025: ParameterSet = {
   },
   stampDuty: { purchaseRate: 0.008, loanRate: 0.006, interestRate: 0.04 },
   transactionFees: { deedAndRegistry: 375, deedAndRegistryWithMortgage: 700, bankFees: 800 },
-  financing: { maxLtv: { hpp: 0.9, other: 0.8 }, earlyRepaymentFeeRate: 0.005 },
+  financing: {
+    maxLtv: { hpp: 0.9, other: 0.8 },
+    earlyRepaymentFeeRate: 0.005,
+    typicalSpread: 0.01,
+  },
   vatRate: 0.23,
   rentalIncome: {
     autonomousRate: 0.25,

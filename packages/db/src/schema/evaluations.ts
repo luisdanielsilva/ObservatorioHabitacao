@@ -8,6 +8,7 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+import { analyses } from "./analyses";
 import { areas } from "./areas";
 import { listings } from "./listings";
 import { parameterSets } from "./parameters";
@@ -65,6 +66,9 @@ export const scenarios = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     listingId: integer("listing_id").references(() => listings.id, { onDelete: "set null" }),
+    analysisId: integer("analysis_id").references(() => analyses.id, { onDelete: "set null" }),
+    /** Set when the user shares the scenario; gives access to its public page. */
+    shareToken: text("share_token").unique(),
     duplicatedFromId: integer("duplicated_from_id").references(
       (): AnySQLiteColumn => scenarios.id,
       { onDelete: "set null" },

@@ -33,6 +33,7 @@ export const parameterSetSchema: z.ZodType<ParameterSet> = z.object({
   financing: z.object({
     maxLtv: z.object({ hpp: rate, other: rate }),
     earlyRepaymentFeeRate: rate,
+    typicalSpread: rate,
   }),
   vatRate: rate,
   rentalIncome: z.object({

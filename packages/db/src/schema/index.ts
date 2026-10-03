@@ -1,3 +1,4 @@
+export * from "./analyses";
 export * from "./areas";
 export * from "./evaluations";
 export * from "./listings";

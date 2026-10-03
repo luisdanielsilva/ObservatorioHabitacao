@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@olhovivo/engine": "*",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.3",
     "zod": "^4.6.5"

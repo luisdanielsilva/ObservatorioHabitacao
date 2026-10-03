@@ -71,3 +71,33 @@ export const events = sqliteTable(
   },
   (t) => [index("events_type_idx").on(t.type, t.createdAt)],
 );
+
+/** Key-value cache with expiry (replaces Redis). Expired rows are ignored and purged. */
+export const cache = sqliteTable("cache", {
+  key: text("key").primaryKey(),
+  value: text("value", { mode: "json" }).notNull(),
+  expiresAt: integer("expires_at").notNull(),
+});
+
+/** Background job queue, polled by workers (replaces a Redis queue). */
+export const jobs = sqliteTable(
+  "jobs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    type: text("type").notNull(),
+    payload: text("payload", { mode: "json" }).$type<Record<string, unknown>>(),
+    status: text("status", { enum: ["queued", "running", "succeeded", "failed"] })
+      .notNull()
+      .default("queued"),
+    /** Unix seconds; the job is not picked up before this time. */
+    runAt: integer("run_at").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    maxAttempts: integer("max_attempts").notNull().default(3),
+    lockedAt: integer("locked_at"),
+    lastError: text("last_error"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => [index("jobs_pick_idx").on(t.status, t.runAt)],
+);

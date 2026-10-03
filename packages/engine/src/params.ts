@@ -64,6 +64,8 @@ export interface ParameterSet {
     maxLtv: { hpp: number; other: number };
     /** Early repayment fee as a fraction of the outstanding balance. */
     earlyRepaymentFeeRate: number;
+    /** Typical bank spread over Euribor, used as the default interest rate with Euribor. */
+    typicalSpread: number;
   };
 
   /** Standard VAT rate, applied to services such as the agency commission. */
