@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the OlhoVivo database backup nightly
+
+[Timer]
+# Adjust so it finishes before the Hetzner backup window.
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

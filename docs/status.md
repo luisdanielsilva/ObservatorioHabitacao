@@ -1,6 +1,6 @@
 # OlhoVivo — Status
 
-Updated 2026-10-03, against [product-spec.md](product-spec.md) version 2.
+Updated 2026-10-03 (end of day), against [product-spec.md](product-spec.md) version 2.
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
@@ -27,38 +27,38 @@ project owner or an outside expert
 
 ## Phase 1 — MVP
 
-| WBS         | Item                                   | Status | Notes                                                                           |
-| ----------- | -------------------------------------- | ------ | ------------------------------------------------------------------------------- |
-| 4.1         | Database schema, location hierarchy    | 🟡     | 22 tables done; to add: `analyses`, `area_boundaries` + R*Tree, `cache`, `jobs` |
-| 4.2.1       | INE sale and rent medians              | ⬜     | Seed has synthetic placeholders for 4 municipalities                            |
-| 4.2.2       | CAOP boundaries                        | ⬜     | Seed has all 20 districts/regions, 4 municipalities, 22 parishes                |
-| 4.2.3       | Tax and financing sources              | 🟡 👤  | 2025 mainland parameters seeded, unverified; Euribor/spreads missing; no 2026   |
-| 4.3.1–4.3.2 | Import scripts, cleaning               | ⬜     |                                                                                 |
-| 4.3.3       | Address geocoding, freguesia lookup    | ⬜     | Geocoder to choose (needs an allowed, ideally free service)                     |
-| 4.3.4       | Link reader                            | ⬜ 👤  | Needs the allow-list of permitted sites                                         |
-| 4.3.5       | Scheduling and failure handling        | 🟡     | `ingestion_jobs` table exists; no runner                                        |
-| 4.4.1–4.4.3 | Median prices/rents, history           | 🟡     | Tables and queries done; real data comes with the INE import                    |
-| 4.5.1       | IMT, Imposto do Selo, notary/registry  | ✅     | In the parameter set, versioned; values unverified                              |
-| 4.5.2       | IMI per municipality                   | 🟡     | Table and query done; 4 placeholder rates                                       |
-| 4.5.3       | Rental, AL and capital gains tax rules | ✅     | In the parameter set; values unverified                                         |
-| 4.5.4       | Euribor, spreads, LTV limits           | 🟡     | LTV and early repayment fee done; Euribor and spreads to add                    |
-| 4.5.5       | Yearly update process                  | 🟡     | Draft → active versioning done; no admin screen yet                             |
-| 5.3.1–5.3.5 | Four scenarios                         | ✅     | Engine takes user-entered market values, as v2 requires                         |
-| 5.3.6       | Comparison and recommended strategy    | ✅     | Goals: profit, IRR, yield, lowest capital                                       |
-| 5.4         | Opportunity score                      | ⬜     | Small: asking price vs. user's market value                                     |
-| 5.5         | Listing assessment flow                | ⬜     |                                                                                 |
-| 6.1         | Auth (Auth.js)                         | ⬜     | Phase 1 in the table, Phase 2 in the text; to confirm                           |
-| 6.2.2       | Link analysis endpoint                 | ⬜     |                                                                                 |
-| 6.2.3       | Prices and rents endpoints             | 🟡     | Queries done; no endpoints                                                      |
-| 6.2.5       | Scenario endpoints                     | 🟡     | Engine done; server endpoints come with saving (Phase 2)                        |
-| 7.1.1       | Next.js, TypeScript, Tailwind          | ✅     | Plus shadcn/ui, next-intl, next-themes, Recharts installed (not committed)      |
-| 7.1.2       | i18n PT/EN                             | ⬜     |                                                                                 |
-| 7.1.3       | Layout, header, footer, theming        | ⬜     |                                                                                 |
-| 7.2.1       | Home page                              | ⬜     | Placeholder only                                                                |
-| 7.2.4–7.2.5 | Calculator and comparison view         | ⬜     | Next up                                                                         |
-| 7.2.7       | Avaliar anúncio                        | ⬜     |                                                                                 |
-| 7.2.8       | Preços pages                           | ⬜     |                                                                                 |
-| 11.3        | Engine vs. reference spreadsheet       | 🟡 👤  | 59 tests pass (45 engine, 14 database); spreadsheet pending                     |
+| WBS          | Item                                   | Status | Notes                                                                                                    |
+| ------------ | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| 4.1          | Database schema, location hierarchy    | ✅     | Adds `analyses`, `area_boundaries` + R*Tree, `cache`, `jobs`, `reference_rates`                          |
+| 4.2.1        | INE sale and rent medians              | ✅     | Sale €/m² quarterly 2019–2026 (306 municipalities, 356 parishes); rent €/m² yearly 2020–2025 (255 / 183) |
+| 4.2.2        | CAOP boundaries                        | ✅     | CAOP 2025: 308 municipalities, 3 259 parishes, simplified boundaries                                     |
+| 4.2.3        | Tax and financing sources              | 🟡 👤  | Euribor imported monthly from the ECB; 2025 tax parameters still unverified; no 2026 set                 |
+| 4.3.1–4.3.2  | Import scripts, cleaning               | ✅     | `npm run import:all`; idempotent; logged in `ingestion_jobs`                                             |
+| 4.3.3        | Address geocoding, freguesia lookup    | ✅     | Nominatim (OSM) + CAOP point-in-polygon; name match fallback                                             |
+| 4.3.4        | Link reader                            | 🟡 👤  | Built (schema.org / Open Graph extraction, allow-list, safe fetch); off until the allow-list is decided  |
+| 4.3.5        | Scheduling and failure handling        | 🟡     | Weekly systemd timer prepared (`deploy/`); not installed yet                                             |
+| 4.4.1–4.4.3  | Median prices/rents, history           | ✅     | District figures derived as the median of municipal medians                                              |
+| 4.5.1        | IMT, Imposto do Selo, notary/registry  | ✅     | Versioned parameter set; values unverified                                                               |
+| 4.5.2        | IMI per municipality                   | 🟡     | Only 4 placeholder rates; the calculator falls back to 0.3 % (editable)                                  |
+| 4.5.3        | Rental, AL and capital gains tax rules | ✅     | Values unverified                                                                                        |
+| 4.5.4        | Euribor, spreads, LTV limits           | ✅     | Default loan rate = 12-month Euribor + typical spread                                                    |
+| 4.5.5        | Yearly update process                  | 🟡     | Draft → active versioning done; no admin screen yet                                                      |
+| 5.3.1–5.3.6  | Scenarios, comparison                  | ✅     | User-entered market values; IRR fixed for long series                                                    |
+| 5.4          | Opportunity score                      | ✅     | Asking price vs. user's market value, ±5 % band                                                          |
+| 5.5          | Listing assessment flow                | ✅     | Link or manual entry → location → INE reference → four scenarios                                         |
+| 6.1          | Auth (Auth.js)                         | ⬜     | Waiting for the decision on MVP vs. Phase 2                                                              |
+| 6.2.2        | Link analysis endpoint                 | ✅     | `POST /api/analyze`, `GET /api/geocode`, `GET /api/reference`                                            |
+| 6.2.3        | Prices and rents endpoints             | ✅     | `GET /api/prices/[...path]`, `GET /api/areas`                                                            |
+| 6.2.5        | Scenario endpoints                     | 🟡     | Calculation runs in the browser; server endpoints come with saving (Phase 2)                             |
+| 7.1          | Foundations: i18n, layout, theming     | ✅     | PT/EN, dark default + light, header/footer, 404                                                          |
+| 7.2.1        | Home page                              | ✅     |                                                                                                          |
+| 7.2.4–7.2.5  | Calculator and comparison view         | ✅     | Table, goal selector, cash-flow chart, details and warnings                                              |
+| 7.2.7        | Avaliar anúncio                        | ✅     | `/avaliar`                                                                                               |
+| 7.2.8        | Preços pages                           | ✅     | Overview + district/municipality/parish pages, ISR, sitemap, JSON-LD                                     |
+| 7.2.9        | About, contacts, legal pages           | 🟡 👤  | Draft texts; need legal review                                                                           |
+| 7.4.1        | Responsiveness, accessibility          | 🟡     | No horizontal scroll at 375 px; labels, help texts, keyboard focus; no full WCAG audit yet               |
+| 11.3         | Engine vs. reference spreadsheet       | 🟡 👤  | 112 tests pass (49 engine, 51 db, 12 web); spreadsheet pending                                           |
+| 3.2.3, 3.4.2 | Deployment, backups                    | 🟡 👤  | systemd/Nginx/deploy/backup files ready in `deploy/`; installing needs sudo                              |
 
 ## Done ahead of its phase
 
@@ -82,10 +82,9 @@ project owner or an outside expert
 
 ## Next steps (proposed)
 
-1. Commit the frontend setup; add the schema changes (`analyses`, boundaries + R*Tree,
-   `cache`, `jobs`, Euribor/spreads in the parameter set).
-2. Web foundations: i18n, layout, theme.
-3. Calculator with user-entered values and the comparison view, using seed data.
-4. Preços pages.
-5. INE and CAOP imports (replace synthetic data).
-6. Link reader, once the allow-list is decided.
+1. Decisions from the project owner: link-reader allow-list, login in the MVP or Phase 2,
+   domain, tax review.
+2. Install the services (`docs/deployment.md`) to put the site online.
+3. Real IMI rates per municipality (Portal das Finanças) and the 2026 tax parameters.
+4. Phase 2: accounts (Auth.js), saved scenarios, PDF reports, sharing, sensitivity sliders,
+   admin back-office.

@@ -1,0 +1,22 @@
+# Next.js app (WBS 3.2.3). Install: see docs/deployment.md.
+[Unit]
+Description=OlhoVivo web app (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/var/www/olhovivo/apps/web
+EnvironmentFile=/etc/olhovivo.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npx next start --hostname 127.0.0.1 --port 3200
+Restart=always
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/olhovivo/data
+
+[Install]
+WantedBy=multi-user.target

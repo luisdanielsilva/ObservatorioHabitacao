@@ -19,4 +19,5 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run db:reset # the build reads the database
       - run: npm run build

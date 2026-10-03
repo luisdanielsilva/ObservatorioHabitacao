@@ -1,0 +1,13 @@
+# Data imports: INE prices and rents, CAOP boundaries, Euribor (WBS 4.3.5).
+[Unit]
+Description=OlhoVivo data imports
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/var/www/olhovivo
+EnvironmentFile=/etc/olhovivo.env
+ExecStart=/usr/bin/npm run import:all -w @olhovivo/db
+# Imports are heavy for this VPS; keep the web app responsive.
+Nice=10
+IOSchedulingClass=idle
