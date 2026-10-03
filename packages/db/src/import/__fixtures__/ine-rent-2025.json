@@ -1,0 +1,89 @@
+[
+  {
+    "IndicadorCod": "0014698",
+    "IndicadorDsg": "Valor mediano das rendas de novos contratos de arrendamento de alojamentos familiares (Metodologia 2026 - €/ m²) por Localização geográfica (NUTS - 2024); Anual - INE, Estatísticas de Rendas da Habitação ao nível local",
+    "MetaInfUrl": "https://www.ine.pt/bddXplorer/htdocs/minfo.jsp?var_cd=0014698&lingua=PT",
+    "DataExtracao": "2026-10-03T12:46:20.842+01:00",
+    "DataUltimoAtualizacao": "2026-09-29",
+    "UltimoPref": "2025",
+    "Dados": {
+      "2025": [
+        {
+          "geocod": "20",
+          "geodsg": "Região Autónoma dos Açores",
+          "ind_string": "5,94",
+          "valor": "5.94"
+        },
+        {
+          "geocod": "PT",
+          "geodsg": "Portugal",
+          "ind_string": "9,29",
+          "valor": "9.29"
+        },
+        {
+          "geocod": "1",
+          "geodsg": "Continente",
+          "ind_string": "9,32",
+          "valor": "9.32"
+        },
+        {
+          "geocod": "30",
+          "geodsg": "Região Autónoma da Madeira",
+          "ind_string": "11,33",
+          "valor": "11.33"
+        },
+        {
+          "geocod": "1A0",
+          "geodsg": "Grande Lisboa",
+          "ind_string": "14,19",
+          "valor": "14.19"
+        },
+        {
+          "geocod": "11A131202",
+          "geodsg": "Bonfim",
+          "ind_string": "14,34",
+          "valor": "14.34"
+        },
+        {
+          "geocod": "11A131217",
+          "geodsg": "União das freguesias de Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória",
+          "ind_string": "15,04",
+          "valor": "15.04"
+        },
+        {
+          "geocod": "1A0110656",
+          "geodsg": "Arroios",
+          "ind_string": "16,36",
+          "valor": "16.36"
+        },
+        {
+          "geocod": "1A01106",
+          "geodsg": "Lisboa",
+          "ind_string": "16,88",
+          "valor": "16.88"
+        },
+        {
+          "geocod": "1120310",
+          "geodsg": "Terras de Bouro",
+          "sinal_conv": "-",
+          "sinal_conv_desc": "Dado nulo ou não aplicável",
+          "ind_string": "-"
+        },
+        {
+          "geocod": "11A010402",
+          "geodsg": "Alvarenga",
+          "sinal_conv": "-",
+          "sinal_conv_desc": "Dado nulo ou não aplicável",
+          "ind_string": "-"
+        }
+      ]
+    },
+    "Sucesso": {
+      "Verdadeiro": [
+        {
+          "Msg": "OK"
+        }
+      ]
+    }
+  }
+]

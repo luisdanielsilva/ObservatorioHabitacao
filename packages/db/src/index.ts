@@ -4,3 +4,4 @@ export { parameterSetSchema } from "./parameterSchema";
 export * from "./queries";
 export * from "./schema";
 export * from "./store";
+export * from "./areaNames";

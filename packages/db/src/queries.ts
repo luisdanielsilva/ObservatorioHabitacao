@@ -115,12 +115,13 @@ export function getMarketSeries(
   db: Db,
   areaId: number,
   metric: MarketMetric,
-): { period: string; value: number; synthetic: boolean }[] {
+): { period: string; value: number; synthetic: boolean; source: string }[] {
   return db
     .select({
       period: marketStats.period,
       value: marketStats.value,
       synthetic: marketStats.synthetic,
+      source: marketStats.source,
     })
     .from(marketStats)
     .where(and(eq(marketStats.areaId, areaId), eq(marketStats.metric, metric)))

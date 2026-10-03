@@ -1,0 +1,121 @@
+[
+  {
+    "IndicadorCod": "0014698",
+    "IndicadorNome": "Valor mediano das rendas de novos contratos de arrendamento de alojamentos familiares (Metodologia 2026 - €/ m²) por Localização geográfica (NUTS - 2024); Anual - INE, Estatísticas de Rendas da Habitação ao nível local",
+    "Periodic": "Anual",
+    "PrimeiroPeriodo": "2020",
+    "UltimoPeriodo": "2025",
+    "UnidadeMedida": "Euro/ Metro quadrado (€/ m²)",
+    "Potencia10": "0",
+    "PrecisaoDecimal": "2",
+    "Lingua": "PT",
+    "DataUltimaAtualizacao": "2026-09-29",
+    "DataExtracao": "2026-10-03T12:46:06.140+01:00",
+    "Dimensoes": {
+      "Descricao_Dim": [
+        {
+          "dim_num": "1",
+          "abrv": "Período de referência dos dados",
+          "versao": "XXXXX",
+          "nota_dsg": "A série de dados de 2020 a 2025 foi revista a 29 de setembro de 2026, na sequência de uma correção que resultou em ligeiras alterações dos valores em algumas sub-regiões NUTS III."
+        },
+        {
+          "dim_num": "2",
+          "abrv": "Localização geográfica (NUTS - 2024)",
+          "versao": "05433"
+        }
+      ],
+      "Categoria_Dim": [
+        {
+          "Dim_Num1_S7A2020": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2020",
+              "categ_cod": "S7A2020",
+              "categ_dsg": "2020",
+              "categ_ord": "20200101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num1_S7A2021": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2021",
+              "categ_cod": "S7A2021",
+              "categ_dsg": "2021",
+              "categ_ord": "20210101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num1_S7A2022": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2022",
+              "categ_cod": "S7A2022",
+              "categ_dsg": "2022",
+              "categ_ord": "20220101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num1_S7A2023": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2023",
+              "categ_cod": "S7A2023",
+              "categ_dsg": "2023",
+              "categ_ord": "20230101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num1_S7A2024": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2024",
+              "categ_cod": "S7A2024",
+              "categ_dsg": "2024",
+              "categ_ord": "20240101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num1_S7A2025": [
+            {
+              "dim_num": "1",
+              "cat_id": "S7A2025",
+              "categ_cod": "S7A2025",
+              "categ_dsg": "2025",
+              "categ_ord": "20250101",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num2_PT": [
+            {
+              "dim_num": "2",
+              "cat_id": "PT",
+              "categ_cod": "PT",
+              "categ_dsg": "Portugal",
+              "categ_ord": "1",
+              "categ_nivel": "1"
+            }
+          ],
+          "Dim_Num2_1A01106": [
+            {
+              "dim_num": "2",
+              "cat_id": "1A01106",
+              "categ_cod": "1A01106",
+              "categ_dsg": "Lisboa",
+              "categ_ord": "407",
+              "categ_nivel": "5"
+            }
+          ]
+        }
+      ]
+    },
+    "Sucesso": {
+      "Verdadeiro": [
+        {
+          "Msg": "OK"
+        }
+      ]
+    }
+  }
+]

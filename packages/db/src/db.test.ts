@@ -53,7 +53,12 @@ describe("seed", () => {
   it("marks market data as synthetic and ends at the latest value", () => {
     const series = getMarketSeries(db, areaId("porto/porto"), "rent_eur_m2_median");
     expect(series).toHaveLength(12);
-    expect(series.at(-1)).toEqual({ period: "2026-Q2", value: 15.5, synthetic: true });
+    expect(series.at(-1)).toEqual({
+      period: "2026-Q2",
+      value: 15.5,
+      synthetic: true,
+      source: "seed",
+    });
     expect(series.every((p) => p.synthetic)).toBe(true);
   });
 

@@ -231,6 +231,8 @@ export interface MarketReferenceValue {
   /** Change versus the same period a year earlier, when available. */
   yearOnYear: number | null;
   synthetic: boolean;
+  /** "ine", "ine_derived" (district median of municipal medians) or "seed". */
+  source: string;
   areaId: number;
   areaName: string;
   level: Area["level"];
@@ -249,13 +251,16 @@ export function getMarketReference(
     const series = getMarketSeries(db, area.id, metric);
     const latest = series.at(-1);
     if (!latest) continue;
+    // Periods are "2025" (year), "2025-Q4" (quarter) or "2025-08" (month).
     const [year, rest] = latest.period.split("-");
-    const previous = series.find((p) => p.period === `${Number(year) - 1}-${rest}`);
+    const previousLabel = rest ? `${Number(year) - 1}-${rest}` : String(Number(year) - 1);
+    const previous = series.find((p) => p.period === previousLabel);
     return {
       value: latest.value,
       period: latest.period,
       yearOnYear: previous ? latest.value / previous.value - 1 : null,
       synthetic: latest.synthetic,
+      source: latest.source,
       areaId: area.id,
       areaName: area.name,
       level: area.level,
