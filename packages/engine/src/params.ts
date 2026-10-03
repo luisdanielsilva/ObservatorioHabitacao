@@ -37,13 +37,18 @@ export interface ParameterSet {
     secondary: ImtBracket[];
     otherUrbanRate: number;
     rusticRate: number;
+    /**
+     * Flat rate on housing bought by non-residents (CIMT art. 17 n.º 10, in force since
+     * 2026-05-20). Absent for years without the rule.
+     */
+    nonResidentHousingRate?: number;
   };
 
   /** Imposto do Selo (TGIS). */
   stampDuty: {
     /** On the acquisition value (verba 1.1). */
     purchaseRate: number;
-    /** On the loan amount, loans of 5 years or more (verba 17.1.4). */
+    /** On the loan amount, loans of 5 years or more (verba 17.1.3). */
     loanRate: number;
     /** On interest charged by the bank (verba 17.3.1). */
     interestRate: number;

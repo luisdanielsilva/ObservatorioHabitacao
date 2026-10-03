@@ -22,13 +22,14 @@ proceeds at the assignment month.
 
 ## Acquisition costs
 
-| Cost                       | Formula                                                                                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IMT                        | max(price, VPT) × rate − deduction, using the bracket for the property use (own home / other housing); flat rate for other urban and rustic property |
-| Imposto do Selo (purchase) | max(price, VPT) × 0.8 %                                                                                                                              |
-| Imposto do Selo (loan)     | loan amount × 0.6 %                                                                                                                                  |
-| Deed and registry          | typical value from parameters, or user's own figure                                                                                                  |
-| Bank fees                  | typical value from parameters, only with a loan                                                                                                      |
+| Cost                       | Formula                                                                                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IMT                        | max(price, VPT) × rate − deduction, using the bracket for the property use (own home / other housing); flat rate for other urban and rustic property              |
+| IMT (non-resident)         | From 2026-05-20, housing bought by a non-resident: max(price, VPT) × 7.5 % flat (CIMT art. 17 n.º 10). The refund conditions are shown as a warning, not modelled |
+| Imposto do Selo (purchase) | max(price, VPT) × 0.8 %                                                                                                                                           |
+| Imposto do Selo (loan)     | loan amount × 0.6 %                                                                                                                                               |
+| Deed and registry          | typical value from parameters, or user's own figure                                                                                                               |
+| Bank fees                  | typical value from parameters, only with a loan                                                                                                                   |
 
 ## Financing
 
@@ -102,7 +103,7 @@ interest rate).
 
 ## Not modelled yet
 
-- IMT and stamp duty exemption for young buyers (IMT Jovem) and the reinvestment exemption
+- The young buyers' own-home IMT table (CIMT art. 17 n.º 1 b)) and the stamp duty exemption for young buyers (IMT Jovem) and the reinvestment exemption
   for own permanent home.
 - Monetary correction coefficients for gains on property held more than 24 months.
 - Adicional ao IMI (AIMI), social security on category B income, purchases through a company.
@@ -111,8 +112,10 @@ interest rate).
 
 ## To verify with a tax advisor
 
-1. 2026 IMT tables and all rates in the parameter set.
-2. Tax treatment of cessão de posição contratual: inclusion rate and when IMT is due.
+1. The draft 2026 parameter set (read from the Portal das Finanças consolidated codes) and
+   the corrected 2025 set (secondary-housing 8 % IMT bracket ends at 621 501 €).
+2. Cessão de posição contratual: the 50 % inclusion is confirmed by CIRS art. 43 n.º 2 b) with
+   art. 10 n.º 1 d); when IMT is due remains open.
 3. Which costs are deductible from category F rental income.
 4. AL coefficient in containment zones and VAT rules for AL.
 5. Typical deed, registry and bank fees.

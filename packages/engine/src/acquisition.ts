@@ -10,12 +10,21 @@ export function roundCents(value: number): number {
  *
  * The taxable value is the higher of the price and the VPT (valor patrimonial
  * tributário). Housing uses the progressive table for its use; other urban and rustic
- * property pay a flat rate.
+ * property pay a flat rate. Non-resident buyers of housing pay the flat non-resident rate
+ * where the parameter set has one.
  */
-export function imt(price: number, use: PropertyUse, params: ParameterSet, vpt = 0): number {
+export function imt(
+  price: number,
+  use: PropertyUse,
+  params: ParameterSet,
+  vpt = 0,
+  nonResident = false,
+): number {
   const value = Math.max(price, vpt);
   if (use === "otherUrban") return roundCents(value * params.imt.otherUrbanRate);
   if (use === "rustic") return roundCents(value * params.imt.rusticRate);
+  const nonResidentRate = params.imt.nonResidentHousingRate;
+  if (nonResident && nonResidentRate !== undefined) return roundCents(value * nonResidentRate);
 
   const bracket = params.imt[use].find((b) => b.upTo === null || value <= b.upTo);
   if (!bracket) throw new Error(`IMT table for "${use}" has no open-ended bracket`);
@@ -33,6 +42,8 @@ export interface AcquisitionInput {
   bankFees?: number;
   /** Anything else the buyer pays: lawyer, inspection, intermediary. */
   otherCosts?: number;
+  /** The buyer is not resident in Portugal (affects IMT on housing from 2026). */
+  nonResident?: boolean;
 }
 
 export interface AcquisitionCosts {
@@ -52,7 +63,7 @@ export function acquisitionCosts(input: AcquisitionInput, params: ParameterSet):
   const hasLoan = input.loanAmount > 0;
   const taxableValue = Math.max(input.price, input.vpt ?? 0);
 
-  const imtDue = imt(input.price, input.use, params, input.vpt);
+  const imtDue = imt(input.price, input.use, params, input.vpt, input.nonResident);
   const stampDutyPurchase = roundCents(taxableValue * params.stampDuty.purchaseRate);
   const stampDutyLoan = roundCents(input.loanAmount * params.stampDuty.loanRate);
   const deedAndRegistry =

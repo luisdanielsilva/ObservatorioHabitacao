@@ -37,6 +37,8 @@ export interface PropertyInputs {
 
   /** The investor's marginal IRS rate, used for capital gains and category B income. */
   marginalTaxRate: number;
+  /** The buyer is not resident in Portugal (non-resident IMT rate where it applies). */
+  buyerNonResident?: boolean;
 
   condominiumMonthly: number;
   insuranceAnnual: number;
@@ -75,7 +77,8 @@ export type Warning =
   | "al_status_unknown"
   | "al_vat_threshold_exceeded"
   | "assignment_above_market"
-  | "assignment_upfront_imt";
+  | "assignment_upfront_imt"
+  | "imt_non_resident";
 
 export type ScenarioKind = "flip" | "longTermRental" | "shortTermRental" | "contractAssignment";
 
@@ -176,9 +179,17 @@ export function simulate(spec: SimulationSpec): Simulation {
       deedAndRegistry: input.deedAndRegistry,
       bankFees: input.bankFees,
       otherCosts: input.otherAcquisitionCosts,
+      nonResident: input.buyerNonResident,
     },
     params,
   );
+  if (
+    input.buyerNonResident &&
+    params.imt.nonResidentHousingRate !== undefined &&
+    (input.propertyUse === "hpp" || input.propertyUse === "secondary")
+  ) {
+    warnings.push("imt_non_resident");
+  }
   const upfrontExtra = spec.upfrontExtra ?? 0;
   const totalInvestment =
     input.purchasePrice + acquisition.total + input.renovationBudget + upfrontExtra;

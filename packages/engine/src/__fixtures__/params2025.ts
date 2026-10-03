@@ -25,7 +25,8 @@ export const params2025: ParameterSet = {
       { upTo: 142_618, rate: 0.02, deduction: 1_042.61 },
       { upTo: 194_458, rate: 0.05, deduction: 5_321.15 },
       { upTo: 324_058, rate: 0.07, deduction: 9_210.31 },
-      { upTo: 648_022, rate: 0.08, deduction: 12_450.89 },
+      // Other housing: the 8 % bracket ends lower than for own permanent home (CIMT art. 17).
+      { upTo: 621_501, rate: 0.08, deduction: 12_450.89 },
       { upTo: 1_128_287, rate: 0.06, deduction: 0 },
       { upTo: null, rate: 0.075, deduction: 0 },
     ],

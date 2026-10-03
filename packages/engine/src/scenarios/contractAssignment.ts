@@ -33,6 +33,7 @@ export interface ContractAssignmentInputs {
   propertyUse: PropertyUse;
   vpt?: number;
   marginalTaxRate: number;
+  buyerNonResident?: boolean;
 }
 
 /** A starting point for the assignment price: deposit plus a share of the expected uplift. */
@@ -58,7 +59,7 @@ export function runContractAssignment(
   if (input.upfrontTransferTaxes) {
     warnings.push("assignment_upfront_imt");
     upfrontTaxes =
-      imt(input.cpcvPrice, input.propertyUse, params, input.vpt) +
+      imt(input.cpcvPrice, input.propertyUse, params, input.vpt, input.buyerNonResident) +
       roundCents(Math.max(input.cpcvPrice, input.vpt ?? 0) * params.stampDuty.purchaseRate);
   }
 

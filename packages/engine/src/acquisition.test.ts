@@ -13,6 +13,11 @@ describe("imt", () => {
     expect(imt(100_000, "hpp", params)).toBe(0);
   });
 
+  it("ends the 8 % bracket at 621 501 € for other housing but 648 022 € for own home", () => {
+    expect(imt(630_000, "secondary", params)).toBe(37_800); // flat 6 %
+    expect(imt(630_000, "hpp", params)).toBe(36_906.5); // 8 % − 13 493.50
+  });
+
   it("applies single rates to the top brackets", () => {
     expect(imt(700_000, "secondary", params)).toBe(42_000);
     expect(imt(1_200_000, "hpp", params)).toBe(90_000);
@@ -26,6 +31,16 @@ describe("imt", () => {
         expect(imt(edge, use, params)).toBeCloseTo(imt(edge + 0.01, use, params), 0);
       }
     }
+  });
+
+  it("applies the flat non-resident rate to housing when the year has one", () => {
+    const with2026Rule = { ...params, imt: { ...params.imt, nonResidentHousingRate: 0.075 } };
+    expect(imt(250_000, "secondary", with2026Rule, 0, true)).toBe(18_750);
+    expect(imt(250_000, "hpp", with2026Rule, 0, true)).toBe(18_750);
+    expect(imt(250_000, "secondary", with2026Rule, 0, false)).toBe(8_289.69);
+    expect(imt(200_000, "otherUrban", with2026Rule, 0, true)).toBe(13_000);
+    // Years without the rule ignore residency.
+    expect(imt(250_000, "secondary", params, 0, true)).toBe(8_289.69);
   });
 
   it("taxes the VPT when it is higher than the price", () => {
