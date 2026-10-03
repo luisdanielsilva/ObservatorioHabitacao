@@ -1,93 +1,113 @@
 # OlhoVivo — Architecture
 
-Status: draft v1 (2026-10-02). Covers WBS 3.2.1, 4.1 and the Phase 0–1 technical plan.
+Status: v2 (2026-10-03), aligned with [product-spec.md](product-spec.md) version 2.
+Progress per WBS item is tracked in [status.md](status.md).
 
 ## Overview
 
 ```
-olhovivo/                      npm workspaces monorepo
-├── apps/web/                  Next.js (App Router) + TS + Tailwind + shadcn/ui + next-intl
-│   ├── app/[locale]/...       pt (default) / en; /precos/[distrito]/[concelho]/[freguesia] (ISR)
-│   └── app/api/...            route handlers: valuation, scenarios, search, leads
-├── packages/engine/           pure TypeScript scenario engine, no I/O; Vitest
-├── packages/db/               Drizzle ORM schema + migrations (better-sqlite3 + mod_spatialite)
-├── packages/i18n/             message catalogues incl. metric help texts
-└── services/data/             FastAPI (Python): ingestion, geocoding, dedupe, aggregations, ML
+olhovivo/                      npm workspaces monorepo, TypeScript throughout
+├── apps/web/                  Next.js 16 (App Router) + Tailwind + shadcn/ui + next-intl
+│   ├── src/app/[locale]/...   pt (default, no prefix) / en; /precos/[...path] (ISR)
+│   └── src/app/api/...        route handlers: link analysis, prices, scenarios, leads
+├── packages/engine/           pure scenario engine, no I/O; runs in browser and server
+├── packages/db/               SQLite schema (Drizzle), migrations, queries
+├── scripts/ (planned)         import jobs (INE, CAOP, tax parameters), run by systemd timers
+└── docs/
 ```
+
+There is no separate API service, no Python service, no Redis and no Docker. Python is only
+added later if ML training (automatic estimates, Phase 4) needs it.
 
 ## Key decisions
 
-1. **Scenario engine in TypeScript.** It runs in the browser, so results update instantly
-   while the user edits inputs. The same code runs on the server for PDF reports, alerts
-   and the API, so there is one source of truth. Python is used only for data and ML.
-2. **Parameters are injected, never hard-coded.** Every engine call receives a
-   `ParameterSet` (IMT brackets, Imposto do Selo, notary/registry, IRS rules, Euribor,
-   spreads, LTV) loaded from versioned DB rows and validated with Zod. Each saved scenario
-   records the parameter-set version it was calculated with.
-3. **SpatiaLite where it adds value.** CAOP boundary polygons, PDM zoning and AL containment
-   zones are geometries (point-in-polygon lookups). Listings store lat/lng plus an R*Tree
-   index for fast map bounding-box queries.
-4. **Valuation v1 (comparables, weighted median €/m²) runs in Python.** Results are written to
-   SQLite, so the web app reads them directly.
-5. **No Docker during development.** Everything runs natively with Node and Python. The
-   deployment method (Docker Compose vs. systemd + nginx) is decided at WBS 3.2.3.
+1. **The user enters the market values in v1.** Market value, resale price, rent, nightly
+   rate and occupancy come from the user; OlhoVivo adds costs, taxes and financing. INE
+   medians are shown next to the inputs as a reference, not used as estimates. Automatic
+   estimates are Phase 4.
+2. **Scenario engine in TypeScript, run in the browser.** Results update instantly as inputs
+   change. The same module runs on the server for saved scenarios, PDFs and sharing.
+3. **Parameters are injected, never hard-coded.** Every engine call receives a
+   `ParameterSet` loaded from versioned database rows and validated with Zod. Saved
+   scenarios record the parameter-set version they used.
+4. **SQLite without extensions.** WAL mode, Drizzle ORM, better-sqlite3.
+   - Freguesia lookup: CAOP boundaries stored as simplified GeoJSON per parish, with their
+     bounding boxes in a built-in R*Tree index. Candidates are found with the R*Tree and the
+     exact point-in-polygon test runs in TypeScript (Turf.js).
+   - Caching: a `cache` table with expiry. Background work: a `jobs` table polled by workers.
+   - SpatiaLite only if exact boundary checks are needed at scale.
+5. **Link reader on demand.** When the user pastes a listing URL, the server fetches that one
+   page and extracts the property data, only for domains on an allow-list of sites whose terms
+   permit it (WBS 10.4). Otherwise the user fills in the form manually.
+6. **Hosting on the existing VPS.** Next.js as a systemd service behind the existing Nginx
+   (or Caddy) with HTTPS; import scripts as systemd timers; nightly `sqlite3 .backup` before
+   the VPS backup.
+7. **Auth.js** for email magic link and Google (Phase 2).
 
-## Schema (first draft)
+## Data flow for Avaliar anúncio
 
-**Locations** — a single `areas` table with level (district / municipality / parish), parent,
-CAOP code, slug, URL path (e.g. `lisboa/cascais`) and centroid. Açores and Madeira sit at the
-district level. Boundary geometry is added with SpatiaLite (not installed yet).
+```
+listing URL ──► link reader (allow-listed domains) ──► extracted fields ─┐
+manual form ────────────────────────────────────────────────────────────┤
+                                                                         ▼
+                                       user confirms / corrects property data
+                                                                         │
+            address/coordinates ──► CAOP lookup (R*Tree + Turf) ──► freguesia, concelho
+                                                                         │
+                                  INE medians for that area ──► market reference panel
+                                                                         │
+       user enters market values ──► engine (browser) + active ParameterSet ──► 4 scenarios,
+                                                                         comparison, chart
+```
 
-**Listings** — `sources`, `listings` (canonical property), `listing_observations`
-(per source, per crawl: price, status), `listing_photos`, `price_history`.
+## Schema
 
-**Market data**
+Implemented (migration `0000_init`) unless marked planned or parked.
 
-- `market_stats`: area level + id, period, metric (sale €/m², rent €/m², stock, time on
-  market), value, source.
-- `al_indicators`: ADR and occupancy per area and month.
-- `al_zones`: containment-zone polygons and status.
-- `pdm_zones`: zoning class polygons per municipality.
+**Locations** — `areas`: level (district / municipality / parish), parent, CAOP code, slug,
+URL path (e.g. `lisboa/cascais`), centroid. Açores and Madeira sit at district level.
+_Planned:_ `area_boundaries` (simplified GeoJSON per parish) and an R*Tree virtual table with
+each boundary's bounding box.
 
-**Parameters** — `parameter_sets`: one complete engine `ParameterSet` (JSON, validated with
-Zod) per year, region and version, with status draft / active / archived (one active per year
-and region) and who verified it. Municipal IMI rates live in `imi_rates`, per year.
+**INE market data** — `market_stats`: area, period, metric (median sale €/m², median rent
+€/m², …), value, source, synthetic flag. The seed rows are synthetic and will be replaced by
+the INE import.
 
-**Valuations** — `valuations` (input, low/likely/high, €/m², confidence, model version) and
-`valuation_comparables`.
+**Parameters** — `parameter_sets`: one complete engine `ParameterSet` (JSON) per year,
+region and version; draft / active / archived, one active per year and region, plus who
+verified it. `imi_rates`: municipal IMI rate per year. _Planned:_ Euribor and typical spreads
+in the parameter set (used as financing defaults in the calculator).
 
-**Users and saved items**
+**Analysed listings** — _planned:_ `analyses`: listing URL (optional), source domain,
+extracted data, property data as confirmed by the user, area, coordinates, user (optional).
+Scenarios point to the analysis they came from.
 
-- `users` with role, plan and locale. Session, account and token tables come with the auth
-  library (WBS 6.1).
-- `consents` (RGPD log).
-- `favourites`, `saved_searches` (filters JSON plus alert rules such as target yield or
-  discount), `alerts_sent`.
+**Scenarios** — `scenarios`: user, property snapshot, inputs, parameter-set id, results
+cache, duplicated-from. _Planned (Phase 2):_ public share token for X/Facebook links.
 
-**Scenarios** — `scenarios`: user, property snapshot, inputs JSON, parameter-set id, results
-cache. Duplicating creates a new row pointing to its origin.
+**Users** — `users` (role, plan, locale), `consents` (RGPD log). Auth.js tables come with
+login (Phase 2).
 
-**Leads and admin** — `leads` (type, status, assignee, notes), `ingestion_jobs` (source,
-status, counts, errors), `events` (analytics).
+**Leads and operations** — `leads` (type, status, assignee, notes; used by Vender sales
+support), `ingestion_jobs` (import runs), `events` (analytics). _Planned:_ `cache`, `jobs`.
 
-## Phase 0–1 order of work
+**Parked for later phases** (in the schema already; unused in v1):
 
-1. Scaffold: monorepo, git, CI (format, lint, typecheck, test, build), README. ✅
-2. Engine: four scenarios, IRR, comparison, sensitivity, with unit tests. ✅
-3. DB: schema, migrations, seed data for 4 municipalities (Lisboa, Cascais, Porto, Braga)
-   with 2025 parameters. ✅
-4. Web foundations: i18n, layout, dark/light theme; calculator and comparison view; Preços.
-5. Python service: comparables valuation and the Vender flow.
+- Listings and search, Phase 3: `sources`, `listings`, `listing_sources`, `price_history`,
+  `listing_photos`, `favourites`, `saved_searches`, `alerts_sent`.
+- AL registry, Phase 3: `al_rules`, `al_indicators`. Until then the AL check shows
+  "unknown" and is hidden in the UI.
+- Automatic estimates, Phase 4: `valuations`, `valuation_comparables`.
 
 ## Open points
 
-- **Reference spreadsheet (WBS 2.3.3).** Engine fixtures must be checked by an accountant /
-  tax advisor before they count as validation.
-- **2026 tax figures** (IMT, Imposto do Selo, IRS incl. cessão de posição contratual) must
-  be verified against the published tables (WBS 10.6).
-- **Avaliar anúncio by URL.** Major portals forbid scraping in their terms. MVP: manual
-  entry and pasted listing text; URL extraction only for sources that agree to it.
-- **Seed data** is realistic but synthetic until INE and partner data are ingested, and is
-  labelled as such in the UI.
-- **Server resources** (3.7 GB RAM, 2 vCPU): fine for development; for production, build in
-  CI or add swap.
+- **Reference spreadsheet (WBS 2.3.3)** and tax review (10.6): the engine's worked examples
+  must be checked by an accountant / tax advisor.
+- **2026 tax figures** must be added and verified; only 2025 mainland values exist.
+- **Link reader allow-list (10.4):** Idealista and Imovirtual forbid automated access in their
+  terms, including single-page fetches. Which sites are allowed needs a decision, ideally with
+  written permission.
+- **INE data access:** confirm which INE indicators (sale and rent medians per concelho /
+  freguesia) are available through the INE API and how often they are updated.
+- **Server resources** (3.7 GB RAM, 2 vCPU): fine for development; for production, build
+  before restarting the service and consider swap.
