@@ -26,10 +26,14 @@ export function irr(cashFlows: readonly number[], tolerance = 1e-10): number | n
   const hasNegative = cashFlows.some((c) => c < 0);
   if (!hasPositive || !hasNegative) return null;
 
-  let low = -0.9999;
+  // The lower bound keeps (1 + rate)^n above ~1e-300: closer to -100 % the discount factors
+  // underflow to zero for long series (e.g. 120 months) and NPV becomes NaN.
+  let low = -1 + Math.max(1e-4, 10 ** (-300 / Math.max(1, cashFlows.length - 1)));
   let high = 10;
   let npvLow = npv(low, cashFlows);
-  if (npvLow * npv(high, cashFlows) > 0) return null;
+  const npvHigh = npv(high, cashFlows);
+  if (!Number.isFinite(npvLow) || !Number.isFinite(npvHigh)) return null;
+  if (npvLow * npvHigh > 0) return null;
 
   for (let i = 0; i < 300; i++) {
     const mid = (low + high) / 2;

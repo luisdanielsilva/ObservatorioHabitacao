@@ -22,6 +22,15 @@ describe("irr", () => {
     expect(irr([-100, 90])).toBeCloseTo(-0.1, 8);
   });
 
+  it("handles long monthly series (10 years)", () => {
+    // −100 000 now, −500 a month for 119 months, then +250 000: ≈ 0.38 % a month.
+    const flows = [-100_000, ...Array(119).fill(-500), 250_000 - 500];
+    const rate = irr(flows)!;
+    expect(rate).toBeGreaterThan(0);
+    expect(rate).toBeLessThan(0.01);
+    expect(Math.abs(npv(rate, flows))).toBeLessThan(0.01); // cents, on 250 000 € of flows
+  });
+
   it("returns null when there is no sign change", () => {
     expect(irr([100, 50])).toBeNull();
     expect(irr([-100, -50])).toBeNull();

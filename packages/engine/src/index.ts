@@ -30,3 +30,7 @@ export {
   shiftRent,
 } from "./sensitivity";
 export type { SensitivityPoint } from "./sensitivity";
+export { classifyOpportunity } from "./opportunity";
+export type { Opportunity, OpportunitySignal } from "./opportunity";
+export { seasonsToMonths } from "./seasons";
+export type { Seasonal } from "./seasons";
