@@ -7,6 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShareControls } from "@/components/share/ShareControls";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Link } from "@/i18n/navigation";
 import { asLocale, initPageLocale } from "@/i18n/locale";
@@ -104,7 +105,8 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
                         )}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex flex-wrap items-center gap-1">
+                      <ShareControls scenarioId={s.id} name={s.name} size="sm" />
                       <Button asChild size="sm" variant="outline">
                         <Link href={{ pathname: "/avaliar", query: { cenario: String(s.id) } }}>
                           {t("open")}

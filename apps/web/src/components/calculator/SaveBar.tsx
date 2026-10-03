@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ShareControls } from "@/components/share/ShareControls";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { CalculatorState } from "@/lib/calculator/state";
 
@@ -111,6 +112,7 @@ export function SaveBar({
             {t("duplicate")}
           </Button>
         )}
+        {savedId && <ShareControls scenarioId={savedId} name={shownName} />}
         {children}
       </div>
       <p className="text-sm text-muted-foreground" aria-live="polite">

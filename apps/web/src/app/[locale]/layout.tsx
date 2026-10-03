@@ -9,6 +9,7 @@ import { Header } from "@/components/layout/Header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { asLocale } from "@/i18n/locale";
 import { routing } from "@/i18n/routing";
+import { siteUrl } from "@/lib/urls";
 import "../globals.css";
 
 const sans = Geist({ variable: "--font-sans", subsets: ["latin"] });
@@ -22,6 +23,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const { locale } = await params;
   const t = await getTranslations({ locale: asLocale(locale), namespace: "meta" });
   return {
+    // Absolute URLs for Open Graph images and canonical links.
+    metadataBase: new URL(siteUrl()),
     title: { default: t("title"), template: "%s · OlhoVivo" },
     description: t("description"),
   };

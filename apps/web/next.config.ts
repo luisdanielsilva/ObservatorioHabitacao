@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
   // Workspace packages are published as TypeScript source.
   transpilePackages: ["@olhovivo/engine", "@olhovivo/db"],
   // Native or Node-only packages loaded at runtime instead of being bundled.
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: ["better-sqlite3", "@react-pdf/renderer"],
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
