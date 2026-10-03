@@ -80,6 +80,7 @@ export function runCalculator(
     exitPrice,
     sellingCommissionRate: state.sellingCommissionRate,
     marginalTaxRate: state.marginalTaxRate,
+    buyerNonResident: state.buyerNonResident,
     condominiumMonthly: state.condominiumMonthly,
     insuranceAnnual: state.insuranceAnnual,
   });
@@ -214,6 +215,7 @@ export function runCalculator(
                 propertyUse: state.propertyUse,
                 vpt: isSet(state.vpt) ? state.vpt : undefined,
                 marginalTaxRate: state.marginalTaxRate,
+                buyerNonResident: state.buyerNonResident,
               },
               params,
             ),

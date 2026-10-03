@@ -1,7 +1,14 @@
-import { getActiveParameterSet, getAreaTree, getLatestReferenceRate } from "@olhovivo/db";
+import {
+  getActiveParameterSet,
+  getAreaTree,
+  getLatestReferenceRate,
+  getScenario,
+} from "@olhovivo/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Calculator } from "@/components/calculator/Calculator";
+import { normaliseState } from "@/lib/calculator/state";
+import { requireUser } from "@/lib/session";
+import { CalculatorRoot } from "./CalculatorRoot";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { asLocale, initPageLocale } from "@/i18n/locale";
 import { getDb } from "@/lib/db";
@@ -20,9 +27,9 @@ export default async function EvaluatePage({
   params,
   searchParams,
 }: PageProps<"/[locale]/avaliar">) {
-  await initPageLocale(params);
+  const locale = await initPageLocale(params);
   const t = await getTranslations("evaluate");
-  const { area } = await searchParams;
+  const { area, cenario, rascunho } = await searchParams;
 
   const db = getDb();
   const tree = getAreaTree(db);
@@ -30,10 +37,24 @@ export default async function EvaluatePage({
   const euribor = getLatestReferenceRate(db, "euribor_12m");
   const requestedArea = Number(Array.isArray(area) ? area[0] : area);
 
+  // A saved scenario, only for its owner.
+  const scenarioId = Number(Array.isArray(cenario) ? cenario[0] : cenario);
+  let initial;
+  if (Number.isInteger(scenarioId) && scenarioId > 0) {
+    const user = await requireUser(locale, `/avaliar?cenario=${scenarioId}`);
+    const saved = getScenario(db, scenarioId, user.id);
+    if (saved) {
+      initial = { state: normaliseState(saved.inputs), savedId: saved.id, name: saved.name };
+    }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <PageHeader title={t("title")} intro={t("intro")} />
-      <Calculator
+      <CalculatorRoot
+        key={initial?.savedId ?? "new"}
+        initial={initial}
+        restoreDraft={!initial && rascunho !== undefined}
         tree={tree}
         params={parameterSet?.data ?? null}
         euribor12m={euribor ? { value: euribor.value, date: euribor.date } : null}

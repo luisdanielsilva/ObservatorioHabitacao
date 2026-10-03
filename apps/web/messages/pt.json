@@ -123,7 +123,8 @@
     "al_status_unknown": "Não foi possível confirmar se são permitidos novos registos de alojamento local.",
     "al_vat_threshold_exceeded": "A faturação anual ultrapassa o limite de isenção de IVA (15 000 €). Considere ativar o IVA.",
     "assignment_above_market": "O comprador da posição pagaria mais do que o valor de mercado indicado.",
-    "assignment_upfront_imt": "Com cláusula de cedência no CPCV, o IMT e o Imposto do Selo podem ser devidos logo na assinatura."
+    "assignment_upfront_imt": "Com cláusula de cedência no CPCV, o IMT e o Imposto do Selo podem ser devidos logo na assinatura.",
+    "imt_non_resident": "Comprador não residente: IMT à taxa única de 7,5% (desde 20/05/2026). A diferença é reembolsada se passar a residir em Portugal em 2 anos, ou se arrendar a renda limitada em 6 meses durante pelo menos 36 dos primeiros 60 meses."
   },
   "evaluate": {
     "title": "Avaliar anúncio",
@@ -307,7 +308,24 @@
     "yearsShort": "anos",
     "scenarioLongTerm": "Arrendamento",
     "scenarioShortTerm": "Alojamento local",
-    "osmAttribution": "Pesquisa de moradas © colaboradores do OpenStreetMap"
+    "osmAttribution": "Pesquisa de moradas © colaboradores do OpenStreetMap",
+    "saveTitle": "Guardar cenário",
+    "scenarioName": "Nome do cenário",
+    "save": "Guardar",
+    "saving": "A guardar…",
+    "saved": "Guardado.",
+    "saveChanges": "Guardar alterações",
+    "duplicate": "Duplicar",
+    "duplicated": "Cópia criada.",
+    "signinToSave": "Entre na sua conta para guardar. Os valores introduzidos ficam guardados neste navegador.",
+    "limitReached": "Atingiu o limite de cenários guardados do seu plano.",
+    "saveError": "Não foi possível guardar. Tente novamente.",
+    "copySuffix": "(cópia)",
+    "defaultName": "{type} em {area}",
+    "defaultNameNoArea": "{type}",
+    "myScenarios": "Os meus cenários",
+    "buyerNonResident": "Comprador não residente em Portugal",
+    "buyerNonResidentHelp": "Desde 20 de maio de 2026, a compra de habitação por não residentes paga IMT à taxa única de 7,5%, com reembolso em certas condições."
   },
   "prices": {
     "title": "Preços das casas em Portugal",
@@ -373,7 +391,18 @@
   },
   "signIn": {
     "title": "Entrar",
-    "text": "As contas OlhoVivo (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase."
+    "text": "As contas OlhoVivo (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase.",
+    "intro": "Entre para guardar cenários, exportar relatórios e partilhar análises. Sem palavra-passe: enviamos um link para o seu email.",
+    "email": "Email",
+    "submit": "Enviar link de acesso",
+    "google": "Continuar com Google",
+    "or": "ou",
+    "checkTitle": "Verifique o seu email",
+    "checkText": "Enviámos um link de acesso. Abra-o neste dispositivo para entrar. O link é válido durante 24 horas.",
+    "error": "Não foi possível entrar. Tente novamente ou peça um novo link.",
+    "terms": "Ao entrar aceita os termos e condições e a política de privacidade.",
+    "signOut": "Sair",
+    "account": "Conta"
   },
   "legal": {
     "draft": "Versão provisória. Este texto será revisto antes do lançamento.",
@@ -387,5 +416,57 @@
     "termsText": "Os cálculos do OlhoVivo são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
     "cookiesTitle": "Cookies",
     "cookiesText": "O OlhoVivo usa apenas cookies essenciais (idioma e tema). Não usamos cookies de análise ou publicidade."
+  },
+  "account": {
+    "title": "A minha conta",
+    "intro": "Os seus cenários, análises e pedidos, e as definições da conta.",
+    "scenarios": "Cenários guardados",
+    "noScenarios": "Ainda não guardou nenhum cenário.",
+    "newScenario": "Novo cenário",
+    "open": "Abrir",
+    "delete": "Apagar",
+    "confirmDelete": "Apagar o cenário «{name}»?",
+    "updated": "Atualizado {date}",
+    "best": "Melhor: {scenario}",
+    "analyses": "Anúncios analisados",
+    "noAnalyses": "Ainda não analisou nenhum anúncio com link.",
+    "requests": "Pedidos enviados",
+    "noRequests": "Ainda não enviou nenhum pedido.",
+    "requestTypes": {
+      "valuation": "Avaliação",
+      "sales_support": "Apoio à venda",
+      "negotiation": "Negociação",
+      "partner": "Parceiro"
+    },
+    "requestStatus": {
+      "new": "Recebido",
+      "contacted": "Contactado",
+      "qualified": "Em análise",
+      "won": "Concluído",
+      "lost": "Fechado"
+    },
+    "settings": "Definições",
+    "name": "Nome",
+    "language": "Idioma preferido",
+    "saveSettings": "Guardar definições",
+    "settingsSaved": "Definições guardadas.",
+    "consents": "Consentimentos",
+    "consentMarketing": "Receber novidades e dicas do OlhoVivo por email",
+    "consentPartners": "Partilhar os meus pedidos com parceiros (crédito, advogados, vistorias) quando eu pedir",
+    "privacy": "Os seus dados (RGPD)",
+    "export": "Descarregar os meus dados (JSON)",
+    "exportHelp": "Uma cópia de tudo o que guardamos sobre si.",
+    "deleteAccount": "Apagar a conta",
+    "deleteHelp": "Apaga a conta, os cenários e os consentimentos. Os pedidos enviados são anonimizados. Não pode ser desfeito.",
+    "deleteConfirmLabel": "Escreva APAGAR para confirmar",
+    "deleteConfirmWord": "APAGAR",
+    "deleteButton": "Apagar a minha conta",
+    "signedInAs": "Sessão iniciada como {email}",
+    "plan": "Plano: {plan}",
+    "plans": {
+      "free": "Gratuito",
+      "premium": "Premium"
+    },
+    "admin": "Back-office"
   }
 }

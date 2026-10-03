@@ -52,6 +52,7 @@ export interface CalculatorState {
   flipMonths: number;
   rentalYears: number;
   marginalTaxRate: number;
+  buyerNonResident: boolean;
   rentalTaxMode: "autonomous" | "marginal";
   contractYears: number;
 
@@ -128,6 +129,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     flipMonths: 12,
     rentalYears: 10,
     marginalTaxRate: 0.35,
+    buyerNonResident: false,
     rentalTaxMode: "autonomous",
     contractYears: 3,
 
@@ -158,4 +160,56 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     goal: "profit",
     ...overrides,
   };
+}
+
+const ENUMS: Partial<Record<keyof CalculatorState, readonly string[]>> = {
+  propertyType: PROPERTY_TYPES,
+  condition: CONDITIONS,
+  propertyUse: ["secondary", "hpp"],
+  rentalTaxMode: ["autonomous", "marginal"],
+  goal: ["profit", "irr", "yield", "capital"],
+};
+
+/** Fields that may be null (not entered) in addition to their number type. */
+const isNullableNumber = (defaultValue: unknown) => defaultValue === null;
+
+function normaliseValue(raw: unknown, fallback: unknown, allowed?: readonly string[]): unknown {
+  if (allowed) return typeof raw === "string" && allowed.includes(raw) ? raw : fallback;
+  if (isNullableNumber(fallback)) {
+    return raw === null || (typeof raw === "number" && Number.isFinite(raw)) ? raw : null;
+  }
+  if (typeof fallback === "number") {
+    return typeof raw === "number" && Number.isFinite(raw) ? raw : fallback;
+  }
+  if (typeof fallback === "boolean" || typeof fallback === "string") {
+    return typeof raw === typeof fallback ? raw : fallback;
+  }
+  if (fallback && typeof fallback === "object") {
+    const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+    return Object.fromEntries(
+      Object.entries(fallback).map(([k, v]) => [k, normaliseValue(source[k], v)]),
+    );
+  }
+  return fallback;
+}
+
+/**
+ * Rebuilds a calculator state from untrusted data (saved JSON, a request body): unknown keys are
+ * dropped and every value must have the expected type, otherwise the default is used. Strings
+ * are capped so that stored scenarios stay small.
+ */
+export function normaliseState(raw: unknown): CalculatorState {
+  const defaults = initialState();
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const state = Object.fromEntries(
+    Object.entries(defaults).map(([key, fallback]) => [
+      key,
+      key === "areaId"
+        ? normaliseValue(source[key], null)
+        : normaliseValue(source[key], fallback, ENUMS[key as keyof CalculatorState]),
+    ]),
+  ) as unknown as CalculatorState;
+  state.url = state.url.slice(0, 2000);
+  state.address = state.address.slice(0, 300);
+  return state;
 }

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "@/i18n/navigation";
+import { AccountButton } from "./AccountButton";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { Logo } from "./Logo";
 import { NavLink } from "./NavLink";
@@ -39,9 +40,7 @@ export async function Header() {
         <div className="ml-auto flex items-center gap-1">
           <LocaleSwitcher />
           <ThemeToggle />
-          <Button asChild size="sm" variant="outline" className="ml-1 hidden sm:inline-flex">
-            <Link href="/entrar">{t("signIn")}</Link>
-          </Button>
+          <AccountButton className="ml-1 hidden sm:inline-flex" />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden" aria-label={t("menu")}>

@@ -14,6 +14,7 @@ export function FinancingSection({
   purchasePrice,
   euribor12m,
   spread,
+  nonResidentRule,
   locale,
 }: {
   state: CalculatorState;
@@ -22,6 +23,8 @@ export function FinancingSection({
   purchasePrice: number | null;
   euribor12m: { value: number; date: string } | null;
   spread: number | null;
+  /** Whether the active tax year has the non-resident IMT rate. */
+  nonResidentRule: boolean;
   locale: string;
 }) {
   const t = useTranslations("evaluate");
@@ -160,6 +163,16 @@ export function FinancingSection({
             ]}
             onChange={(rentalTaxMode) => update({ rentalTaxMode })}
           />
+          {nonResidentRule && (
+            <div className="sm:col-span-2">
+              <SwitchField
+                label={t("buyerNonResident")}
+                help={t("buyerNonResidentHelp")}
+                checked={state.buyerNonResident}
+                onChange={(buyerNonResident) => update({ buyerNonResident })}
+              />
+            </div>
+          )}
           {state.rentalTaxMode === "autonomous" && (
             <NumberField
               label={t("contractYears")}

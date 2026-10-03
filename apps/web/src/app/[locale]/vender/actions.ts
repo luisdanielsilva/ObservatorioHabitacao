@@ -3,6 +3,7 @@
 import { leads } from "@olhovivo/db";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 
 export type LeadState = { status: "idle" | "success" | "invalid" | "error" };
 
@@ -37,6 +38,7 @@ export async function requestSalesSupport(_prev: LeadState, form: FormData): Pro
       .insert(leads)
       .values({
         type: "sales_support",
+        userId: (await getCurrentUser())?.id ?? null,
         name: parsed.data.name,
         email: parsed.data.email || null,
         phone: parsed.data.phone || null,

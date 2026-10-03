@@ -123,7 +123,8 @@
     "al_status_unknown": "We could not confirm whether new short-term rental registrations are allowed.",
     "al_vat_threshold_exceeded": "Annual turnover is above the VAT exemption threshold (15 000 €). Consider charging VAT.",
     "assignment_above_market": "The buyer of the position would pay more than the market value you entered.",
-    "assignment_upfront_imt": "With an assignment clause in the CPCV, IMT and stamp duty may be due when it is signed."
+    "assignment_upfront_imt": "With an assignment clause in the CPCV, IMT and stamp duty may be due when it is signed.",
+    "imt_non_resident": "Non-resident buyer: flat 7.5% IMT (since 20/05/2026). The difference is refunded if you become resident in Portugal within 2 years, or let at a capped rent within 6 months for at least 36 of the first 60 months."
   },
   "evaluate": {
     "title": "Evaluate a listing",
@@ -307,7 +308,24 @@
     "yearsShort": "years",
     "scenarioLongTerm": "Long-term rental",
     "scenarioShortTerm": "Short-term rental",
-    "osmAttribution": "Address search © OpenStreetMap contributors"
+    "osmAttribution": "Address search © OpenStreetMap contributors",
+    "saveTitle": "Save scenario",
+    "scenarioName": "Scenario name",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "saveChanges": "Save changes",
+    "duplicate": "Duplicate",
+    "duplicated": "Copy created.",
+    "signinToSave": "Sign in to save. The values you entered are kept in this browser.",
+    "limitReached": "You have reached your plan's limit of saved scenarios.",
+    "saveError": "Could not save. Please try again.",
+    "copySuffix": "(copy)",
+    "defaultName": "{type} in {area}",
+    "defaultNameNoArea": "{type}",
+    "myScenarios": "My scenarios",
+    "buyerNonResident": "Buyer not resident in Portugal",
+    "buyerNonResidentHelp": "Since 20 May 2026, housing bought by non-residents pays a flat 7.5% IMT, refundable under certain conditions."
   },
   "prices": {
     "title": "House prices in Portugal",
@@ -373,7 +391,18 @@
   },
   "signIn": {
     "title": "Sign in",
-    "text": "OlhoVivo accounts (saved scenarios, PDF reports and alerts) come in a later phase."
+    "text": "OlhoVivo accounts (saved scenarios, PDF reports and alerts) come in a later phase.",
+    "intro": "Sign in to save scenarios, export reports and share analyses. No password: we email you a sign-in link.",
+    "email": "Email",
+    "submit": "Email me a sign-in link",
+    "google": "Continue with Google",
+    "or": "or",
+    "checkTitle": "Check your email",
+    "checkText": "We sent you a sign-in link. Open it on this device to sign in. The link is valid for 24 hours.",
+    "error": "We could not sign you in. Try again or ask for a new link.",
+    "terms": "By signing in you accept the terms and conditions and the privacy policy.",
+    "signOut": "Sign out",
+    "account": "Account"
   },
   "legal": {
     "draft": "Draft. This text will be reviewed before launch.",
@@ -387,5 +416,57 @@
     "termsText": "OlhoVivo's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
     "cookiesTitle": "Cookies",
     "cookiesText": "OlhoVivo only uses essential cookies (language and theme). We do not use analytics or advertising cookies."
+  },
+  "account": {
+    "title": "My account",
+    "intro": "Your scenarios, analyses and requests, and your account settings.",
+    "scenarios": "Saved scenarios",
+    "noScenarios": "You have not saved any scenarios yet.",
+    "newScenario": "New scenario",
+    "open": "Open",
+    "delete": "Delete",
+    "confirmDelete": "Delete the scenario “{name}”?",
+    "updated": "Updated {date}",
+    "best": "Best: {scenario}",
+    "analyses": "Analysed listings",
+    "noAnalyses": "You have not analysed any listing links yet.",
+    "requests": "Requests sent",
+    "noRequests": "You have not sent any requests yet.",
+    "requestTypes": {
+      "valuation": "Valuation",
+      "sales_support": "Help selling",
+      "negotiation": "Negotiation",
+      "partner": "Partner"
+    },
+    "requestStatus": {
+      "new": "Received",
+      "contacted": "Contacted",
+      "qualified": "In progress",
+      "won": "Completed",
+      "lost": "Closed"
+    },
+    "settings": "Settings",
+    "name": "Name",
+    "language": "Preferred language",
+    "saveSettings": "Save settings",
+    "settingsSaved": "Settings saved.",
+    "consents": "Consents",
+    "consentMarketing": "Receive news and tips from OlhoVivo by email",
+    "consentPartners": "Share my requests with partners (credit, lawyers, inspections) when I ask",
+    "privacy": "Your data (GDPR)",
+    "export": "Download my data (JSON)",
+    "exportHelp": "A copy of everything we store about you.",
+    "deleteAccount": "Delete account",
+    "deleteHelp": "Deletes the account, scenarios and consents. Requests you sent are anonymised. This cannot be undone.",
+    "deleteConfirmLabel": "Type DELETE to confirm",
+    "deleteConfirmWord": "DELETE",
+    "deleteButton": "Delete my account",
+    "signedInAs": "Signed in as {email}",
+    "plan": "Plan: {plan}",
+    "plans": {
+      "free": "Free",
+      "premium": "Premium"
+    },
+    "admin": "Back office"
   }
 }

@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import { extractProperty, type ExtractedProperty } from "@/lib/linkReader/extract";
 import { fetchListing, isAllowedHost, NotAllowedError } from "@/lib/linkReader/fetchListing";
+import { getCurrentUser } from "@/lib/session";
 
 export type AnalyzeResponse =
   | { status: "ok"; analysisId: string; property: ExtractedProperty; areaId: number | null }
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       extracted: property,
       property,
       areaId: area?.id,
+      userId: (await getCurrentUser())?.id,
     });
     return NextResponse.json<AnalyzeResponse>({
       status: "ok",
