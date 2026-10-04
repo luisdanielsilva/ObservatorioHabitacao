@@ -37,8 +37,10 @@ added later if ML training (automatic estimates, Phase 4) needs it.
    - Caching: a `cache` table with expiry. Background work: a `jobs` table polled by workers.
    - SpatiaLite only if exact boundary checks are needed at scale.
 5. **Link reader on demand.** When the user pastes a listing URL, the server fetches that one
-   page and extracts the property data, only for domains on an allow-list of sites whose terms
-   permit it (WBS 10.4). Otherwise the user fills in the form manually.
+   page, only for domains on an allow-list of sites whose terms permit it (WBS 10.4), and Claude
+   (`claude-opus-5-5`, low effort, structured output) extracts the property data; without an
+   API key, only the page's schema.org / Open Graph data is used. Results are cached for 24 h
+   per URL. Otherwise the user fills in the form manually.
 6. **Hosting on the existing VPS.** Next.js as a systemd service behind the existing Nginx
    (or Caddy) with HTTPS; import scripts as systemd timers; nightly `sqlite3 .backup` before
    the VPS backup.

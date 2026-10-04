@@ -9,6 +9,10 @@ import type { Condition, PropertyType } from "@/lib/calculator/state";
 export interface ExtractedProperty extends Omit<PropertyData, "propertyType" | "condition"> {
   propertyType?: PropertyType;
   condition?: Condition;
+  /** Location names as written on the page (AI reader), used when there are no coordinates. */
+  district?: string;
+  municipality?: string;
+  parish?: string;
 }
 
 type Json = Record<string, unknown>;

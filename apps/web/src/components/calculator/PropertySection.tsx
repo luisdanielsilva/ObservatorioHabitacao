@@ -19,7 +19,15 @@ import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
 import { NumberField, Section, SelectField } from "./fields";
 
-type LinkStatus = "idle" | "reading" | "ok" | "not_allowed" | "failed" | "invalid" | "rate_limited";
+type LinkStatus =
+  | "idle"
+  | "reading"
+  | "ok"
+  | "not_allowed"
+  | "not_listing"
+  | "failed"
+  | "invalid"
+  | "rate_limited";
 
 export function PropertySection({
   state,
@@ -92,6 +100,7 @@ export function PropertySection({
     reading: null,
     ok: t("linkRead"),
     not_allowed: t("linkNotAllowed"),
+    not_listing: t("linkFailed"),
     failed: t("linkFailed"),
     invalid: t("linkInvalid"),
     rate_limited: t("rateLimited"),

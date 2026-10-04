@@ -12,6 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@auth/drizzle-adapter": "^1.11.3",
     "@olhovivo/db": "^0.1.0",
     "@olhovivo/engine": "^0.1.0",

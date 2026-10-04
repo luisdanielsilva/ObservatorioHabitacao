@@ -43,6 +43,7 @@ it, the app works with demo data for four municipalities, labelled as such.
 | `DATABASE_PATH`               | `data/olhovivo.db`               | SQLite database file                                       |
 | `NEXT_PUBLIC_SITE_URL`        | `https://olhovivo.pt`            | Canonical URLs and sitemap                                 |
 | `LINK_READER_ALLOWED_DOMAINS` | _(empty: link reader disabled)_  | Comma-separated domains whose terms allow reading listings |
+| `ANTHROPIC_API_KEY`           | _(empty: structured data only)_  | Claude reads listing pages for the link reader             |
 | `BACKUP_DIR` / `BACKUP_KEEP`  | `data/backups` / `14`            | Nightly backup location and number of copies kept          |
 | `RESEND_API_KEY`              | _(empty: emails go to the log)_  | Resend key for sign-in links, reports and notifications    |
 | `EMAIL_FROM`                  | `OlhoVivo <noreply@olhovivo.pt>` | Sender of transactional emails                             |
