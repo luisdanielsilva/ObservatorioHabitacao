@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
   const db = getDb();
   try {
-    const key = `listing:v2:${url.href}`;
+    const key = `listing:v3:${url.href}`;
     let property = cacheGet<ExtractedProperty>(db, key);
     if (!property) {
       property = await readListing(url.href);

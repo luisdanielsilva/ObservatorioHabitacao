@@ -29,13 +29,15 @@ export default async function EvaluatePage({
 }: PageProps<"/[locale]/avaliar">) {
   const locale = await initPageLocale(params);
   const t = await getTranslations("evaluate");
-  const { area, cenario, rascunho } = await searchParams;
+  const { area, cenario, rascunho, link, manual } = await searchParams;
 
   const db = getDb();
   const tree = getAreaTree(db);
   const parameterSet = getActiveParameterSet(db, "continente", new Date().getFullYear());
   const euribor = getLatestReferenceRate(db, "euribor_12m");
   const requestedArea = Number(Array.isArray(area) ? area[0] : area);
+  // A listing link from the home page is read as soon as the page opens.
+  const requestedLink = (Array.isArray(link) ? link[0] : link)?.trim().slice(0, 2000) || null;
 
   // A saved scenario, only for its owner.
   const scenarioId = Number(Array.isArray(cenario) ? cenario[0] : cenario);
@@ -59,6 +61,8 @@ export default async function EvaluatePage({
         params={parameterSet?.data ?? null}
         euribor12m={euribor ? { value: euribor.value, date: euribor.date } : null}
         initialAreaId={Number.isInteger(requestedArea) && requestedArea > 0 ? requestedArea : null}
+        initialLink={initial ? null : requestedLink}
+        startManual={manual !== undefined}
       />
     </div>
   );

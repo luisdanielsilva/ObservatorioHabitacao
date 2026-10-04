@@ -1,4 +1,5 @@
 import { ArrowRight, Building2, FileSignature, Home, KeyRound } from "lucide-react";
+import { LinkBox } from "@/components/home/LinkBox";
 import { getTranslations } from "next-intl/server";
 import { initPageLocale } from "@/i18n/locale";
 import { Button } from "@/components/ui/button";
@@ -19,21 +20,16 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
   return (
     <div className="mx-auto max-w-6xl px-4">
-      <section className="py-16 sm:py-24">
+      <section className="mx-auto max-w-3xl py-14 text-center sm:py-20">
         <p className="text-sm font-medium tracking-wide text-primary uppercase">{t("eyebrow")}</p>
-        <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           {t("title")}
         </h1>
-        <p className="mt-5 max-w-2xl text-lg text-muted-foreground text-pretty">{t("subtitle")}</p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild size="lg">
-            <Link href="/avaliar">
-              {t("ctaEvaluate")} <ArrowRight />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/precos">{t("ctaPrices")}</Link>
-          </Button>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground text-pretty">
+          {t("subtitle")}
+        </p>
+        <div className="mt-8 text-left">
+          <LinkBox />
         </div>
       </section>
 

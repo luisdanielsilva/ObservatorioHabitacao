@@ -31,9 +31,21 @@ export interface CalculatorProps {
   initialAreaId: number | null;
   /** A saved scenario (or restored draft) to start from instead of the defaults. */
   initial?: { state: CalculatorState; savedId: number | null; name: string | null };
+  /** A listing link to read straight away (from the home page). */
+  initialLink?: string | null;
+  /** Open the property fields for manual entry straight away. */
+  startManual?: boolean;
 }
 
-export function Calculator({ tree, params, euribor12m, initialAreaId, initial }: CalculatorProps) {
+export function Calculator({
+  tree,
+  params,
+  euribor12m,
+  initialAreaId,
+  initial,
+  initialLink,
+  startManual,
+}: CalculatorProps) {
   const locale = useLocale();
   const te = useTranslations("evaluate");
   const defaultRate =
@@ -44,6 +56,7 @@ export function Calculator({ tree, params, euribor12m, initialAreaId, initial }:
       initial?.state ??
       initialState({
         areaId: initialAreaId,
+        url: initialLink ?? "",
         ...(defaultRate !== undefined && { interestRate: defaultRate }),
       }),
   );
@@ -135,6 +148,8 @@ export function Calculator({ tree, params, euribor12m, initialAreaId, initial }:
           tree={tree}
           reference={reference}
           missing={missingProperty}
+          autoRead={Boolean(initialLink)}
+          startManual={startManual}
           onContinue={() => setStep(initialStep(state, output, areaDepth))}
           locale={locale}
         />

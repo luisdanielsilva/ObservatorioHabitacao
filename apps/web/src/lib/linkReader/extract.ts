@@ -34,7 +34,8 @@ export function extractProperty(html: string): ExtractedProperty {
       const itemTypes = asArray(item["@type"]).map(String);
       result.propertyType ??= propertyTypeFrom([...types, ...itemTypes]);
       result.areaM2 ??= floorSize(item.floorSize);
-      result.bedrooms ??= toNumber(item.numberOfBedrooms ?? item.numberOfRooms);
+      // numberOfRooms counts the living room too, so it is not the typology.
+      result.bedrooms ??= toNumber(item.numberOfBedrooms);
       result.address ??= addressText(item.address);
       const geo = item.geo as Json | undefined;
       if (geo && result.lat === undefined) {
@@ -56,6 +57,9 @@ export function extractProperty(html: string): ExtractedProperty {
   }
 
   result.title ??= metaContent(html, "og:title");
+  // Portuguese titles state the typology ("T2, apartamento para comprar …").
+  const typology = result.title?.match(/\bT(\d)\b/);
+  if (result.bedrooms === undefined && typology) result.bedrooms = Number(typology[1]);
   if (result.askingPrice === undefined) {
     const amount = toNumber(
       metaContent(html, "product:price:amount") ?? metaContent(html, "og:price:amount"),

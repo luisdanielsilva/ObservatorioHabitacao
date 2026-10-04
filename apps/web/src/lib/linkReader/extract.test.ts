@@ -44,7 +44,7 @@ describe("extractProperty", () => {
         { "@type": "WebPage", name: "Listing" },
         {
           "@type": ["Product", "SingleFamilyResidence"],
-          numberOfRooms: 7,
+          numberOfBedrooms: 7,
           offers: { price: 650000, priceCurrency: "EUR" },
         },
       ],
@@ -54,6 +54,16 @@ describe("extractProperty", () => {
       bedrooms: 5,
       askingPrice: 650_000,
     });
+  });
+
+  it("takes the typology from the title, not from the number of rooms", () => {
+    const html = page({
+      "@type": "Product",
+      name: "T2, apartamento para comprar - Rua Dom Nuno Álvares Pereira, Matosinhos",
+      numberOfRooms: 3,
+      offers: { price: 480000, priceCurrency: "EUR" },
+    });
+    expect(extractProperty(html).bedrooms).toBe(2);
   });
 
   it("falls back to Open Graph price tags and ignores other currencies", () => {

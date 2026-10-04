@@ -2,7 +2,7 @@
 
 import { Link2, Loader2, PencilLine, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { AnalyzeResponse } from "@/app/api/analyze/route";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ export function ListingStep({
   tree,
   reference,
   missing,
+  autoRead = false,
+  startManual = false,
   onContinue,
   locale,
 }: {
@@ -39,19 +41,27 @@ export function ListingStep({
   tree: AreaTree;
   reference: ReferenceResponse | null;
   missing: PropertyField[];
+  /** Read the link in the state as soon as the step mounts. */
+  autoRead?: boolean;
+  startManual?: boolean;
   onContinue: () => void;
   locale: string;
 }) {
   const t = useTranslations("evaluate");
   const id = useId();
-  const [linkStatus, setLinkStatus] = useState<LinkStatus>("idle");
-  // A saved scenario or draft already has property data: show the fields straight away.
+  const [linkStatus, setLinkStatus] = useState<LinkStatus>(autoRead ? "reading" : "idle");
+  // Manual entry was asked for, or a saved scenario or draft already has property data.
   const [showFields, setShowFields] = useState(
-    () => state.askingPrice !== null || state.areaId !== null || state.areaM2 !== null,
+    () =>
+      startManual || state.askingPrice !== null || state.areaId !== null || state.areaM2 !== null,
   );
 
-  async function readLink() {
+  function readLink() {
     setLinkStatus("reading");
+    void analyze();
+  }
+
+  async function analyze() {
     try {
       const res = await fetch("/api/analyze", {
         method: "POST",
@@ -83,6 +93,15 @@ export function ListingStep({
     }
   }
 
+  const autoReadDone = useRef(false);
+  useEffect(() => {
+    if (!autoRead || autoReadDone.current) return;
+    autoReadDone.current = true;
+    void analyze();
+    // Runs once, for the link the page was opened with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const linkMessage = {
     idle: null,
     reading: t("readingHelp"),
@@ -105,7 +124,7 @@ export function ListingStep({
           className="flex flex-col gap-2 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
-            if (state.url.trim()) void readLink();
+            if (state.url.trim()) readLink();
           }}
         >
           <Input
