@@ -14,7 +14,9 @@ export function StatCard({
   return (
     <Card className="gap-1">
       <CardHeader>
-        <CardTitle as="div" className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <CardTitle as="div" className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-3xl font-semibold tabular-nums">{value}</p>

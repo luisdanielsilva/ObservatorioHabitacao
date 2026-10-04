@@ -31,7 +31,10 @@ export async function AreaKpis({ prices, f }: { prices: AreaPrices; f: Formatter
       {cards.map((c) => (
         <Card key={c.key} className="gap-2 py-4">
           <CardHeader className="px-4">
-            <CardTitle as="div" className="flex items-center gap-1 text-sm font-normal text-muted-foreground">
+            <CardTitle
+              as="div"
+              className="flex items-center gap-1 text-sm font-normal text-muted-foreground"
+            >
               {c.label}
               {c.help && <HelpTip label={c.label} text={c.help} />}
             </CardTitle>

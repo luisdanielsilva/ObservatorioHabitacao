@@ -37,7 +37,9 @@ export default async function SignInPage({ params, searchParams }: PageProps<"/[
     <div className="mx-auto max-w-md px-4 py-16">
       <Card>
         <CardHeader>
-          <CardTitle as="h1" className="text-2xl">{t("title")}</CardTitle>
+          <CardTitle as="h1" className="text-2xl">
+            {t("title")}
+          </CardTitle>
           <CardDescription>{t("intro")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
