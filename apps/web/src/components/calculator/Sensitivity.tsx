@@ -36,12 +36,15 @@ export function Sensitivity({
   params,
   startMonth,
   enabled,
+  only,
 }: {
   state: CalculatorState;
   params: ParameterSet | null;
   startMonth: number;
   /** From the user's plan entitlements; open to everyone during the beta. */
   enabled: boolean;
+  /** Limits the table and chart to these strategies. */
+  only?: ScenarioKind[];
 }) {
   const t = useTranslations("sensitivity");
   const tm = useTranslations("metrics");
@@ -83,7 +86,9 @@ export function Sensitivity({
     }
   }, [deferredState, params, startMonth, variable, metric, deferredDelta, enabled]);
 
-  const kinds = SCENARIO_KINDS.filter((k) => base?.[k] !== undefined && base[k] !== null);
+  const kinds = SCENARIO_KINDS.filter(
+    (k) => (!only || only.includes(k)) && base?.[k] !== undefined && base[k] !== null,
+  );
   const formatMetric = (v: number | null | undefined) =>
     v === null || v === undefined || !Number.isFinite(v)
       ? "—"
@@ -100,11 +105,11 @@ export function Sensitivity({
       : `${d > 0 ? "+" : d < 0 ? "−" : ""}${f.number(Math.abs(d) * 100, 2)} p.p.`;
 
   return (
-    <section aria-labelledby={`${id}-title`} className="space-y-4 rounded-xl border bg-card p-5">
+    <section aria-labelledby={`${id}-title`} className="space-y-4 rounded-lg border p-4">
       <div className="flex items-center gap-1">
-        <h2 id={`${id}-title`} className="text-lg font-semibold">
+        <h3 id={`${id}-title`} className="font-semibold">
           {t("title")}
-        </h2>
+        </h3>
         <HelpTip label={t("title")} text={t("intro")} />
       </div>
 

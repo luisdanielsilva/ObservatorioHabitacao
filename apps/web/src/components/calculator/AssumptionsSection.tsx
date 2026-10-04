@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import type { ScenarioKind } from "@olhovivo/engine";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,14 @@ type NumericKey = {
   [K in keyof CalculatorState]: CalculatorState[K] extends number | null ? K : never;
 }[keyof CalculatorState];
 
+/** Default values behind the calculation, limited to those the chosen deal uses. */
 export function AssumptionsSection({
+  deal,
   state,
   update,
   locale,
 }: {
+  deal: ScenarioKind;
   state: CalculatorState;
   update: Update;
   locale: string;
@@ -44,20 +48,25 @@ export function AssumptionsSection({
     />
   );
 
-  const groups: { title: string; fields: React.ReactNode[] }[] = [
+  const buying = deal !== "contractAssignment";
+  const groups: { title: string; fields: (React.ReactNode | false)[] }[] = [
     {
-      title: t("stepProperty"),
+      title: t("assumptionsProperty"),
       fields: [
-        field("imiRate", t("imiRate"), "percent"),
+        buying && field("imiRate", t("imiRate"), "percent"),
         field("vpt", t("vpt"), "money", { help: t("vptHelp"), nullable: true }),
-        field("condominiumMonthly", t("condominium"), "money"),
-        field("insuranceAnnual", t("insurance"), "money"),
-        field("utilitiesMonthly", t("utilities"), "money"),
-        field("sellingCommissionRate", t("sellingCommission"), "percent"),
-        field("appreciationRate", t("appreciation"), "percent", { help: t("appreciationHelp") }),
+        buying && field("condominiumMonthly", t("condominium"), "money"),
+        buying && field("insuranceAnnual", t("insurance"), "money"),
+        deal === "flip" && field("utilitiesMonthly", t("utilities"), "money"),
+        buying && field("sellingCommissionRate", t("sellingCommission"), "percent"),
+        field("appreciationRate", t("appreciation"), "percent", {
+          help: t(deal === "contractAssignment" ? "appreciationHelpCessao" : "appreciationHelp"),
+        }),
       ],
     },
-    {
+  ];
+  if (deal === "longTermRental") {
+    groups.push({
       title: t("scenarioLongTerm"),
       fields: [
         field("rentGrowthRate", t("rentGrowth"), "percent"),
@@ -65,10 +74,13 @@ export function AssumptionsSection({
         field("maintenanceRate", t("maintenance"), "percent"),
         field("managementRate", t("management"), "percent"),
       ],
-    },
-    {
+    });
+  }
+  if (deal === "shortTermRental") {
+    groups.push({
       title: t("scenarioShortTerm"),
       fields: [
+        field("rentGrowthRate", t("nightlyGrowth"), "percent"),
         field("alPlatformFeeRate", t("alPlatformFee"), "percent"),
         field("alManagementRate", t("alManagement"), "percent"),
         field("averageStayNights", t("averageStay"), "number"),
@@ -79,23 +91,25 @@ export function AssumptionsSection({
         field("furnishingCost", t("furnishing"), "money"),
         field("alRegistrationCost", t("alRegistration"), "money"),
       ],
-    },
-    {
+    });
+  }
+  if (deal === "contractAssignment") {
+    groups.push({
       title: t("cessaoTitle"),
       fields: [
         field("assignmentCommissionRate", t("assignmentCommission"), "percent"),
         field("assignmentOtherCosts", t("assignmentOtherCosts"), "money"),
       ],
-    },
-  ];
+    });
+  }
 
   return (
-    <section aria-labelledby={`${id}-title`} className="rounded-xl border bg-card p-5">
+    <section aria-labelledby={`${id}-title`} className="rounded-lg border p-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 id={`${id}-title`} className="text-lg font-semibold">
+          <h3 id={`${id}-title`} className="font-semibold">
             {t("assumptions")}
-          </h2>
+          </h3>
           <p className="text-sm text-muted-foreground">{t("assumptionsHelp")}</p>
         </div>
         <Button
@@ -116,11 +130,13 @@ export function AssumptionsSection({
             <div className="grid gap-4 sm:grid-cols-2">{g.fields}</div>
           </fieldset>
         ))}
-        <SwitchField
-          label={t("vatRegistered")}
-          checked={state.vatRegistered}
-          onChange={(vatRegistered) => update({ vatRegistered })}
-        />
+        {deal === "shortTermRental" && (
+          <SwitchField
+            label={t("vatRegistered")}
+            checked={state.vatRegistered}
+            onChange={(vatRegistered) => update({ vatRegistered })}
+          />
+        )}
       </div>
     </section>
   );

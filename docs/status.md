@@ -27,38 +27,38 @@ project owner or an outside expert
 
 ## Phase 1 — MVP
 
-| WBS          | Item                                   | Status | Notes                                                                                                    |
-| ------------ | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
-| 4.1          | Database schema, location hierarchy    | ✅     | Adds `analyses`, `area_boundaries` + R*Tree, `cache`, `jobs`, `reference_rates`                          |
-| 4.2.1        | INE sale and rent medians              | ✅     | Sale €/m² quarterly 2019–2026 (306 municipalities, 356 parishes); rent €/m² yearly 2020–2025 (255 / 183) |
-| 4.2.2        | CAOP boundaries                        | ✅     | CAOP 2025: 308 municipalities, 3 259 parishes, simplified boundaries                                     |
-| 4.2.3        | Tax and financing sources              | 🟡 👤  | Euribor imported monthly from the ECB; 2025 set corrected, 2026 mainland set as a draft; all unverified  |
-| 4.3.1–4.3.2  | Import scripts, cleaning               | ✅     | `npm run import:all`; idempotent; logged in `ingestion_jobs`                                             |
-| 4.3.3        | Address geocoding, freguesia lookup    | ✅     | Nominatim (OSM) + CAOP point-in-polygon; name match fallback                                             |
-| 4.3.4        | Link reader                            | 🟡 👤  | Built (schema.org / Open Graph extraction, allow-list, safe fetch); off until the allow-list is decided  |
-| 4.3.5        | Scheduling and failure handling        | 🟡     | Weekly systemd timer prepared (`deploy/`); not installed yet                                             |
-| 4.4.1–4.4.3  | Median prices/rents, history           | ✅     | District figures derived as the median of municipal medians                                              |
-| 4.5.1        | IMT, Imposto do Selo, notary/registry  | ✅     | Versioned parameter set; values unverified                                                               |
-| 4.5.2        | IMI per municipality                   | 🟡     | 2023–2025 rates for 300 municipalities (transcribed, unverified); fallback 0.3 %                         |
-| 4.5.3        | Rental, AL and capital gains tax rules | ✅     | Values unverified                                                                                        |
-| 4.5.4        | Euribor, spreads, LTV limits           | ✅     | Default loan rate = 12-month Euribor + typical spread                                                    |
-| 4.5.5        | Yearly update process                  | ✅     | Draft → verify → activate in `/admin/parametros`                                                         |
-| 5.3.1–5.3.6  | Scenarios, comparison                  | ✅     | User-entered market values; IRR fixed for long series                                                    |
-| 5.4          | Opportunity score                      | ✅     | Asking price vs. user's market value, ±5 % band                                                          |
-| 5.5          | Listing assessment flow                | ✅     | Link or manual entry → location → INE reference → four scenarios                                         |
-| 6.1          | Auth (Auth.js)                         | ✅     | Email magic link (Resend); Google when `AUTH_GOOGLE_*` is set; admins from `ADMIN_EMAILS`; rate-limited  |
-| 6.2.2        | Link analysis endpoint                 | ✅     | `POST /api/analyze`, `GET /api/geocode`, `GET /api/reference`                                            |
-| 6.2.3        | Prices and rents endpoints             | ✅     | `GET /api/prices/[...path]`, `GET /api/areas`                                                            |
-| 6.2.5        | Scenario endpoints                     | ✅     | Calculation in the browser; save/duplicate by server actions; PDF route per scenario                     |
-| 7.1          | Foundations: i18n, layout, theming     | ✅     | PT/EN, dark default + light, header/footer, 404                                                          |
-| 7.2.1        | Home page                              | ✅     |                                                                                                          |
-| 7.2.4–7.2.5  | Calculator and comparison view         | ✅     | Table, goal selector, cash-flow chart, details and warnings                                              |
-| 7.2.7        | Avaliar anúncio                        | ✅     | `/avaliar`                                                                                               |
-| 7.2.8        | Preços pages                           | ✅     | Overview + district/municipality/parish pages, ISR, sitemap, JSON-LD                                     |
-| 7.2.9        | About, contacts, legal pages           | 🟡 👤  | Draft texts; need legal review                                                                           |
-| 7.4.1        | Responsiveness, accessibility          | 🟡     | No horizontal scroll at 375 px; labels, help texts, focus, card titles are headings; no WCAG audit yet   |
-| 11.3         | Engine vs. reference spreadsheet       | 🟡 👤  | 162 tests pass (51 engine, 86 db, 25 web); spreadsheet pending                                           |
-| 3.2.3, 3.4.2 | Deployment, backups                    | 🟡 👤  | systemd/Nginx/deploy/backup files ready in `deploy/`; installing needs sudo                              |
+| WBS          | Item                                   | Status | Notes                                                                                                         |
+| ------------ | -------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------- |
+| 4.1          | Database schema, location hierarchy    | ✅     | Adds `analyses`, `area_boundaries` + R*Tree, `cache`, `jobs`, `reference_rates`                               |
+| 4.2.1        | INE sale and rent medians              | ✅     | Sale €/m² quarterly 2019–2026 (306 municipalities, 356 parishes); rent €/m² yearly 2020–2025 (255 / 183)      |
+| 4.2.2        | CAOP boundaries                        | ✅     | CAOP 2025: 308 municipalities, 3 259 parishes, simplified boundaries                                          |
+| 4.2.3        | Tax and financing sources              | 🟡 👤  | Euribor imported monthly from the ECB; 2025 set corrected, 2026 mainland set as a draft; all unverified       |
+| 4.3.1–4.3.2  | Import scripts, cleaning               | ✅     | `npm run import:all`; idempotent; logged in `ingestion_jobs`                                                  |
+| 4.3.3        | Address geocoding, freguesia lookup    | ✅     | Nominatim (OSM) + CAOP point-in-polygon; name match fallback                                                  |
+| 4.3.4        | Link reader                            | 🟡 👤  | Claude reads the page (`ANTHROPIC_API_KEY`), structured data as fallback; off until the allow-list is decided |
+| 4.3.5        | Scheduling and failure handling        | 🟡     | Weekly systemd timer prepared (`deploy/`); not installed yet                                                  |
+| 4.4.1–4.4.3  | Median prices/rents, history           | ✅     | District figures derived as the median of municipal medians                                                   |
+| 4.5.1        | IMT, Imposto do Selo, notary/registry  | ✅     | Versioned parameter set; values unverified                                                                    |
+| 4.5.2        | IMI per municipality                   | 🟡     | 2023–2025 rates for 300 municipalities (transcribed, unverified); fallback 0.3 %                              |
+| 4.5.3        | Rental, AL and capital gains tax rules | ✅     | Values unverified                                                                                             |
+| 4.5.4        | Euribor, spreads, LTV limits           | ✅     | Default loan rate = 12-month Euribor + typical spread                                                         |
+| 4.5.5        | Yearly update process                  | ✅     | Draft → verify → activate in `/admin/parametros`                                                              |
+| 5.3.1–5.3.6  | Scenarios, comparison                  | ✅     | User-entered market values; IRR fixed for long series                                                         |
+| 5.4          | Opportunity score                      | ✅     | Asking price vs. user's market value, ±5 % band                                                               |
+| 5.5          | Listing assessment flow                | ✅     | Link or manual entry → location → INE reference → four scenarios                                              |
+| 6.1          | Auth (Auth.js)                         | ✅     | Email magic link (Resend); Google when `AUTH_GOOGLE_*` is set; admins from `ADMIN_EMAILS`; rate-limited       |
+| 6.2.2        | Link analysis endpoint                 | ✅     | `POST /api/analyze`, `GET /api/geocode`, `GET /api/reference`                                                 |
+| 6.2.3        | Prices and rents endpoints             | ✅     | `GET /api/prices/[...path]`, `GET /api/areas`                                                                 |
+| 6.2.5        | Scenario endpoints                     | ✅     | Calculation in the browser; save/duplicate by server actions; PDF route per scenario                          |
+| 7.1          | Foundations: i18n, layout, theming     | ✅     | PT/EN, dark default + light, header/footer, 404                                                               |
+| 7.2.1        | Home page                              | ✅     |                                                                                                               |
+| 7.2.4–7.2.5  | Calculator and comparison view         | ✅     | Table, goal selector, cash-flow chart, details and warnings                                                   |
+| 7.2.7        | Avaliar anúncio                        | ✅     | `/avaliar`                                                                                                    |
+| 7.2.8        | Preços pages                           | ✅     | Overview + district/municipality/parish pages, ISR, sitemap, JSON-LD                                          |
+| 7.2.9        | About, contacts, legal pages           | 🟡 👤  | Draft texts; need legal review                                                                                |
+| 7.4.1        | Responsiveness, accessibility          | 🟡     | No horizontal scroll at 375 px; labels, help texts, focus, card titles are headings; no WCAG audit yet        |
+| 11.3         | Engine vs. reference spreadsheet       | 🟡 👤  | 162 tests pass (51 engine, 86 db, 25 web); spreadsheet pending                                                |
+| 3.2.3, 3.4.2 | Deployment, backups                    | 🟡 👤  | systemd/Nginx/deploy/backup files ready in `deploy/`; installing needs sudo                                   |
 
 ## Phase 2 — Engagement (in the working tree, not committed yet)
 

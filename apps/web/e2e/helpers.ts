@@ -15,33 +15,38 @@ export function watchProblems(page: Page) {
 /** A calculator text field by its exact label (help buttons share the label text). */
 export const field = (page: Page, name: string) => page.getByRole("textbox", { name, exact: true });
 
-/** Fills the calculator with a Cascais example that produces all four scenarios. */
-export async function fillCalculatorExample(page: Page) {
+/** A step of Avaliar anúncio, by its heading. */
+export const step = (page: Page, name: string) => page.getByRole("region", { name, exact: true });
+
+/** Step 1 by hand: a T2 of 80 m² in Cascais, asking 400 000 €. */
+export async function fillPropertyByHand(page: Page, askingPrice = "400000") {
   await page.waitForLoadState("networkidle");
+  await page.getByRole("button", { name: "Preencher manualmente" }).click();
   await page.getByLabel("Distrito").selectOption({ label: "Lisboa" });
   await page.getByLabel("Concelho").selectOption({ label: "Cascais" });
   await page.getByLabel("Freguesia").selectOption({ index: 1 });
+  await field(page, "Preço pedido").fill(askingPrice);
   await field(page, "Área útil").fill("80");
-  await field(page, "Preço pedido").fill("400000");
-  await field(page, "Valor de mercado atual").fill("440000");
-  await field(page, "Preço de venda após obras").fill("480000");
+  await page.getByLabel("Tipologia").selectOption({ label: "T2" });
+  await page.getByRole("button", { name: "Continuar" }).click();
+}
+
+export async function chooseDeal(page: Page, name: string) {
+  await page.getByRole("radio", { name: new RegExp(`^${name}`) }).click();
+  await expect(
+    step(page, "Detalhes do negócio").getByRole("button", { name: "Ver resultados" }),
+  ).toBeVisible();
+}
+
+/** Step 3 for a long-term rental: 1 600 €/month on a property worth 440 000 €. */
+export async function fillRental(page: Page) {
   await field(page, "Renda mensal esperada").fill("1600");
-  const seasons = page.getByRole("table").filter({ hasText: "Época alta" });
-  const values = [
-    ["150", "85"],
-    ["110", "70"],
-    ["80", "50"],
-  ];
-  for (let i = 0; i < 3; i++) {
-    const inputs = seasons
-      .getByRole("row")
-      .nth(i + 1)
-      .getByRole("textbox");
-    await inputs.nth(0).fill(values[i]![0]!);
-    await inputs.nth(1).fill(values[i]![1]!);
-  }
-  await field(page, "Sinal pago").fill("40000");
-  await field(page, "Preço da cessão").fill("60000");
+  await field(page, "Valor de mercado atual").fill("440000");
+}
+
+export async function showResults(page: Page) {
+  await page.getByRole("button", { name: "Ver resultados" }).click();
+  await expect(step(page, "Resultados").getByText("Lucro líquido").first()).toBeVisible();
 }
 
 export async function expectNoHorizontalScroll(page: Page) {

@@ -5,7 +5,7 @@ import { AlertTriangle, Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Disclaimer } from "@/components/shared/Disclaimer";
+import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
 import type { CalculatorOutput, ScenarioOutcome } from "@/lib/calculator/run";
 import type { Formatter } from "@/lib/format";
@@ -15,7 +15,7 @@ import { CashFlowChart, SCENARIO_COLORS } from "./CashFlowChart";
 
 const GOALS: Goal[] = ["profit", "irr", "yield", "capital"];
 
-type MetricKey =
+export type MetricKey =
   | "totalInvestment"
   | "ownCapital"
   | "peakCapital"
@@ -28,7 +28,7 @@ type MetricKey =
   | "paybackYears"
   | "returnOnDeposit";
 
-const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[] = [
+export const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[] = [
   { key: "netProfit", format: "euro" },
   { key: "irr", format: "percent" },
   { key: "roi", format: "percent" },
@@ -42,16 +42,18 @@ const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[] = [
   { key: "peakCapital", format: "euro" },
 ];
 
+/** The four strategies side by side, with the best one for the user's goal highlighted. */
 export function Results({
   output,
   goal,
   onGoalChange,
-  paramsYear,
+  onFillMissing,
 }: {
   output: CalculatorOutput | null;
   goal: Goal;
   onGoalChange: (goal: Goal) => void;
-  paramsYear: number | null;
+  /** Opens the details of a strategy that still needs inputs (not on shared pages). */
+  onFillMissing?: (kind: ScenarioKind) => void;
 }) {
   const t = useTranslations("evaluate");
   const tm = useTranslations("metrics");
@@ -72,11 +74,11 @@ export function Results({
     formatMetric(r[key], format, f, (n) => tm("years", { value: Math.round(n * 10) / 10 }));
 
   return (
-    <section aria-labelledby={`${id}-title`} className="space-y-5 rounded-xl border bg-card p-5">
+    <section aria-labelledby={`${id}-title`} className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h2 id={`${id}-title`} className="text-lg font-semibold">
-          {t("stepResults")}
-        </h2>
+        <h3 id={`${id}-title`} className="font-semibold">
+          {t("resultsTitle")}
+        </h3>
         <div
           role="radiogroup"
           aria-label={t("goal")}
@@ -159,10 +161,23 @@ export function Results({
                       best === o.kind && "bg-primary/10",
                     )}
                   >
-                    {o.missing &&
-                      t("missing", {
-                        fields: o.missing.map((m) => t(`missingFields.${m}`)).join(", "),
-                      })}
+                    {o.missing && (
+                      <>
+                        {t("missing", {
+                          fields: o.missing.map((m) => t(`missingFields.${m}`)).join(", "),
+                        })}
+                        {onFillMissing && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto px-0"
+                            onClick={() => onFillMissing(o.kind)}
+                          >
+                            {t("fillMissing")}
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </td>
                 ))}
               </tr>
@@ -196,11 +211,6 @@ export function Results({
       <CashFlowChart outcomes={output.outcomes} />
 
       <ScenarioDetails outcomes={output.outcomes} />
-
-      <p className="text-xs text-muted-foreground">
-        {paramsYear && t("parameters", { year: paramsYear })} {t("saveSoon")}
-      </p>
-      <Disclaimer />
     </section>
   );
 }
@@ -209,7 +219,7 @@ function isNegative(v: number | null) {
   return v !== null && v < 0;
 }
 
-function formatMetric(
+export function formatMetric(
   v: number | null,
   format: "euro" | "percent" | "years",
   f: Formatter,
@@ -221,7 +231,14 @@ function formatMetric(
   return years(v);
 }
 
-function ScenarioDetails({ outcomes }: { outcomes: ScenarioOutcome[] }) {
+/** Acquisition costs and warnings per strategy, in collapsible panels. */
+export function ScenarioDetails({
+  outcomes,
+  defaultOpen = false,
+}: {
+  outcomes: ScenarioOutcome[];
+  defaultOpen?: boolean;
+}) {
   const t = useTranslations("evaluate");
   const ta = useTranslations("acquisition");
   const tw = useTranslations("warnings");
@@ -238,7 +255,11 @@ function ScenarioDetails({ outcomes }: { outcomes: ScenarioOutcome[] }) {
     <div className="space-y-2">
       <h3 className="text-sm font-semibold">{t("details")}</h3>
       {withResults.map(({ kind, result }) => (
-        <details key={kind} className="group rounded-lg border px-4 py-2 open:pb-4">
+        <details
+          key={kind}
+          open={defaultOpen || undefined}
+          className="group rounded-lg border px-4 py-2 open:pb-4"
+        >
           <summary className="flex cursor-pointer items-center gap-2 py-1 text-sm font-medium">
             <span
               aria-hidden

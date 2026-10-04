@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { field } from "./helpers";
+import { chooseDeal, field, fillPropertyByHand, showResults, step } from "./helpers";
 
 /**
  * Sign-in with a magic link read from the dev server's log (emails are logged when no email
@@ -14,8 +14,10 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   const email = `e2e+${Date.now()}@example.pt`;
 
   await page.goto("/avaliar");
-  await field(page, "Preço pedido").fill("250000");
+  await fillPropertyByHand(page, "250000");
+  await chooseDeal(page, "Compra e revenda");
   await field(page, "Preço de venda após obras").fill("300000");
+  await showResults(page);
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByText(/Entre na sua conta para guardar/)).toBeVisible();
   await page.getByRole("link", { name: "Guardar →" }).click();
@@ -37,8 +39,9 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
     .toBe(true);
   await page.goto(link!);
 
-  // The inputs typed before signing in are restored.
-  await expect(field(page, "Preço pedido")).toHaveValue("250000");
+  // The inputs typed before signing in are restored, and the page opens at the results.
+  await expect(step(page, "Imóvel")).toContainText("250 000 €");
+  await expect(step(page, "Tipo de negócio")).toContainText("Compra e revenda");
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page).toHaveURL(/cenario=\d+/);
 

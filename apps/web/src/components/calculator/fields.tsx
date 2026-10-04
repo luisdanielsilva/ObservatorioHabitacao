@@ -39,7 +39,9 @@ export function NumberInput({
   locale,
   min = 0,
   className,
+  required,
   "aria-describedby": describedBy,
+  "aria-label": ariaLabel,
 }: {
   id?: string;
   value: number | null;
@@ -50,7 +52,9 @@ export function NumberInput({
   locale: string;
   min?: number;
   className?: string;
+  required?: boolean;
   "aria-describedby"?: string;
+  "aria-label"?: string;
 }) {
   const [text, setText] = useState(() => toText(value, kind, locale));
   const [synced, setSynced] = useState({ value, kind, locale });
@@ -77,6 +81,8 @@ export function NumberInput({
         value={text}
         placeholder={placeholder}
         aria-describedby={describedBy}
+        aria-label={ariaLabel}
+        aria-required={required || undefined}
         className={cn("tabular-nums", shownSuffix && "pr-12")}
         onChange={(e) => {
           setText(e.target.value);
@@ -92,6 +98,28 @@ export function NumberInput({
         </span>
       )}
     </div>
+  );
+}
+
+/** A field label; required fields are marked with an asterisk. */
+export function FieldLabel({
+  htmlFor,
+  required,
+  children,
+}: {
+  htmlFor: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Label htmlFor={htmlFor}>
+      {children}
+      {required && (
+        <span aria-hidden className="-ml-2 text-destructive">
+          *
+        </span>
+      )}
+    </Label>
   );
 }
 
@@ -112,7 +140,9 @@ export function NumberField({
   return (
     <div className={cn("space-y-1.5", className)}>
       <div className="flex items-center gap-1">
-        <Label htmlFor={id}>{label}</Label>
+        <FieldLabel htmlFor={id} required={input.required}>
+          {label}
+        </FieldLabel>
         {help && <HelpTip label={label} text={help} />}
       </div>
       <NumberInput id={id} aria-describedby={hint ? `${id}-hint` : undefined} {...input} />
@@ -154,9 +184,11 @@ export function SelectField<T extends string | number>({
   value,
   options,
   onChange,
+  required,
 }: {
   label: string;
   help?: string;
+  required?: boolean;
   value: T;
   options: { value: T; label: string }[];
   onChange: (value: T) => void;
@@ -165,11 +197,14 @@ export function SelectField<T extends string | number>({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-1">
-        <Label htmlFor={id}>{label}</Label>
+        <FieldLabel htmlFor={id} required={required}>
+          {label}
+        </FieldLabel>
         {help && <HelpTip label={label} text={help} />}
       </div>
       <select
         id={id}
+        aria-required={required || undefined}
         value={String(value)}
         onChange={(e) => {
           const option = options.find((o) => String(o.value) === e.target.value);

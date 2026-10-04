@@ -1,19 +1,26 @@
 "use client";
 
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { findAreaChain, type AreaTree } from "@/components/shared/AreaPicker";
 import type { ReferenceResponse } from "@/app/api/reference/route";
+import {
+  hasTypology,
+  initialStep,
+  missingDealFields,
+  missingPropertyFields,
+  type Step,
+} from "@/lib/calculator/flow";
 import { runCalculator } from "@/lib/calculator/run";
 import { initialState, type CalculatorState } from "@/lib/calculator/state";
-import { AssumptionsSection } from "./AssumptionsSection";
-import { FinancingSection } from "./FinancingSection";
-import { MarketValuesSection } from "./MarketValuesSection";
-import { PropertySection } from "./PropertySection";
-import { Results } from "./Results";
+import { useFormat } from "@/lib/useFormat";
+import { DealDetails, dealSummary } from "./DealDetails";
+import { DealResults } from "./DealResults";
+import { DealStep } from "./DealStep";
+import { ListingStep } from "./ListingStep";
 import { SaveBar } from "./SaveBar";
-import { Sensitivity } from "./Sensitivity";
+import { StepCard, type StepStatus } from "./StepCard";
 
 export type Update = (patch: Partial<CalculatorState>) => void;
 
@@ -80,67 +87,144 @@ export function Calculator({ tree, params, euribor12m, initialAreaId, initial }:
     }
   }, [deferred, params, startMonth]);
 
+  const areaDepth = findAreaChain(tree, state.areaId).length;
+  const missingProperty = missingPropertyFields(state, areaDepth);
+  const [step, setStep] = useState<Step>(() =>
+    initial
+      ? initialStep(initial.state, safeRun(initial.state, params, startMonth), areaDepth)
+      : "property",
+  );
+  const deal = state.deal;
+  const order: Step[] = ["property", "deal", "details", "results"];
+  const status = (s: Step): StepStatus =>
+    s === step ? "active" : order.indexOf(s) < order.indexOf(step) ? "done" : "upcoming";
+  const chooseDeal = (kind: ScenarioKind) => {
+    update({ deal: kind });
+    setStep("details");
+  };
+
+  const f = useFormat();
+  const typeLabel = `${te(`types.${state.propertyType}`)}${hasTypology(state.propertyType) && state.bedrooms !== null ? ` T${state.bedrooms === 5 ? "5+" : state.bedrooms}` : ""}`;
+  const location = findAreaChain(tree, state.areaId)
+    .slice(1)
+    .reverse()
+    .map((a) => a.name)
+    .join(", ");
+  const propertySummary = [
+    typeLabel,
+    state.areaM2 !== null && `${f.number(state.areaM2)} m²`,
+    state.askingPrice !== null && f.euro(state.askingPrice),
+    location,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-      <div className="min-w-0 space-y-6">
-        <PropertySection
+    <div className="mx-auto max-w-4xl space-y-4">
+      <StepCard
+        number={1}
+        title={te("stepProperty")}
+        status={status("property")}
+        summary={propertySummary}
+        editLabel={te("edit")}
+        onEdit={() => setStep("property")}
+      >
+        <ListingStep
           state={state}
           update={update}
           tree={tree}
           reference={reference}
+          missing={missingProperty}
+          onContinue={() => setStep(initialStep(state, output, areaDepth))}
           locale={locale}
         />
-        <MarketValuesSection
-          state={state}
-          update={update}
-          reference={reference}
-          opportunity={output?.opportunity ?? null}
-          locale={locale}
-        />
-        <FinancingSection
-          state={state}
-          update={update}
-          loanAmount={output?.loanAmount ?? 0}
-          purchasePrice={output?.purchasePrice ?? null}
-          euribor12m={euribor12m}
-          spread={params?.financing.typicalSpread ?? null}
-          nonResidentRule={params?.imt.nonResidentHousingRate !== undefined}
-          locale={locale}
-        />
-        <AssumptionsSection
-          state={state}
-          update={(patch) => {
-            if ("imiRate" in patch) setImiTouched(true);
-            update(patch);
-          }}
-          locale={locale}
-        />
-      </div>
-      <div className="min-w-0 space-y-6">
-        <SaveBar
-          state={state}
-          savedId={initial?.savedId ?? null}
-          defaultName={
-            initial?.name ??
-            defaultScenarioName(
-              state,
-              tree,
-              (key, values) => te(key, values),
-              (type) => te(`types.${type}`),
-            )
-          }
-        />
-        <Results
-          output={output}
-          goal={state.goal}
-          onGoalChange={(goal) => update({ goal })}
-          paramsYear={params?.year ?? null}
-        />
-        {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
-        <Sensitivity state={state} params={params} startMonth={startMonth} enabled />
-      </div>
+      </StepCard>
+
+      <StepCard
+        number={2}
+        title={te("stepDeal")}
+        status={status("deal")}
+        summary={deal && te(`deals.${deal}`)}
+        editLabel={te("edit")}
+        onEdit={() => setStep("deal")}
+      >
+        <DealStep deal={deal} onChoose={chooseDeal} />
+      </StepCard>
+
+      <StepCard
+        number={3}
+        title={te("stepDetails")}
+        status={status("details")}
+        summary={deal && dealSummary(deal, state, f, (key, values) => te(key, values))}
+        editLabel={te("edit")}
+        onEdit={() => setStep("details")}
+      >
+        {deal && (
+          <DealDetails
+            deal={deal}
+            state={state}
+            update={update}
+            updateAssumptions={(patch) => {
+              if ("imiRate" in patch) setImiTouched(true);
+              update(patch);
+            }}
+            reference={reference}
+            loanAmount={output?.loanAmount ?? 0}
+            purchasePrice={output?.purchasePrice ?? null}
+            euribor12m={euribor12m}
+            spread={params?.financing.typicalSpread ?? null}
+            nonResidentRule={params?.imt.nonResidentHousingRate !== undefined}
+            missing={missingDealFields(output, deal)}
+            onShowResults={() => setStep("results")}
+            locale={locale}
+          />
+        )}
+      </StepCard>
+
+      <StepCard
+        number={4}
+        title={te("stepResults")}
+        status={status("results")}
+        editLabel={te("edit")}
+      >
+        {deal && (
+          <>
+            <SaveBar
+              state={state}
+              savedId={initial?.savedId ?? null}
+              defaultName={
+                initial?.name ??
+                defaultScenarioName(
+                  state,
+                  tree,
+                  (key, values) => te(key, values),
+                  (type) => te(`types.${type}`),
+                )
+              }
+            />
+            <DealResults
+              deal={deal}
+              output={output}
+              state={state}
+              params={params}
+              startMonth={startMonth}
+              onGoalChange={(goal) => update({ goal })}
+              onFillMissing={chooseDeal}
+            />
+          </>
+        )}
+      </StepCard>
     </div>
   );
+}
+
+function safeRun(state: CalculatorState, params: ParameterSet | null, startMonth: number) {
+  if (!params) return null;
+  try {
+    return runCalculator(state, params, startMonth);
+  } catch {
+    return null;
+  }
 }
 
 /** e.g. "Apartamento T2 em Arroios". */
@@ -150,7 +234,7 @@ function defaultScenarioName(
   t: (key: "defaultName" | "defaultNameNoArea", values: { type: string; area?: string }) => string,
   typeLabel: (type: CalculatorState["propertyType"]) => string,
 ): string {
-  const type = `${typeLabel(state.propertyType)}${state.bedrooms !== null ? ` T${state.bedrooms === 5 ? "5+" : state.bedrooms}` : ""}`;
+  const type = `${typeLabel(state.propertyType)}${hasTypology(state.propertyType) && state.bedrooms !== null ? ` T${state.bedrooms === 5 ? "5+" : state.bedrooms}` : ""}`;
   const area = findAreaChain(tree, state.areaId).at(-1)?.name;
   return area ? t("defaultName", { type, area }) : t("defaultNameNoArea", { type });
 }

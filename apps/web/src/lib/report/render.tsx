@@ -107,7 +107,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
             : t("noLoan"),
         ],
         [te("flipMonths"), `${state.flipMonths} ${te("monthsShort")}`],
-        [te("rentalYears"), `${state.rentalYears} ${te("yearsShort")}`],
+        [te("holdingYears"), `${state.rentalYears} ${te("yearsShort")}`],
         [te("marginalTaxRate"), f.percent(state.marginalTaxRate)],
       ],
     },

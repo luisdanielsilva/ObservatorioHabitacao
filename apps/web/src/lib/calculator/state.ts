@@ -1,4 +1,4 @@
-import type { Goal, Seasonal } from "@olhovivo/engine";
+import type { Goal, ScenarioKind, Seasonal } from "@olhovivo/engine";
 
 export const PROPERTY_TYPES = [
   "apartamento",
@@ -16,6 +16,9 @@ export type Condition = (typeof CONDITIONS)[number];
 
 /** `null` means the user has not entered a value. Rates are fractions (0.05 = 5 %). */
 export interface CalculatorState {
+  /** The deal the user is evaluating; null until chosen. */
+  deal: ScenarioKind | null;
+
   // 1. Property
   url: string;
   areaId: number | null;
@@ -97,6 +100,7 @@ export const FALLBACK_IMI_RATE = 0.003;
  */
 export function initialState(overrides: Partial<CalculatorState> = {}): CalculatorState {
   return {
+    deal: null,
     url: "",
     areaId: null,
     address: "",
@@ -163,6 +167,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
 }
 
 const ENUMS: Partial<Record<keyof CalculatorState, readonly string[]>> = {
+  deal: ["flip", "longTermRental", "shortTermRental", "contractAssignment"],
   propertyType: PROPERTY_TYPES,
   condition: CONDITIONS,
   propertyUse: ["secondary", "hpp"],

@@ -1,11 +1,10 @@
 "use client";
 
-import { Loader2, MapPin } from "lucide-react";
+import { Link2, Loader2, PencilLine, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
-import type { ReferenceResponse } from "@/app/api/reference/route";
 import type { AnalyzeResponse } from "@/app/api/analyze/route";
-import type { GeocodeResponse } from "@/app/api/geocode/route";
+import type { ReferenceResponse } from "@/app/api/reference/route";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -13,41 +12,43 @@ import { Label } from "@/components/ui/label";
 import { AreaPicker, type AreaTree } from "@/components/shared/AreaPicker";
 import { HelpTip } from "@/components/shared/HelpTip";
 import { SyntheticBadge } from "@/components/shared/SyntheticBadge";
+import { hasTypology, type PropertyField } from "@/lib/calculator/flow";
 import { CONDITIONS, PROPERTY_TYPES, type CalculatorState } from "@/lib/calculator/state";
 import { formatPeriod } from "@/lib/period";
 import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
-import { NumberField, Section, SelectField } from "./fields";
+import { FieldLabel, NumberField, SelectField } from "./fields";
 
-type LinkStatus =
-  | "idle"
-  | "reading"
-  | "ok"
-  | "not_allowed"
-  | "not_listing"
-  | "failed"
-  | "invalid"
-  | "rate_limited";
+type LinkStatus = "idle" | "reading" | Exclude<AnalyzeResponse["status"], "ok"> | "ok";
 
-export function PropertySection({
+/**
+ * Step 1: the property. The user pastes a listing link, which is read for them, or chooses to
+ * fill in every field by hand. The fields appear once a link is read or manual entry is chosen.
+ */
+export function ListingStep({
   state,
   update,
   tree,
   reference,
+  missing,
+  onContinue,
   locale,
 }: {
   state: CalculatorState;
   update: Update;
   tree: AreaTree;
   reference: ReferenceResponse | null;
+  missing: PropertyField[];
+  onContinue: () => void;
   locale: string;
 }) {
   const t = useTranslations("evaluate");
   const id = useId();
   const [linkStatus, setLinkStatus] = useState<LinkStatus>("idle");
-  const [locateStatus, setLocateStatus] = useState<
-    { kind: "idle" | "locating" | "missing" | "limited" } | { kind: "found"; name: string }
-  >({ kind: "idle" });
+  // A saved scenario or draft already has property data: show the fields straight away.
+  const [showFields, setShowFields] = useState(
+    () => state.askingPrice !== null || state.areaId !== null || state.areaM2 !== null,
+  );
 
   async function readLink() {
     setLinkStatus("reading");
@@ -55,7 +56,7 @@ export function PropertySection({
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: state.url }),
+        body: JSON.stringify({ url: state.url.trim() }),
       });
       const body = (await res.json()) as AnalyzeResponse;
       if (body.status !== "ok") return setLinkStatus(body.status);
@@ -76,42 +77,32 @@ export function PropertySection({
         },
       });
       setLinkStatus("ok");
+      setShowFields(true);
     } catch {
       setLinkStatus("failed");
     }
   }
 
-  async function locate() {
-    setLocateStatus({ kind: "locating" });
-    try {
-      const res = await fetch(`/api/geocode?q=${encodeURIComponent(state.address)}`);
-      const body = (await res.json()) as GeocodeResponse;
-      if (body.status === "rate_limited") return setLocateStatus({ kind: "limited" });
-      if (body.status !== "ok" || !body.areaId) return setLocateStatus({ kind: "missing" });
-      update({ areaId: body.areaId });
-      setLocateStatus({ kind: "found", name: body.areaName ?? "" });
-    } catch {
-      setLocateStatus({ kind: "missing" });
-    }
-  }
-
   const linkMessage = {
     idle: null,
-    reading: null,
+    reading: t("readingHelp"),
     ok: t("linkRead"),
     not_allowed: t("linkNotAllowed"),
-    not_listing: t("linkFailed"),
+    not_listing: t("linkNotListing"),
     failed: t("linkFailed"),
     invalid: t("linkInvalid"),
     rate_limited: t("rateLimited"),
   }[linkStatus];
 
   return (
-    <Section title={t("stepProperty")} id={`${id}-property`}>
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-url`}>{t("linkLabel")}</Label>
+    <>
+      <div className="space-y-2">
+        <Label htmlFor={`${id}-url`} className="flex items-center gap-1.5">
+          <Sparkles className="size-4 text-primary" aria-hidden />
+          {t("linkLabel")}
+        </Label>
         <form
-          className="flex gap-2"
+          className="flex flex-col gap-2 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
             if (state.url.trim()) void readLink();
@@ -126,12 +117,8 @@ export function PropertySection({
             onChange={(e) => update({ url: e.target.value })}
             aria-describedby={`${id}-url-help`}
           />
-          <Button
-            type="submit"
-            variant="secondary"
-            disabled={!state.url.trim() || linkStatus === "reading"}
-          >
-            {linkStatus === "reading" ? <Loader2 className="animate-spin" /> : null}
+          <Button type="submit" disabled={!state.url.trim() || linkStatus === "reading"}>
+            {linkStatus === "reading" ? <Loader2 className="animate-spin" /> : <Link2 />}
             {linkStatus === "reading" ? t("reading") : t("readLink")}
           </Button>
         </form>
@@ -140,88 +127,109 @@ export function PropertySection({
         </p>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-muted-foreground uppercase">
-        <span className="h-px flex-1 bg-border" />
-        {t("orManual")}
-        <span className="h-px flex-1 bg-border" />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor={`${id}-address`}>{t("address")}</Label>
-        <form
-          className="flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (state.address.trim().length > 3) void locate();
-          }}
-        >
-          <Input
-            id={`${id}-address`}
-            autoComplete="street-address"
-            value={state.address}
-            onChange={(e) => update({ address: e.target.value })}
-            aria-describedby={`${id}-address-help`}
-          />
-          <Button
-            type="submit"
-            variant="secondary"
-            disabled={state.address.trim().length <= 3 || locateStatus.kind === "locating"}
-          >
-            {locateStatus.kind === "locating" ? <Loader2 className="animate-spin" /> : <MapPin />}
-            {locateStatus.kind === "locating" ? t("locating") : t("locate")}
+      {!showFields ? (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground uppercase">
+            <span className="h-px flex-1 bg-border" />
+            {t("or")}
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <Button variant="outline" className="w-full" onClick={() => setShowFields(true)}>
+            <PencilLine />
+            {t("manualEntry")}
           </Button>
-        </form>
-        <p id={`${id}-address-help`} className="text-xs text-muted-foreground" aria-live="polite">
-          {locateStatus.kind === "found"
-            ? t("located", { area: locateStatus.name })
-            : locateStatus.kind === "missing"
-              ? t("notLocated")
-              : locateStatus.kind === "limited"
-                ? t("rateLimited")
-                : t("addressHelp")}{" "}
-          <span className="block">{t("osmAttribution")}</span>
-        </p>
-      </div>
+        </div>
+      ) : (
+        <PropertyFields
+          state={state}
+          update={update}
+          tree={tree}
+          reference={reference}
+          missing={missing}
+          onContinue={onContinue}
+          locale={locale}
+        />
+      )}
+    </>
+  );
+}
 
-      <AreaPicker tree={tree} value={state.areaId} onChange={(areaId) => update({ areaId })} />
+function PropertyFields({
+  state,
+  update,
+  tree,
+  reference,
+  missing,
+  onContinue,
+  locale,
+}: {
+  state: CalculatorState;
+  update: Update;
+  tree: AreaTree;
+  reference: ReferenceResponse | null;
+  missing: PropertyField[];
+  onContinue: () => void;
+  locale: string;
+}) {
+  const t = useTranslations("evaluate");
+  const id = useId();
+  const [tried, setTried] = useState(false);
+
+  return (
+    <div className="space-y-5 border-t pt-5">
+      <p className="text-sm text-muted-foreground">{t("manualIntro")}</p>
+
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">
+          {t("location")}
+          <span aria-hidden className="text-destructive">
+            *
+          </span>
+        </legend>
+        <AreaPicker tree={tree} value={state.areaId} onChange={(areaId) => update({ areaId })} />
+      </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        <NumberField
+          label={t("askingPrice")}
+          kind="money"
+          required
+          value={state.askingPrice}
+          onChange={(askingPrice) => update({ askingPrice })}
+          locale={locale}
+        />
+        <NumberField
+          label={t("areaM2")}
+          kind="number"
+          suffix="m²"
+          required
+          value={state.areaM2}
+          onChange={(areaM2) => update({ areaM2 })}
+          locale={locale}
+        />
         <SelectField
           label={t("propertyType")}
           value={state.propertyType}
           options={PROPERTY_TYPES.map((v) => ({ value: v, label: t(`types.${v}`) }))}
           onChange={(propertyType) => update({ propertyType })}
         />
-        <SelectField
-          label={t("typology")}
-          value={state.bedrooms ?? -1}
-          options={[
-            { value: -1, label: "—" },
-            ...[0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: n === 5 ? "T5+" : `T${n}` })),
-          ]}
-          onChange={(n) => update({ bedrooms: n < 0 ? null : n })}
-        />
-        <NumberField
-          label={t("areaM2")}
-          kind="number"
-          suffix="m²"
-          value={state.areaM2}
-          onChange={(areaM2) => update({ areaM2 })}
-          locale={locale}
-        />
+        {hasTypology(state.propertyType) && (
+          <SelectField
+            label={t("typology")}
+            required
+            value={state.bedrooms ?? -1}
+            options={[
+              { value: -1, label: t("selectPlaceholder") },
+              ...[0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: n === 5 ? "T5+" : `T${n}` })),
+            ]}
+            onChange={(n) => update({ bedrooms: n < 0 ? null : n })}
+          />
+        )}
         <SelectField
           label={t("condition")}
           value={state.condition}
           options={CONDITIONS.map((v) => ({ value: v, label: t(`conditions.${v}`) }))}
           onChange={(condition) => update({ condition })}
-        />
-        <NumberField
-          label={t("askingPrice")}
-          kind="money"
-          value={state.askingPrice}
-          onChange={(askingPrice) => update({ askingPrice })}
-          locale={locale}
-          className="sm:col-span-2"
         />
       </div>
 
@@ -250,12 +258,40 @@ export function PropertySection({
         </div>
       </fieldset>
 
+      <div className="space-y-1.5">
+        <FieldLabel htmlFor={`${id}-address`}>{t("addressOptional")}</FieldLabel>
+        <Input
+          id={`${id}-address`}
+          autoComplete="street-address"
+          value={state.address}
+          onChange={(e) => update({ address: e.target.value })}
+        />
+      </div>
+
       <MarketReference state={state} reference={reference} />
-    </Section>
+
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground" aria-live="polite">
+          {tried && missing.length > 0
+            ? t("missing", { fields: missing.map((m) => t(`requiredFields.${m}`)).join(", ") })
+            : t("requiredNote")}
+        </p>
+        <Button
+          onClick={() => {
+            setTried(true);
+            if (missing.length === 0) onContinue();
+          }}
+          className="shrink-0"
+        >
+          {t("continue")}
+        </Button>
+      </div>
+    </div>
   );
 }
 
-function MarketReference({
+/** INE medians for the chosen area, compared with the asking price. */
+export function MarketReference({
   state,
   reference,
 }: {
