@@ -19,17 +19,20 @@ export function findAreaChain(tree: AreaTree, id: number | null): AreaNode[] {
 }
 
 export const selectClass =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 dark:bg-input/30 [&>option]:bg-popover";
+  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 dark:bg-input/30 [&>option]:bg-popover aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20";
 
 /** District → municipality → parish selects. The value is the most specific area chosen. */
 export function AreaPicker({
   tree,
   value,
   onChange,
+  invalid = false,
 }: {
   tree: AreaTree;
   value: number | null;
   onChange: (areaId: number | null) => void;
+  /** Marks the first level still to choose (district, then municipality) as invalid. */
+  invalid?: boolean;
 }) {
   const t = useTranslations("evaluate");
   const id = useId();
@@ -61,6 +64,11 @@ export function AreaPicker({
           <select
             id={`${id}-${level.key}`}
             className={selectClass}
+            aria-invalid={
+              invalid && level.key === (district ? "municipality" : "district") && !level.selected
+                ? true
+                : undefined
+            }
             value={level.selected?.id ?? ""}
             disabled={level.options.length === 0}
             onChange={(e) =>

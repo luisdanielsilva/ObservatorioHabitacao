@@ -67,7 +67,7 @@ describe("runFlip", () => {
     expect(flip.totalInvestment).toBeCloseTo(BOUGHT + 30_000, 2);
     expect(flip.ownCapital).toBeCloseTo(BOUGHT + 30_000, 2);
     expect(flip.peakCapital).toBeCloseTo(BOUGHT + 30_000 + 5 * 75, 2);
-    expect(flip.roi).toBeCloseTo(flip.netProfit / flip.ownCapital, 10);
+    expect(flip.roi).toBeCloseTo(flip.netProfit! / flip.ownCapital, 10);
     expect(flip.irr).toBeGreaterThan(0.2);
     expect(flip.grossYield).toBeNull();
     expect(flip.months).toHaveLength(7);
@@ -83,7 +83,8 @@ describe("runLongTermRental", () => {
     insuranceAnnual: 240,
     monthlyRent: 1_000,
     rentGrowthRate: 0,
-    vacancyRate: 0,
+    contractMonths: 24,
+    vacancyMonths: 0,
     maintenanceRate: 0.05,
     managementRate: 0,
     rentalTax: { mode: "autonomous", contractYears: 2 },
@@ -106,6 +107,35 @@ describe("runLongTermRental", () => {
     expect(rental.netProfit).toBeCloseTo(-BOUGHT + 24 * 855 - 2 * 2_565 + 200_000, 2);
   });
 
+  it("leaves the property empty between leases", () => {
+    // 12-month leases with 2 empty months: letting months 13 and 14 have no rent.
+    const cycles = runLongTermRental({ ...input, contractMonths: 12, vacancyMonths: 2 }, params);
+    expect(cycles.months[12]!.income).toBe(1_000);
+    expect(cycles.months[13]!.income).toBe(0);
+    expect(cycles.months[14]!.income).toBe(0);
+    expect(cycles.months[15]!.income).toBe(1_000);
+    // The typical year spreads the vacancy: 12 / 14 of the rent, net of the 5 % maintenance.
+    const yearlyRent = (1_000 * 12 * 12) / 14;
+    const costs = 12 * 95 + yearlyRent * 0.05;
+    const tax = (yearlyRent - costs) * 0.25;
+    expect(cycles.netYield).toBeCloseTo((yearlyRent - costs - tax) / BOUGHT, 10);
+  });
+
+  it("can keep the property: no sale at the end", () => {
+    const kept = runLongTermRental({ ...input, holdingMonths: 18, exitPrice: null }, params);
+    const last = kept.months.at(-1)!;
+    expect(last.saleProceeds).toBe(0);
+    expect(last.capitalGainsTax).toBe(0);
+    // The last, partial year is still taxed: 6 months × 855 at 25 %.
+    expect(last.incomeTax).toBeCloseTo(6 * 855 * 0.25, 6);
+    // Without a sale there is no profit or IRR; the rent's yield over the period is reported.
+    expect(kept.netProfit).toBeNull();
+    expect(kept.irr).toBeNull();
+    expect(kept.lifetimeCashFlow).toBeCloseTo(18 * 855 - 2_565 - 6 * 855 * 0.25, 2);
+    expect(kept.annualCashFlow).toBeCloseTo(12 * 855 * 0.75, 6);
+    expect(kept.cashOnCash).toBeCloseTo((12 * 855 * 0.75) / BOUGHT, 10);
+  });
+
   it("charges only the early repayment fee and loan costs for a 0 % loan", () => {
     const financed = runLongTermRental(
       { ...input, loan: { amount: 100_000, annualRate: 0, termYears: 10 } },
@@ -113,7 +143,7 @@ describe("runLongTermRental", () => {
     );
     // Loan stamp duty 600, deed with mortgage +325, bank fees 800,
     // early repayment fee 0.5 % × 80 000 outstanding = 400.
-    expect(financed.netProfit).toBeCloseTo(rental.netProfit - 600 - 325 - 800 - 400, 2);
+    expect(financed.netProfit).toBeCloseTo(rental.netProfit! - 600 - 325 - 800 - 400, 2);
     expect(financed.ownCapital).toBeCloseTo(BOUGHT + 600 + 325 + 800 - 100_000, 2);
     expect(financed.monthlyCashFlow).toBeCloseTo(rental.monthlyCashFlow! - 833.33, 2);
   });

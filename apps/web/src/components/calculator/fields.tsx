@@ -40,6 +40,7 @@ export function NumberInput({
   min = 0,
   className,
   required,
+  invalid,
   "aria-describedby": describedBy,
   "aria-label": ariaLabel,
 }: {
@@ -53,6 +54,8 @@ export function NumberInput({
   min?: number;
   className?: string;
   required?: boolean;
+  /** Shown in red and announced as invalid (a required value is missing). */
+  invalid?: boolean;
   "aria-describedby"?: string;
   "aria-label"?: string;
 }) {
@@ -83,6 +86,7 @@ export function NumberInput({
         aria-describedby={describedBy}
         aria-label={ariaLabel}
         aria-required={required || undefined}
+        aria-invalid={invalid || undefined}
         className={cn("tabular-nums", shownSuffix && "pr-12")}
         onChange={(e) => {
           setText(e.target.value);
@@ -185,10 +189,12 @@ export function SelectField<T extends string | number>({
   options,
   onChange,
   required,
+  invalid,
 }: {
   label: string;
   help?: string;
   required?: boolean;
+  invalid?: boolean;
   value: T;
   options: { value: T; label: string }[];
   onChange: (value: T) => void;
@@ -205,12 +211,13 @@ export function SelectField<T extends string | number>({
       <select
         id={id}
         aria-required={required || undefined}
+        aria-invalid={invalid || undefined}
         value={String(value)}
         onChange={(e) => {
           const option = options.find((o) => String(o.value) === e.target.value);
           if (option) onChange(option.value);
         }}
-        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30 [&>option]:bg-popover"
+        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30 [&>option]:bg-popover aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20"
       >
         {options.map((o) => (
           <option key={String(o.value)} value={String(o.value)}>
@@ -244,5 +251,26 @@ export function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+/** Moves the focus to the first field marked invalid in `container`, once it has rendered. */
+export function focusFirstInvalid(container: HTMLElement | null) {
+  setTimeout(() => {
+    const field = container?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    field?.scrollIntoView({ behavior: "smooth", block: "center" });
+    field?.focus({ preventScroll: true });
+  });
+}
+
+/** A blocking message next to a step's button: what is still missing. */
+export function MissingAlert({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      role="alert"
+      className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive"
+    >
+      {children}
+    </p>
   );
 }

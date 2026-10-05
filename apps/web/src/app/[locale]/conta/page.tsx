@@ -81,8 +81,10 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
             <ul className="divide-y">
               {scenarios.map((s) => {
                 const summary = s.results as ResultsSummary | null;
-                const best = summary?.best ?? null;
-                const bestFigures = best ? summary?.scenarios[best] : undefined;
+                // The deals evaluated in this scenario, without ranking them.
+                const evaluated = Object.entries(summary?.scenarios ?? {})
+                  .filter(([, figures]) => figures && !("missing" in figures))
+                  .map(([kind]) => ts(kind as ScenarioKind));
                 return (
                   <li key={s.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
                     <div className="min-w-0 flex-1">
@@ -94,15 +96,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
                       </Link>
                       <p className="text-xs text-muted-foreground">
                         {t("updated", { date: date(s.updatedAt) })}
-                        {best && (
-                          <>
-                            {" · "}
-                            {t("best", { scenario: ts(best as ScenarioKind) })}
-                            {bestFigures &&
-                              "netProfit" in bestFigures &&
-                              ` · ${f.euro(bestFigures.netProfit)}`}
-                          </>
-                        )}
+                        {evaluated.length > 0 && ` · ${evaluated.join(", ")}`}
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-1">

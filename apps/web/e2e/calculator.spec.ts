@@ -23,7 +23,11 @@ test("one deal: long-term rental, results and adding a strategy", async ({ page 
   await showResults(page);
 
   const results = step(page, "Resultados");
-  await expect(results.getByRole("term").filter({ hasText: "Cash flow mensal" })).toBeVisible();
+  // Monthly, yearly and lifetime figures; no sale profit for a rental kept for good.
+  for (const name of ["Cash flow mensal", "Cash flow anual", "Cash flow acumulado"]) {
+    await expect(results.getByRole("term").filter({ hasText: name })).toBeVisible();
+  }
+  await expect(results.getByRole("term").filter({ hasText: "Lucro líquido" })).toHaveCount(0);
   // 400 000 asked vs 440 000 market value: 9 % below → opportunity.
   await expect(results.getByText("Oportunidade", { exact: true })).toBeVisible();
 
@@ -63,9 +67,14 @@ test("several deals: details in turn, then compared side by side", async ({ page
   await nextPanel(page);
 
   await expect(page.getByRole("heading", { name: "2 de 4: Compra e revenda" })).toBeVisible();
+  // The resale has no assumptions of its own (no utilities while holding).
+  await expect(page.getByText("Água, luz e gás (mensal)")).toHaveCount(0);
   // A deal's required inputs are checked before moving on.
   await nextPanel(page);
-  await expect(page.getByText("Indique: preço de venda após obras")).toBeVisible();
+  await expect(step(page, "Detalhes do negócio").getByRole("alert")).toHaveText(
+    "Indique: preço de venda após obras",
+  );
+  await expect(field(page, "Preço de venda após obras")).toBeFocused();
   await field(page, "Preço de venda após obras").fill("480000");
   await nextPanel(page);
 
@@ -93,7 +102,12 @@ test("several deals: details in turn, then compared side by side", async ({ page
     await expect(table.getByRole("columnheader", { name: new RegExp(name) })).toBeVisible();
   }
   await expect(table.getByRole("columnheader", { name: /Cessão/ })).toHaveCount(0);
-  await expect(table.getByText("Melhor opção")).toBeVisible();
+  // Side by side, without ranking: no "best option" and no goal to choose.
+  await expect(results.getByText("Melhor opção")).toHaveCount(0);
+  await expect(results.getByRole("radiogroup", { name: "Objetivo" })).toHaveCount(0);
+  // The long-term rental's monthly cash flow is in the comparison.
+  const cashFlow = table.getByRole("row", { name: /^Cash flow mensal/ });
+  await expect(cashFlow.getByRole("cell").nth(1)).toHaveText(/\d.*€/);
 
   // One tab per deal.
   await results.getByRole("tab", { name: "Alojamento local" }).click();
@@ -129,10 +143,17 @@ test("the property step requires every field", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: "Preencher manualmente" }).click();
   await field(page, "Preço pedido").fill("250000");
+  await page.getByLabel("Distrito").selectOption({ label: "Braga" });
   await page.getByRole("button", { name: "Continuar" }).click();
-  await expect(
-    page.getByText("Indique: tipologia, área útil, localização (pelo menos o concelho)"),
-  ).toBeVisible();
+  // A clear message, the missing fields marked, and the focus on the first one.
+  await expect(step(page, "Imóvel").getByRole("alert")).toHaveText(
+    "Indique: tipologia, área útil, localização (pelo menos o concelho)",
+  );
+  await expect(page.getByLabel("Concelho")).toHaveAttribute("aria-invalid", "true");
+  await expect(field(page, "Área útil")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Tipologia")).toHaveAttribute("aria-invalid", "true");
+  await expect(field(page, "Preço pedido")).not.toHaveAttribute("aria-invalid");
+  await expect(page.getByLabel("Concelho")).toBeFocused();
   await expect(page.getByRole("checkbox", { name: /^Compra e revenda/ })).toHaveCount(0);
 });
 
@@ -223,5 +244,31 @@ test("tax inputs: optional other income and the englobamento note", async ({ pag
   await showResults(page);
   await expect(
     step(page, "Resultados").getByRole("term").filter({ hasText: "Cash flow mensal" }),
+  ).toBeVisible();
+});
+
+test("long-term rental: kept for good, consecutive leases, legal rent update", async ({ page }) => {
+  await page.goto("/avaliar");
+  await fillPropertyByHand(page);
+  await chooseDeals(page, "Arrendamento de longa duração");
+  await nextPanel(page);
+  // No holding period: the property is let for good.
+  await expect(field(page, "Anos de detenção")).toHaveCount(0);
+  await expect(page.getByText(/arrendado de forma permanente, sem venda/)).toBeVisible();
+  await expect(field(page, "Duração de cada contrato")).toHaveValue("3");
+
+  await page.getByRole("button", { name: "Mostrar pressupostos" }).last().click();
+  await expect(field(page, "Aumento anual da renda")).toHaveValue("2,24");
+  await expect(field(page, "Vazio entre contratos")).toHaveValue("1");
+  await expect(field(page, "Condomínio (mensal)")).toHaveValue("25");
+  await expect(field(page, "Seguro multirriscos (mensal)")).toHaveValue("20");
+  // The help next to the rent increase names the legal source.
+  await page.getByRole("button", { name: /Aumento anual da renda/ }).click();
+  await expect(page.getByText(/Aviso n\.º 23174\/2025\/2/)).toBeVisible();
+
+  await field(page, "Renda mensal esperada").fill("1600");
+  await showResults(page);
+  await expect(
+    step(page, "Resultados").getByText(/sem venda: cash flow acumulado em 30 anos/),
   ).toBeVisible();
 });

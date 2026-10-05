@@ -4,12 +4,12 @@ import { initialState, normaliseState } from "./state";
 describe("normaliseState", () => {
   it("keeps valid values and drops unknown keys", () => {
     const state = normaliseState({
-      ...initialState({ askingPrice: 250_000, areaId: 24, goal: "irr" }),
+      ...initialState({ askingPrice: 250_000, areaId: 24, propertyUse: "hpp" }),
       evil: "<script>",
     });
     expect(state.askingPrice).toBe(250_000);
     expect(state.areaId).toBe(24);
-    expect(state.goal).toBe("irr");
+    expect(state.propertyUse).toBe("hpp");
     expect("evil" in state).toBe(false);
   });
 
@@ -18,7 +18,7 @@ describe("normaliseState", () => {
       askingPrice: "250000",
       interestRate: Number.NaN,
       useLoan: "yes",
-      goal: "everything",
+      propertyUse: "everything",
       nightlyRate: { high: 120, mid: "x" },
       extras: null,
     });
@@ -26,7 +26,7 @@ describe("normaliseState", () => {
     expect(state.askingPrice).toBeNull();
     expect(state.interestRate).toBe(defaults.interestRate);
     expect(state.useLoan).toBe(true);
-    expect(state.goal).toBe("profit");
+    expect(state.propertyUse).toBe("secondary");
     expect(state.nightlyRate).toEqual({ high: 120, mid: null, low: null });
     expect(state.extras).toEqual(defaults.extras);
   });

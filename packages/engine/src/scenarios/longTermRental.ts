@@ -22,8 +22,10 @@ export interface LongTermRentalInputs extends PropertyInputs {
   monthlyRent: number;
   /** Annual rent increase, applied every 12 months of letting. */
   rentGrowthRate: number;
-  /** Share of the year the property is empty, e.g. 1/12. */
-  vacancyRate: number;
+  /** Length of each lease; leases follow one another for as long as the property is held. */
+  contractMonths: number;
+  /** Months empty between the end of one lease and the start of the next. */
+  vacancyMonths: number;
   /** Maintenance as a share of collected rent. */
   maintenanceRate: number;
   /** Property management fee as a share of collected rent. */
@@ -57,22 +59,33 @@ export function runLongTermRental(
       ? irsOnExtraIncome(input.otherTaxableIncome, net, params)
       : Math.max(0, net) * rentalIncomeTaxRate(rentalTax.contractYears, params);
 
+  const contractMonths = Math.max(1, Math.round(input.contractMonths));
+  const vacancyMonths = Math.max(0, Math.round(input.vacancyMonths));
+  const cycle = contractMonths + vacancyMonths;
+  const withCosts = (rent: number): OperatingMonth => ({
+    income: rent,
+    costs: fixed + rent * (input.maintenanceRate + input.managementRate),
+  });
+
+  // Leases follow one another, each followed by the vacancy before the next tenant.
   const operating = (m: number): OperatingMonth => {
     if (m <= renovationMonths) return { income: 0, costs: fixed };
-    const yearOfLetting = Math.floor((m - renovationMonths - 1) / 12);
-    const rent =
-      input.monthlyRent * (1 + input.rentGrowthRate) ** yearOfLetting * (1 - input.vacancyRate);
-    return {
-      income: rent,
-      costs: fixed + rent * (input.maintenanceRate + input.managementRate),
-    };
+    const letting = m - renovationMonths - 1;
+    const vacant = letting % cycle >= contractMonths;
+    const rent = input.monthlyRent * (1 + input.rentGrowthRate) ** Math.floor(letting / 12);
+    return withCosts(vacant ? 0 : rent);
   };
+
+  // A typical year: the first year's rent, spread over a whole lease-and-vacancy cycle.
+  const averageRent = (input.monthlyRent * contractMonths) / cycle;
+  const typicalYear = Array.from({ length: 12 }, () => withCosts(averageRent));
 
   const sim = simulate({
     input,
     params,
     operating,
     incomeTax: (block) => taxOnNetRent(sum(block.map((o) => o.income - o.costs))),
+    typicalYear,
   });
 
   return summarise("longTermRental", sim, input.loan?.amount ?? 0, {

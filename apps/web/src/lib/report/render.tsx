@@ -30,7 +30,6 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
     .filter((k) => state.nightlyRate[k] !== null)
     .map((k) => `${money(state.nightlyRate[k])} / ${pct(state.occupancy[k])}`)
     .join(" · ");
-  const best = output.comparison.best;
 
   return {
     title: t("title"),
@@ -43,9 +42,6 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
     marketValues: t("marketValues"),
     purchase: t("purchase"),
     results: t("results"),
-    best: best
-      ? t("best", { goal: te(`goals.${output.comparison.goal}`), scenario: ts(best) })
-      : null,
     missing: t("missing"),
     warnings: te("warningsTitle"),
     parameters: t("parameters", {

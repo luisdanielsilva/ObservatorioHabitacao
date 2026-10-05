@@ -53,7 +53,7 @@ export async function fillRental(page: Page) {
 
 export async function showResults(page: Page) {
   await page.getByRole("button", { name: "Ver resultados" }).click();
-  await expect(step(page, "Resultados").getByText("Lucro líquido").first()).toBeVisible();
+  await expect(step(page, "Resultados").getByRole("term").first()).toBeVisible();
 }
 
 export async function expectNoHorizontalScroll(page: Page) {

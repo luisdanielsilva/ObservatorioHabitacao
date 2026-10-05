@@ -52,7 +52,10 @@ export function Sensitivity({
   const f = useFormat();
   const id = useId();
   const [variable, setVariable] = useState<SensitivityVariable>("price");
-  const [metric, setMetric] = useState<SensitivityMetric>("netProfit");
+  // A rental kept for good has no profit figure: start with its monthly cash flow.
+  const [metric, setMetric] = useState<SensitivityMetric>(
+    only && only.every((k) => k === "longTermRental") ? "monthlyCashFlow" : "netProfit",
+  );
   const [delta, setDelta] = useState(0);
   const deferredState = useDeferredValue(state);
   const deferredDelta = useDeferredValue(delta);

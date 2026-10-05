@@ -3,12 +3,12 @@
 import type { ParameterSet, ScenarioKind, Seasonal } from "@olhovivo/engine";
 import { ArrowLeft, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
 import { buysProperty, detailsPanels, type DetailsPanel } from "@/lib/calculator/flow";
-import type { MissingField } from "@/lib/calculator/run";
+import { permanentRentalYears, type MissingField } from "@/lib/calculator/run";
 import type { CalculatorState } from "@/lib/calculator/state";
 import { englobamentoThreshold } from "@/lib/calculator/tax";
 import type { Formatter } from "@/lib/format";
@@ -17,7 +17,14 @@ import { cn } from "@/lib/utils";
 import { AssumptionsSection } from "./AssumptionsSection";
 import type { Update } from "./Calculator";
 import { SCENARIO_COLORS } from "./CashFlowChart";
-import { NumberField, NumberInput, SelectField, SwitchField } from "./fields";
+import {
+  focusFirstInvalid,
+  MissingAlert,
+  NumberField,
+  NumberInput,
+  SelectField,
+  SwitchField,
+} from "./fields";
 
 const SEASONS = ["high", "mid", "low"] as const;
 
@@ -32,6 +39,8 @@ export interface DetailsStepProps {
   purchasePrice: number | null;
   /** The active tax parameters (LTV limits, IRS brackets, rental tax). */
   params: ParameterSet | null;
+  /** The latest published rent update coefficient. */
+  rentUpdate: { value: number; date: string; source: string } | null;
   euribor12m: { value: number; date: string } | null;
   spread: number | null;
   nonResidentRule: boolean;
@@ -50,6 +59,7 @@ export interface DetailsStepProps {
 export function DetailsStep(props: DetailsStepProps) {
   const { deals, missing, panel, onPanelChange, onShowResults } = props;
   const t = useTranslations("evaluate");
+  const container = useRef<HTMLElement>(null);
   const [tried, setTried] = useState(false);
   const panels = detailsPanels(deals);
   const index = Math.min(panel, panels.length - 1);
@@ -96,25 +106,26 @@ export function DetailsStep(props: DetailsStepProps) {
         </nav>
       )}
 
-      <section aria-labelledby="details-panel-title" className="space-y-5">
+      <section ref={container} aria-labelledby="details-panel-title" className="space-y-5">
         <h3 id="details-panel-title" className="font-semibold">
           {t("panelProgress", { current: index + 1, total: panels.length, name: title(current) })}
         </h3>
         {current === "common" ? (
           <CommonPanel {...props} />
         ) : (
-          <DealPanel deal={current} {...props} />
+          <DealPanel deal={current} invalid={tried ? currentMissing : []} {...props} />
         )}
       </section>
 
+      {tried && currentMissing.length > 0 && (
+        <MissingAlert>
+          {t("missing", {
+            fields: currentMissing.map((m) => t(`missingFields.${m}`)).join(", "),
+          })}
+        </MissingAlert>
+      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {tried && currentMissing.length > 0
-            ? t("missing", {
-                fields: currentMissing.map((m) => t(`missingFields.${m}`)).join(", "),
-              })
-            : t("requiredNote")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("requiredNote")}</p>
         <div className="flex shrink-0 gap-2">
           {index > 0 && (
             <Button variant="outline" onClick={() => go(index - 1)}>
@@ -125,7 +136,7 @@ export function DetailsStep(props: DetailsStepProps) {
           <Button
             onClick={() => {
               setTried(true);
-              if (currentMissing.length > 0) return;
+              if (currentMissing.length > 0) return focusFirstInvalid(container.current);
               if (last) {
                 // Every deal must be complete; open the first one that is not.
                 const incomplete = panels.findIndex((p) => p !== "common" && missing(p).length);
@@ -224,9 +235,10 @@ function CommonPanel(props: DetailsStepProps) {
 
       <AssumptionsSection
         scope="common"
-        buying={buying}
+        deals={deals}
         state={state}
         update={props.updateAssumptions}
+        rentUpdate={props.rentUpdate}
         locale={locale}
       />
     </>
@@ -331,8 +343,14 @@ function Financing({
   );
 }
 
-function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }) {
+function DealPanel({
+  deal,
+  invalid,
+  ...props
+}: DetailsStepProps & { deal: ScenarioKind; invalid: MissingField[] }) {
   const { state, update, locale } = props;
+  const missingValue = (field: MissingField, value: number | null) =>
+    invalid.includes(field) && !(value !== null && value > 0);
   const t = useTranslations("evaluate");
   const f = useFormat();
 
@@ -353,6 +371,7 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
       help={t("marketValueHelp")}
       kind="money"
       required={required}
+      invalid={required && missingValue("marketValue", state.marketValue)}
       value={state.marketValue}
       onChange={(marketValue) => update({ marketValue })}
       hint={saleHint}
@@ -382,6 +401,7 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
             help={t("resaleValueHelp")}
             kind="money"
             required
+            invalid={missingValue("resaleValue", state.resaleValue)}
             value={state.resaleValue}
             onChange={(resaleValue) => update({ resaleValue })}
             hint={saleHint}
@@ -407,14 +427,27 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
               help={t("monthlyRentHelp")}
               kind="money"
               required
+              invalid={missingValue("monthlyRent", state.monthlyRent)}
               value={state.monthlyRent}
               onChange={(monthlyRent) => update({ monthlyRent })}
               hint={rentHint}
               locale={locale}
             />
-            {marketValue(true)}
-            {holdingYears}
+            <NumberField
+              label={t("contractYears")}
+              help={t("contractYearsHelp")}
+              kind="number"
+              suffix={t("yearsShort")}
+              value={state.contractYears}
+              onChange={(v) => update({ contractYears: Math.max(1, Math.round(v ?? 1)) })}
+              locale={locale}
+            />
+            {marketValue(false)}
           </div>
+          <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <Info className="mt-px size-3.5 shrink-0" aria-hidden />
+            {t("permanentRentalNote", { years: permanentRentalYears(state) })}
+          </p>
           <fieldset className="space-y-4">
             <legend className="text-sm font-medium">{t("taxes")}</legend>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -428,17 +461,6 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
                 onChange={(rentalTaxMode) => update({ rentalTaxMode })}
               />
               <EnglobamentoNote params={props.params} />
-              {state.rentalTaxMode === "autonomous" && (
-                <NumberField
-                  label={t("contractYears")}
-                  help={t("contractYearsHelp")}
-                  kind="number"
-                  suffix={t("yearsShort")}
-                  value={state.contractYears}
-                  onChange={(v) => update({ contractYears: Math.max(1, Math.round(v ?? 1)) })}
-                  locale={locale}
-                />
-              )}
             </div>
           </fieldset>
         </>
@@ -446,7 +468,12 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
 
       {deal === "shortTermRental" && (
         <>
-          <SeasonTable state={state} update={update} locale={locale} />
+          <SeasonTable
+            state={state}
+            update={update}
+            locale={locale}
+            invalid={invalid.includes("nightly")}
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             {marketValue(true)}
             {holdingYears}
@@ -472,6 +499,7 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
               help={t("depositHelp")}
               kind="money"
               required
+              invalid={missingValue("cessao", state.deposit)}
               value={state.deposit}
               onChange={(deposit) => update({ deposit })}
               locale={locale}
@@ -481,6 +509,7 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
               help={t("assignmentPriceHelp")}
               kind="money"
               required
+              invalid={missingValue("cessao", state.assignmentPrice)}
               value={state.assignmentPrice}
               onChange={(assignmentPrice) => update({ assignmentPrice })}
               locale={locale}
@@ -506,9 +535,10 @@ function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }
 
       <AssumptionsSection
         scope={deal}
-        buying={buysProperty(props.deals)}
+        deals={props.deals}
         state={state}
         update={props.updateAssumptions}
+        rentUpdate={props.rentUpdate}
         locale={locale}
       />
     </>
@@ -540,10 +570,13 @@ function SeasonTable({
   state,
   update,
   locale,
+  invalid,
 }: {
   state: CalculatorState;
   update: Update;
   locale: string;
+  /** Marks the empty season inputs. */
+  invalid: boolean;
 }) {
   const t = useTranslations("evaluate");
   const seasonLabel = { high: t("seasonHigh"), mid: t("seasonMid"), low: t("seasonLow") };
@@ -590,6 +623,7 @@ function SeasonTable({
                   <NumberInput
                     kind="money"
                     required
+                    invalid={invalid && state.nightlyRate[season] === null}
                     value={state.nightlyRate[season]}
                     onChange={(v) => setSeason("nightlyRate", season, v)}
                     locale={locale}
@@ -600,6 +634,7 @@ function SeasonTable({
                   <NumberInput
                     kind="percent"
                     required
+                    invalid={invalid && state.occupancy[season] === null}
                     value={state.occupancy[season]}
                     onChange={(v) =>
                       setSeason("occupancy", season, v === null ? null : Math.min(1, v))

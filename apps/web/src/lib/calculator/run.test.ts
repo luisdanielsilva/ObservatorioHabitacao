@@ -14,10 +14,10 @@ describe("runCalculator", () => {
   it("reports what is missing instead of guessing market values", () => {
     const out = run({ askingPrice: 250_000 });
     expect(outcome(out, "flip").missing).toEqual(["resaleValue"]);
-    expect(outcome(out, "longTermRental").missing).toEqual(["monthlyRent", "marketValue"]);
+    // A long-term rental is kept: it needs no market value.
+    expect(outcome(out, "longTermRental").missing).toEqual(["monthlyRent"]);
     expect(outcome(out, "shortTermRental").missing).toEqual(["nightly", "marketValue"]);
     expect(outcome(out, "contractAssignment").missing).toEqual(["cessao", "marketValue"]);
-    expect(out.comparison.best).toBeNull();
   });
 
   it("needs a purchase price for the property scenarios", () => {
@@ -50,6 +50,16 @@ describe("runCalculator", () => {
     expect(flip(null)).toBe(flip(0));
   });
 
+  it("lets the property in consecutive leases with the vacancy in between", () => {
+    const rental = (vacancyMonths: number) =>
+      outcome(
+        run({ askingPrice: 200_000, monthlyRent: 1_000, contractYears: 1, vacancyMonths }),
+        "longTermRental",
+      ).result!;
+    expect(rental(2).months[13]!.income).toBe(0); // 2nd month after the first 12-month lease
+    expect(rental(2).netYield!).toBeLessThan(rental(0).netYield!);
+  });
+
   it("keeps a loan amount the user entered", () => {
     expect(run({ askingPrice: 200_000, loanAmount: 100_000, propertyUse: "hpp" }).loanAmount).toBe(
       100_000,
@@ -73,16 +83,17 @@ describe("runCalculator", () => {
       occupancy: { high: 0.85, mid: 0.7, low: 0.5 },
       deposit: 20_000,
       assignmentPrice: 35_000,
-      goal: "profit",
     });
     expect(out.outcomes.every((o) => o.result)).toBe(true);
-    expect(out.comparison.ranking).toHaveLength(4);
     expect(out.opportunity?.signal).toBe("opportunity"); // 200 000 vs 220 000 = −9 %
 
-    // Rentals are sold at the renovated value, with no appreciation.
+    // The short-term rental is sold at the renovated value, with no appreciation.
+    const al = outcome(out, "shortTermRental").result!;
+    expect(al.months.at(-1)!.saleProceeds).toBeCloseTo(260_000 * (1 - 0.05 * 1.23), 2);
+    // The long-term rental is kept: 30 years (the loan term), no sale.
     const rental = outcome(out, "longTermRental").result!;
-    const sale = rental.months.at(-1)!.saleProceeds;
-    expect(sale).toBeCloseTo(260_000 * (1 - 0.05 * 1.23), 2);
+    expect(rental.months).toHaveLength(30 * 12 + 1);
+    expect(rental.months.at(-1)!.saleProceeds).toBe(0);
   });
 
   it("hides the AL registry warning until the registry exists", () => {

@@ -59,7 +59,12 @@ Banco de Portugal LTV limit (90 % own home, 80 % other).
 **Fix & flip.** Holding costs: IMI, condominium, insurance, utilities, loan payments. No
 operating income.
 
-**Long-term rental.** Rent × (1 − vacancy), growing yearly. Costs: IMI, condominium,
+**Long-term rental.** Leases of `contractMonths` follow one another, each followed by
+`vacancyMonths` without rent; the rent grows yearly (the app defaults to the latest rent update
+coefficient published in the Diário da República). The app keeps the property (no sale,
+`exitPrice` null) and measures profit and IRR over 30 years, or the loan term if longer. Yields
+and monthly cash flow use a typical year: the first year's rent spread over one lease-and-vacancy
+cycle. Costs: IMI, condominium,
 insurance, maintenance and management (shares of collected rent). Category F tax on rent
 minus those costs (loan interest not deductible): autonomous rate 25 %, reduced to
 15 / 10 / 5 % for contracts of 5 / 10 / 20+ years, or englobamento: the net rent is added to the
@@ -92,9 +97,8 @@ resident or not (the 28 % non-resident rate was revoked in 2023). Other income d
 
 ## Comparison and sensitivity
 
-`compareScenarios` ranks viable scenarios by goal: highest net profit, highest IRR, highest
-net yield (rental scenarios only), or lowest peak capital (profitable scenarios only).
-`sensitivity` re-runs a scenario with one input shifted (price, rent, ADR, occupancy,
+Scenarios are shown side by side with the indicators that apply to them; none is ranked or
+recommended — the investor compares and decides. `sensitivity` re-runs a scenario with one input shifted (price, rent, ADR, occupancy,
 interest rate).
 
 ## Simplifications

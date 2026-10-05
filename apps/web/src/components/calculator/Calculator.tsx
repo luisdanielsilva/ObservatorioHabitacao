@@ -29,6 +29,8 @@ export interface CalculatorProps {
   tree: AreaTree;
   params: ParameterSet | null;
   euribor12m: { value: number; date: string } | null;
+  /** The latest published rent update coefficient: the default yearly rent increase. */
+  rentUpdate: { value: number; date: string; source: string } | null;
   initialAreaId: number | null;
   /** A saved scenario (or restored draft) to start from instead of the defaults. */
   initial?: { state: CalculatorState; savedId: number | null; name: string | null };
@@ -42,6 +44,7 @@ export function Calculator({
   tree,
   params,
   euribor12m,
+  rentUpdate,
   initialAreaId,
   initial,
   initialLink,
@@ -58,6 +61,7 @@ export function Calculator({
       initialState({
         areaId: initialAreaId,
         url: initialLink ?? "",
+        ...(rentUpdate && { rentGrowthRate: rentUpdate.value }),
         ...(defaultRate !== undefined && { interestRate: defaultRate }),
       }),
   );
@@ -199,6 +203,7 @@ export function Calculator({
             loanAmount={output?.loanAmount ?? 0}
             purchasePrice={output?.purchasePrice ?? null}
             params={params}
+            rentUpdate={rentUpdate}
             euribor12m={euribor12m}
             spread={params?.financing.typicalSpread ?? null}
             nonResidentRule={params?.imt.nonResidentHousingRate !== undefined}
@@ -238,7 +243,6 @@ export function Calculator({
               state={state}
               params={params}
               startMonth={startMonth}
-              onGoalChange={(goal) => update({ goal })}
               onAddDeal={addDeal}
             />
           </>

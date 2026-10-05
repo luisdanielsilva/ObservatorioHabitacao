@@ -1,3 +1,4 @@
+import { chosenOutcomes } from "@/lib/calculator/run";
 import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Formatter } from "@/lib/format";
@@ -19,7 +20,6 @@ export interface ReportLabels {
   marketValues: string;
   purchase: string;
   results: string;
-  best: string | null;
   missing: string;
   warnings: string;
   parameters: string;
@@ -41,6 +41,9 @@ export type MetricKey =
   | "irr"
   | "roi"
   | "monthlyCashFlow"
+  | "annualCashFlow"
+  | "lifetimeCashFlow"
+  | "cashOnCash"
   | "grossYield"
   | "netYield"
   | "paybackYears"
@@ -54,6 +57,9 @@ export const REPORT_METRICS: { key: MetricKey; format: "euro" | "percent" | "yea
   { key: "irr", format: "percent" },
   { key: "roi", format: "percent" },
   { key: "monthlyCashFlow", format: "euro" },
+  { key: "annualCashFlow", format: "euro" },
+  { key: "lifetimeCashFlow", format: "euro" },
+  { key: "cashOnCash", format: "percent" },
   { key: "grossYield", format: "percent" },
   { key: "netYield", format: "percent" },
   { key: "paybackYears", format: "years" },
@@ -68,7 +74,6 @@ const C = {
   muted: "#6b7280",
   line: "#e5e7eb",
   brand: "#0e7c7b",
-  best: "#e6f4f3",
   bad: "#b91c1c",
 };
 
@@ -109,7 +114,6 @@ const s = StyleSheet.create({
   td: { paddingVertical: 3, paddingHorizontal: 3 },
   metricCell: { width: "28%" },
   valueCell: { width: "18%", textAlign: "right" },
-  bestCell: { backgroundColor: C.best },
   negative: { color: C.bad },
   note: { fontSize: 8, color: C.muted, marginTop: 3 },
   footer: {
@@ -154,8 +158,12 @@ export function ScenarioReport({
   labels: ReportLabels;
   f: Formatter;
 }) {
-  const { output } = data;
-  const best = output.comparison.best;
+  // The deals the user chose, and only the indicators that apply to them.
+  const outcomes = chosenOutcomes(data.output, data.state.deals);
+  const output = { ...data.output, outcomes };
+  const metrics = REPORT_METRICS.filter(({ key }) =>
+    outcomes.some((o) => o.result && o.result[key] !== null),
+  );
   const format = (v: number | null, kind: "euro" | "percent" | "years") =>
     v === null || !Number.isFinite(v)
       ? "—"
@@ -232,12 +240,11 @@ export function ScenarioReport({
         <KeyValues rows={labels.rows.purchase} />
 
         <Text style={s.h2}>{pdfSafe(labels.results)}</Text>
-        {labels.best && <Text style={{ marginBottom: 4 }}>{pdfSafe(labels.best)}</Text>}
         <View style={s.table} wrap={false}>
           <View style={s.tr}>
             <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.metricHeader)}</Text>
             {output.outcomes.map((o) => (
-              <Text key={o.kind} style={[s.th, s.valueCell, best === o.kind ? s.bestCell : {}]}>
+              <Text key={o.kind} style={[s.th, s.valueCell]}>
                 {pdfSafe(labels.scenario(o.kind))}
               </Text>
             ))}
@@ -252,7 +259,7 @@ export function ScenarioReport({
               ))}
             </View>
           )}
-          {REPORT_METRICS.map(({ key, format: kind }) => (
+          {metrics.map(({ key, format: kind }) => (
             <View key={key} style={s.tr}>
               <Text style={[s.td, s.metricCell]}>
                 {pdfSafe(labels.metric.find((m) => m.key === key)?.label ?? key)}
@@ -262,12 +269,7 @@ export function ScenarioReport({
                 return (
                   <Text
                     key={o.kind}
-                    style={[
-                      s.td,
-                      s.valueCell,
-                      best === o.kind ? s.bestCell : {},
-                      v !== null && v < 0 ? s.negative : {},
-                    ]}
+                    style={[s.td, s.valueCell, v !== null && v < 0 ? s.negative : {}]}
                   >
                     {o.result ? pdfSafe(format(v, kind)) : ""}
                   </Text>

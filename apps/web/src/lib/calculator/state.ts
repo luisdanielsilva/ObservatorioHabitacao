@@ -1,4 +1,4 @@
-import type { Goal, ScenarioKind, Seasonal } from "@olhovivo/engine";
+import type { ScenarioKind, Seasonal } from "@olhovivo/engine";
 
 export const PROPERTY_TYPES = [
   "apartamento",
@@ -66,12 +66,19 @@ export interface CalculatorState {
   // Assumptions (WBS 2.3.2 defaults, editable)
   imiRate: number;
   vpt: number | null;
+  // Condominium and insurance, separately for each deal.
   condominiumMonthly: number;
   insuranceAnnual: number;
-  utilitiesMonthly: number;
+  rentalCondominiumMonthly: number;
+  rentalInsuranceMonthly: number;
+  alCondominiumMonthly: number;
+  alInsuranceAnnual: number;
   sellingCommissionRate: number;
   rentGrowthRate: number;
-  vacancyRate: number;
+  /** Months empty between one lease and the next. */
+  vacancyMonths: number;
+  /** Yearly increase of the nightly rate (short-term rental). */
+  nightlyGrowthRate: number;
   maintenanceRate: number;
   managementRate: number;
   alPlatformFeeRate: number;
@@ -86,10 +93,13 @@ export interface CalculatorState {
   vatRegistered: boolean;
   assignmentCommissionRate: number;
   assignmentOtherCosts: number;
-
-  goal: Goal;
 }
 
+/**
+ * Used when no published rent update coefficient is available; normally the latest one
+ * (reference rate "rent_update") is the default.
+ */
+export const FALLBACK_RENT_UPDATE = 0.0224;
 /** Used when no Euribor value is available. */
 export const FALLBACK_INTEREST_RATE = 0.035;
 /** Used when the municipality's IMI rate is unknown (the legal range is 0.3 %–0.45 %). */
@@ -142,10 +152,14 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     vpt: null,
     condominiumMonthly: 50,
     insuranceAnnual: 250,
-    utilitiesMonthly: 50,
+    rentalCondominiumMonthly: 25,
+    rentalInsuranceMonthly: 20,
+    alCondominiumMonthly: 50,
+    alInsuranceAnnual: 250,
     sellingCommissionRate: 0.05,
-    rentGrowthRate: 0.02,
-    vacancyRate: 1 / 12,
+    rentGrowthRate: FALLBACK_RENT_UPDATE,
+    vacancyMonths: 1,
+    nightlyGrowthRate: 0.02,
     maintenanceRate: 0.05,
     managementRate: 0,
     alPlatformFeeRate: 0.15,
@@ -161,7 +175,6 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     assignmentCommissionRate: 0.05,
     assignmentOtherCosts: 1_000,
 
-    goal: "profit",
     ...overrides,
   };
 }
@@ -171,7 +184,6 @@ const ENUMS: Partial<Record<keyof CalculatorState, readonly string[]>> = {
   condition: CONDITIONS,
   propertyUse: ["secondary", "hpp"],
   rentalTaxMode: ["autonomous", "marginal"],
-  goal: ["profit", "irr", "yield", "capital"],
 };
 
 /** Fields that may be null (not entered) in addition to their number type. */

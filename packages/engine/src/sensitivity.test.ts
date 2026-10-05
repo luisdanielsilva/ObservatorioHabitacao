@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { params2025 as params } from "./__fixtures__/params2025";
-import { compareScenarios } from "./compare";
 import { runLongTermRental, type LongTermRentalInputs } from "./scenarios/longTermRental";
 import {
   sensitivity,
@@ -10,72 +9,6 @@ import {
   shiftRent,
 } from "./sensitivity";
 import type { ScenarioResult } from "./simulation";
-
-function result(overrides: Partial<ScenarioResult>): ScenarioResult {
-  return {
-    kind: "flip",
-    viable: true,
-    warnings: [],
-    acquisition: null,
-    totalInvestment: 0,
-    loanAmount: 0,
-    ownCapital: 0,
-    peakCapital: 0,
-    netProfit: 0,
-    roi: null,
-    irr: null,
-    grossYield: null,
-    netYield: null,
-    monthlyCashFlow: null,
-    paybackYears: null,
-    returnOnDeposit: null,
-    months: [],
-    ...overrides,
-  };
-}
-
-describe("compareScenarios", () => {
-  const results = [
-    result({ kind: "flip", netProfit: 40_000, irr: 0.3, peakCapital: 240_000 }),
-    result({
-      kind: "longTermRental",
-      netProfit: 60_000,
-      irr: 0.06,
-      netYield: 0.04,
-      peakCapital: 210_000,
-    }),
-    result({
-      kind: "shortTermRental",
-      netProfit: 90_000,
-      irr: 0.09,
-      netYield: 0.06,
-      peakCapital: 220_000,
-      viable: false,
-    }),
-    result({ kind: "contractAssignment", netProfit: -1_000, irr: -0.1, peakCapital: 30_000 }),
-  ];
-
-  it("ranks by the chosen goal and skips non-viable scenarios", () => {
-    expect(compareScenarios(results, "profit").ranking).toEqual([
-      "longTermRental",
-      "flip",
-      "contractAssignment",
-    ]);
-    expect(compareScenarios(results, "irr").best).toBe("flip");
-  });
-
-  it("ranks yield only among rental scenarios", () => {
-    expect(compareScenarios(results, "yield").ranking).toEqual(["longTermRental"]);
-  });
-
-  it("prefers the lowest capital among profitable scenarios", () => {
-    expect(compareScenarios(results, "capital").ranking).toEqual(["longTermRental", "flip"]);
-  });
-
-  it("returns no best scenario when none qualifies", () => {
-    expect(compareScenarios([], "profit").best).toBeNull();
-  });
-});
 
 describe("sensitivity", () => {
   const input: LongTermRentalInputs = {
@@ -94,7 +27,8 @@ describe("sensitivity", () => {
     insuranceAnnual: 200,
     monthlyRent: 1_000,
     rentGrowthRate: 0.02,
-    vacancyRate: 1 / 12,
+    contractMonths: 12,
+    vacancyMonths: 1,
     maintenanceRate: 0.05,
     managementRate: 0,
     rentalTax: { mode: "autonomous", contractYears: 1 },

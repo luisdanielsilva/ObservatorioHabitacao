@@ -31,8 +31,11 @@ export interface PropertyInputs {
   earlyRepaymentFeeRate?: number;
 
   holdingMonths: number;
-  /** Expected sale price at the end of the holding period. */
-  exitPrice: number;
+  /**
+   * Expected sale price at the end of the holding period, or null when the property is kept
+   * (no sale: no proceeds, loan payoff or capital gains tax at the end).
+   */
+  exitPrice: number | null;
   /** Agency commission on the sale, excluding VAT. */
   sellingCommissionRate: number;
 
@@ -101,11 +104,14 @@ export interface ScenarioResult {
   /** Largest cumulative cash outlay at any point, including holding costs. */
   peakCapital: number;
 
-  /** Sum of all cash flows, after financing and taxes, including the exit. */
-  netProfit: number;
+  /**
+   * Sum of all cash flows, after financing and taxes, including the exit. Null when the property
+   * is kept (no sale): without the exit it would not measure the return.
+   */
+  netProfit: number | null;
   /** Net profit ÷ own capital. */
   roi: number | null;
-  /** Annualised IRR of the monthly cash flows. */
+  /** Annualised IRR of the monthly cash flows; null when the property is kept. */
   irr: number | null;
 
   /** Rental scenarios only; first full year after renovation. */
@@ -113,6 +119,15 @@ export interface ScenarioResult {
   netYield: number | null;
   /** Average monthly cash flow after financing and taxes, first full year. */
   monthlyCashFlow: number | null;
+  /** Monthly cash flow × 12. */
+  annualCashFlow: number | null;
+  /** Annual cash flow ÷ own capital (cash-on-cash return). */
+  cashOnCash: number | null;
+  /**
+   * Rental scenarios: income − operating costs − income tax − debt service over the whole
+   * holding period, without the purchase, renovation or sale.
+   */
+  lifetimeCashFlow: number | null;
   /** Own capital ÷ annual cash flow, in years; null when cash flow is not positive. */
   paybackYears: number | null;
   /** Contract assignment only: net profit ÷ deposit (sinal). */
@@ -136,9 +151,16 @@ export interface SimulationSpec {
   operating(month: number): OperatingMonth;
   /** Income tax for a block of up to 12 consecutive operating months. */
   incomeTax(block: OperatingMonth[]): number;
+  /**
+   * A representative year of operation (12 months) for yields and monthly cash flow. Defaults
+   * to the first 12 months after the renovation.
+   */
+  typicalYear?: OperatingMonth[];
 }
 
 export interface Simulation {
+  /** True when the property is not sold at the end (exitPrice null). */
+  kept: boolean;
   acquisition: AcquisitionCosts;
   totalInvestment: number;
   ownCapital: number;
@@ -225,8 +247,9 @@ export function simulate(spec: SimulationSpec): Simulation {
   for (let m = 1; m <= holding; m++) {
     const op = spec.operating(m);
     block.push(op);
-    const isSale = m === holding;
-    const incomeTax = block.length === 12 || isSale ? spec.incomeTax(block) : 0;
+    const isLast = m === holding;
+    const isSale = isLast && input.exitPrice !== null;
+    const incomeTax = block.length === 12 || isLast ? spec.incomeTax(block) : 0;
     if (block.length === 12) block = [];
 
     const line = emptyLine(m, 0, 0);
@@ -237,8 +260,9 @@ export function simulate(spec: SimulationSpec): Simulation {
     line.incomeTax = incomeTax;
 
     if (isSale) {
-      const sellingCosts = input.exitPrice * input.sellingCommissionRate * (1 + params.vatRate);
-      line.saleProceeds = input.exitPrice - sellingCosts;
+      const exitPrice = input.exitPrice!;
+      const sellingCosts = exitPrice * input.sellingCommissionRate * (1 + params.vatRate);
+      line.saleProceeds = exitPrice - sellingCosts;
       const balance = schedule[m - 1]?.balance ?? 0;
       const feeRate = input.earlyRepaymentFeeRate ?? params.financing.earlyRepaymentFeeRate;
       line.loanPayoff = balance * (1 + feeRate);
@@ -272,11 +296,13 @@ export function simulate(spec: SimulationSpec): Simulation {
   const stabilised: OperatingMonth[] = [];
   let stabilisedDebt = 0;
   for (let m = renovationMonths + 1; m <= stabilisedEnd; m++) {
-    stabilised.push(spec.operating(m));
+    if (!spec.typicalYear) stabilised.push(spec.operating(m));
     stabilisedDebt += debtService(m);
   }
+  if (spec.typicalYear) stabilised.push(...spec.typicalYear);
 
   return {
+    kept: input.exitPrice === null,
     acquisition,
     totalInvestment,
     ownCapital: totalInvestment - loanAmount,
@@ -306,6 +332,9 @@ export function summarise(
   let grossYield = null;
   let netYield = null;
   let monthlyCashFlow = null;
+  let annualCashFlow = null;
+  let cashOnCash = null;
+  let lifetimeCashFlow = null;
   let paybackYears = null;
   const warnings = [...sim.warnings];
 
@@ -313,8 +342,12 @@ export function summarise(
     const y = sim.stabilisedYear;
     grossYield = rental.grossAnnualIncome / rental.acquisitionCost;
     netYield = (y.income - y.operatingCosts - y.incomeTax) / sim.totalInvestment;
-    const annualCashFlow = y.income - y.operatingCosts - y.incomeTax - y.debtService;
+    annualCashFlow = y.income - y.operatingCosts - y.incomeTax - y.debtService;
     monthlyCashFlow = annualCashFlow / 12;
+    cashOnCash = sim.ownCapital > 0 ? annualCashFlow / sim.ownCapital : null;
+    lifetimeCashFlow = sum(
+      sim.months.map((l) => l.income - l.operatingCosts - l.incomeTax - l.debtService),
+    );
     paybackYears = annualCashFlow > 0 ? sim.ownCapital / annualCashFlow : null;
     if (annualCashFlow < 0) warnings.push("negative_cash_flow");
   }
@@ -328,12 +361,15 @@ export function summarise(
     loanAmount,
     ownCapital: sim.ownCapital,
     peakCapital,
-    netProfit,
-    roi: sim.ownCapital > 0 ? netProfit / sim.ownCapital : null,
-    irr: monthlyIrr === null ? null : annualise(monthlyIrr),
+    netProfit: sim.kept ? null : netProfit,
+    roi: !sim.kept && sim.ownCapital > 0 ? netProfit / sim.ownCapital : null,
+    irr: sim.kept || monthlyIrr === null ? null : annualise(monthlyIrr),
     grossYield,
     netYield,
     monthlyCashFlow,
+    annualCashFlow,
+    cashOnCash,
+    lifetimeCashFlow,
     paybackYears,
     returnOnDeposit: null,
     months: sim.months,

@@ -17,7 +17,7 @@ import { CONDITIONS, PROPERTY_TYPES, type CalculatorState } from "@/lib/calculat
 import { formatPeriod } from "@/lib/period";
 import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
-import { FieldLabel, NumberField, SelectField } from "./fields";
+import { FieldLabel, focusFirstInvalid, MissingAlert, NumberField, SelectField } from "./fields";
 
 type LinkStatus = "idle" | "reading" | Exclude<AnalyzeResponse["status"], "ok"> | "ok";
 
@@ -192,10 +192,12 @@ function PropertyFields({
 }) {
   const t = useTranslations("evaluate");
   const id = useId();
+  const container = useRef<HTMLDivElement>(null);
   const [tried, setTried] = useState(false);
+  const invalid = (field: PropertyField) => tried && missing.includes(field);
 
   return (
-    <div className="space-y-5 border-t pt-5">
+    <div ref={container} className="space-y-5 border-t pt-5">
       <p className="text-sm text-muted-foreground">{t("manualIntro")}</p>
 
       <fieldset className="space-y-2">
@@ -205,7 +207,12 @@ function PropertyFields({
             *
           </span>
         </legend>
-        <AreaPicker tree={tree} value={state.areaId} onChange={(areaId) => update({ areaId })} />
+        <AreaPicker
+          tree={tree}
+          value={state.areaId}
+          onChange={(areaId) => update({ areaId })}
+          invalid={invalid("areaId")}
+        />
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -213,6 +220,7 @@ function PropertyFields({
           label={t("askingPrice")}
           kind="money"
           required
+          invalid={invalid("askingPrice")}
           value={state.askingPrice}
           onChange={(askingPrice) => update({ askingPrice })}
           locale={locale}
@@ -222,6 +230,7 @@ function PropertyFields({
           kind="number"
           suffix="m²"
           required
+          invalid={invalid("areaM2")}
           value={state.areaM2}
           onChange={(areaM2) => update({ areaM2 })}
           locale={locale}
@@ -236,6 +245,7 @@ function PropertyFields({
           <SelectField
             label={t("typology")}
             required
+            invalid={invalid("bedrooms")}
             value={state.bedrooms ?? -1}
             options={[
               { value: -1, label: t("selectPlaceholder") },
@@ -289,16 +299,18 @@ function PropertyFields({
 
       <MarketReference state={state} reference={reference} />
 
+      {tried && missing.length > 0 && (
+        <MissingAlert>
+          {t("missing", { fields: missing.map((m) => t(`requiredFields.${m}`)).join(", ") })}
+        </MissingAlert>
+      )}
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {tried && missing.length > 0
-            ? t("missing", { fields: missing.map((m) => t(`requiredFields.${m}`)).join(", ") })
-            : t("requiredNote")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("requiredNote")}</p>
         <Button
           onClick={() => {
             setTried(true);
             if (missing.length === 0) onContinue();
+            else focusFirstInvalid(container.current);
           }}
           className="shrink-0"
         >

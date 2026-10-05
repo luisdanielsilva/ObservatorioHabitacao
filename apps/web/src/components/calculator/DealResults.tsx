@@ -1,6 +1,6 @@
 "use client";
 
-import type { Goal, ParameterSet, ScenarioKind } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { HelpTip } from "@/components/shared/HelpTip";
-import type { CalculatorOutput, ScenarioOutcome } from "@/lib/calculator/run";
+import {
+  permanentRentalYears,
+  type CalculatorOutput,
+  type ScenarioOutcome,
+} from "@/lib/calculator/run";
 import type { CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
@@ -19,25 +23,26 @@ import { Sensitivity } from "./Sensitivity";
 /** The indicators that matter most for each deal, in order. */
 const HEADLINE: Record<ScenarioKind, MetricKey[]> = {
   flip: ["netProfit", "roi", "irr", "totalInvestment", "ownCapital", "peakCapital"],
+  // Kept and let for good: monthly, yearly and lifetime figures, from the rent and costs.
   longTermRental: [
     "monthlyCashFlow",
+    "annualCashFlow",
+    "lifetimeCashFlow",
+    "cashOnCash",
     "grossYield",
     "netYield",
-    "irr",
     "paybackYears",
-    "netProfit",
     "ownCapital",
-    "totalInvestment",
   ],
   shortTermRental: [
     "monthlyCashFlow",
+    "annualCashFlow",
     "grossYield",
     "netYield",
     "irr",
-    "paybackYears",
     "netProfit",
+    "paybackYears",
     "ownCapital",
-    "totalInvestment",
   ],
   contractAssignment: ["netProfit", "returnOnDeposit", "irr", "ownCapital"],
 };
@@ -52,7 +57,6 @@ export function DealResults({
   state,
   params,
   startMonth,
-  onGoalChange,
   onAddDeal,
 }: {
   deals: ScenarioKind[];
@@ -60,7 +64,6 @@ export function DealResults({
   state: CalculatorState;
   params: ParameterSet | null;
   startMonth: number;
-  onGoalChange: (goal: Goal) => void;
   /** Adds a strategy to the chosen deals and opens its details. */
   onAddDeal: (kind: ScenarioKind) => void;
 }) {
@@ -101,13 +104,7 @@ export function DealResults({
 
       {several && (
         <div className="rounded-lg border p-4">
-          <Results
-            output={output}
-            only={deals}
-            goal={state.goal}
-            onGoalChange={onGoalChange}
-            showDetails={false}
-          />
+          <Results output={output} only={deals} showDetails={false} />
         </div>
       )}
 
@@ -154,11 +151,14 @@ export function DealResults({
             ))}
           </div>
           <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${shown}`}>
-            <DealOutcome outcome={outcomes.find((o) => o.kind === shown)!} />
+            <DealOutcome
+              outcome={outcomes.find((o) => o.kind === shown)!}
+              rentalYears={permanentRentalYears(state)}
+            />
           </div>
         </div>
       ) : (
-        <DealOutcome outcome={outcomes[0]!} />
+        <DealOutcome outcome={outcomes[0]!} rentalYears={permanentRentalYears(state)} />
       )}
 
       {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
@@ -183,14 +183,7 @@ export function DealResults({
             </Button>
           </div>
           <div id={`${id}-compare`} hidden={!comparing}>
-            {comparing && (
-              <Results
-                output={output}
-                goal={state.goal}
-                onGoalChange={onGoalChange}
-                onFillMissing={onAddDeal}
-              />
-            )}
+            {comparing && <Results output={output} onFillMissing={onAddDeal} />}
           </div>
         </div>
       )}
@@ -204,7 +197,14 @@ export function DealResults({
 }
 
 /** One deal's headline figures, cash flow, costs and warnings. */
-function DealOutcome({ outcome }: { outcome: ScenarioOutcome }) {
+function DealOutcome({
+  outcome,
+  rentalYears,
+}: {
+  outcome: ScenarioOutcome;
+  /** Years over which a long-term rental's profit and IRR are measured. */
+  rentalYears: number;
+}) {
   const t = useTranslations("evaluate");
   const tm = useTranslations("metrics");
   const f = useFormat();
@@ -214,6 +214,11 @@ function DealOutcome({ outcome }: { outcome: ScenarioOutcome }) {
   return (
     <div className="space-y-5">
       {!result.viable && <Badge variant="destructive">{t("notViable")}</Badge>}
+      {outcome.kind === "longTermRental" && (
+        <p className="text-xs text-muted-foreground">
+          {t("permanentRentalResults", { years: rentalYears })}
+        </p>
+      )}
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {HEADLINE[outcome.kind].map((key, i) => {
           const value = result[key];

@@ -9,6 +9,7 @@ import { SCENARIO_KINDS } from "@/lib/calculator/run";
 import { normaliseDeals } from "@/lib/calculator/state";
 import { cn } from "@/lib/utils";
 import { SCENARIO_COLORS } from "./CashFlowChart";
+import { MissingAlert } from "./fields";
 
 /** Step 2: one or more deals to evaluate; their details are then filled in one after another. */
 export function DealStep({
@@ -74,13 +75,10 @@ export function DealStep({
           );
         })}
       </div>
+      {tried && deals.length === 0 && <MissingAlert>{t("chooseAtLeastOne")}</MissingAlert>}
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground" aria-live="polite">
-          {tried && deals.length === 0
-            ? t("chooseAtLeastOne")
-            : deals.length > 1
-              ? t("dealsChosen", { count: deals.length })
-              : t("severalDealsHint")}
+          {deals.length > 1 ? t("dealsChosen", { count: deals.length }) : t("severalDealsHint")}
         </p>
         <Button
           className="shrink-0"

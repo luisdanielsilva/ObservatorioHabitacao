@@ -1,3 +1,4 @@
+import { chosenOutcomes } from "@/lib/calculator/run";
 import { ImageResponse } from "next/og";
 import { getTranslations } from "next-intl/server";
 import { asLocale } from "@/i18n/locale";
@@ -22,13 +23,16 @@ export default async function Image({
   const f = createFormatter(locale);
   const shared = loadSharedScenario(token);
 
-  const best = shared?.data.output.comparison.best;
-  const result = best
-    ? shared?.data.output.outcomes.find((o) => o.kind === best)?.result
-    : undefined;
+  // The chosen deals with results; the first one's figures are shown, none is ranked.
+  const evaluated = shared
+    ? chosenOutcomes(shared.data.output, shared.data.state.deals).filter((o) => o.result)
+    : [];
+  const result = evaluated[0]?.result;
   const figures = result
     ? [
-        [tm("netProfit"), f.euro(result.netProfit)],
+        result.netProfit !== null
+          ? [tm("netProfit"), f.euro(result.netProfit)]
+          : [tm("monthlyCashFlow"), f.euro(result.monthlyCashFlow ?? 0)],
         [tm("irr"), result.irr === null ? "—" : f.percent(result.irr)],
         ...(result.netYield !== null ? [[tm("netYield"), f.percent(result.netYield)]] : []),
       ]
@@ -56,7 +60,7 @@ export default async function Image({
           {shared ? shared.scenario.name.slice(0, 70) : t("ogNoResults")}
         </div>
         <div style={{ display: "flex", fontSize: 34, color: "#4fd1c5" }}>
-          {best ? t("ogBest", { scenario: ts(best) }) : t("ogNoResults")}
+          {evaluated.length > 0 ? evaluated.map((o) => ts(o.kind)).join(" · ") : t("ogNoResults")}
         </div>
       </div>
       <div style={{ display: "flex", gap: 56 }}>

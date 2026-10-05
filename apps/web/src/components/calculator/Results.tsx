@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  compareScenarios,
-  type Goal,
-  type ScenarioKind,
-  type ScenarioResult,
-} from "@olhovivo/engine";
-import { AlertTriangle, Trophy } from "lucide-react";
+import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, useMemo } from "react";
+import { useId } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
@@ -17,8 +12,6 @@ import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import { CashFlowChart, SCENARIO_COLORS } from "./CashFlowChart";
-
-const GOALS: Goal[] = ["profit", "irr", "yield", "capital"];
 
 export type MetricKey =
   | "totalInvestment"
@@ -30,6 +23,9 @@ export type MetricKey =
   | "grossYield"
   | "netYield"
   | "monthlyCashFlow"
+  | "annualCashFlow"
+  | "lifetimeCashFlow"
+  | "cashOnCash"
   | "paybackYears"
   | "returnOnDeposit";
 
@@ -38,6 +34,9 @@ export const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[]
   { key: "irr", format: "percent" },
   { key: "roi", format: "percent" },
   { key: "monthlyCashFlow", format: "euro" },
+  { key: "annualCashFlow", format: "euro" },
+  { key: "lifetimeCashFlow", format: "euro" },
+  { key: "cashOnCash", format: "percent" },
   { key: "grossYield", format: "percent" },
   { key: "netYield", format: "percent" },
   { key: "paybackYears", format: "years" },
@@ -47,11 +46,12 @@ export const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[]
   { key: "peakCapital", format: "euro" },
 ];
 
-/** The four strategies side by side, with the best one for the user's goal highlighted. */
+/**
+ * The strategies side by side, with the indicators that apply to them. No strategy is ranked
+ * or recommended: the user compares and decides.
+ */
 export function Results({
   output: fullOutput,
-  goal,
-  onGoalChange,
   onFillMissing,
   only,
   showDetails = true,
@@ -59,10 +59,8 @@ export function Results({
   output: CalculatorOutput | null;
   /** Costs and warnings per strategy; off where each deal shows its own. */
   showDetails?: boolean;
-  /** Limits the comparison to these strategies; the best one is chosen among them. */
+  /** Limits the comparison to these strategies. */
   only?: ScenarioKind[];
-  goal: Goal;
-  onGoalChange: (goal: Goal) => void;
   /** Opens the details of a strategy that still needs inputs (not on shared pages). */
   onFillMissing?: (kind: ScenarioKind) => void;
 }) {
@@ -71,12 +69,10 @@ export function Results({
   const ts = useTranslations("scenarios");
   const f = useFormat();
   const id = useId();
-  const output = useMemo(() => {
-    if (!fullOutput || !only) return fullOutput;
-    const outcomes = fullOutput.outcomes.filter((o) => only.includes(o.kind));
-    const results = outcomes.flatMap((o) => (o.result ? [o.result] : []));
-    return { ...fullOutput, outcomes, comparison: compareScenarios(results, goal) };
-  }, [fullOutput, only, goal]);
+  const output =
+    fullOutput && only
+      ? { ...fullOutput, outcomes: fullOutput.outcomes.filter((o) => only.includes(o.kind)) }
+      : fullOutput;
 
   if (!output) {
     return (
@@ -86,40 +82,18 @@ export function Results({
     );
   }
 
-  const best = output.comparison.best;
+  // Only the indicators that apply to at least one of the strategies shown.
+  const metrics = METRICS.filter(({ key }) =>
+    output.outcomes.some((o) => o.result && o.result[key] !== null),
+  );
   const value = (r: ScenarioResult, key: MetricKey, format: "euro" | "percent" | "years") =>
     formatMetric(r[key], format, f, (n) => tm("years", { value: Math.round(n * 10) / 10 }));
 
   return (
     <section aria-labelledby={`${id}-title`} className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <h3 id={`${id}-title`} className="font-semibold">
-          {t("resultsTitle")}
-        </h3>
-        <div
-          role="radiogroup"
-          aria-label={t("goal")}
-          className="flex flex-wrap gap-1 rounded-lg bg-muted p-1"
-        >
-          {GOALS.map((g) => (
-            <button
-              key={g}
-              type="button"
-              role="radio"
-              aria-checked={goal === g}
-              onClick={() => onGoalChange(g)}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                goal === g
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t(`goals.${g}`)}
-            </button>
-          ))}
-        </div>
-      </div>
+      <h3 id={`${id}-title`} className="font-semibold">
+        {t("resultsTitle")}
+      </h3>
 
       {/* Contained horizontal scroll on small screens; the page itself never scrolls sideways. */}
       <div className="-mx-5 overflow-x-auto px-5">
@@ -134,14 +108,7 @@ export function Results({
                 {t("metric")}
               </th>
               {output.outcomes.map((o) => (
-                <th
-                  key={o.kind}
-                  scope="col"
-                  className={cn(
-                    "rounded-t-lg px-2 pt-2 pb-2 text-left align-bottom",
-                    best === o.kind && "bg-primary/10",
-                  )}
-                >
+                <th key={o.kind} scope="col" className="px-2 pt-2 pb-2 text-left align-bottom">
                   <span className="flex items-center gap-1.5 font-semibold">
                     <span
                       aria-hidden
@@ -150,11 +117,6 @@ export function Results({
                     />
                     {ts(`${o.kind}Short`)}
                   </span>
-                  {best === o.kind && (
-                    <Badge className="mt-1 gap-1">
-                      <Trophy className="size-3" /> {t("best")}
-                    </Badge>
-                  )}
                   {o.result && !o.result.viable && (
                     <Badge variant="destructive" className="mt-1">
                       {t("notViable")}
@@ -171,13 +133,7 @@ export function Results({
                   {t("missing", { fields: "" })}
                 </th>
                 {output.outcomes.map((o) => (
-                  <td
-                    key={o.kind}
-                    className={cn(
-                      "px-2 pb-2 align-top text-xs text-muted-foreground",
-                      best === o.kind && "bg-primary/10",
-                    )}
-                  >
+                  <td key={o.kind} className="px-2 pb-2 align-top text-xs text-muted-foreground">
                     {o.missing && (
                       <>
                         {t("missing", {
@@ -199,7 +155,7 @@ export function Results({
                 ))}
               </tr>
             )}
-            {METRICS.map(({ key, format }) => (
+            {metrics.map(({ key, format }) => (
               <tr key={key}>
                 <th scope="row" className="border-t py-2 pr-2 text-left font-normal">
                   <span className="flex items-center gap-1">
@@ -212,7 +168,6 @@ export function Results({
                     key={o.kind}
                     className={cn(
                       "border-t px-2 py-2 tabular-nums",
-                      best === o.kind && "bg-primary/10 font-medium",
                       o.result && isNegative(o.result[key]) && "text-destructive",
                     )}
                   >

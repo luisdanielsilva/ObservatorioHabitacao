@@ -1,12 +1,10 @@
 import {
   classifyOpportunity,
-  compareScenarios,
   runContractAssignment,
   runFlip,
   runLongTermRental,
   runShortTermRental,
   seasonsToMonths,
-  type Comparison,
   type Opportunity,
   type ParameterSet,
   type PropertyInputs,
@@ -29,9 +27,16 @@ export type ScenarioOutcome =
   | { kind: ScenarioKind; result: ScenarioResult; missing?: never }
   | { kind: ScenarioKind; missing: MissingField[]; result?: never };
 
+/**
+ * A long-term rental is kept and let for good; profit and IRR are measured over this many years,
+ * or over the loan term when it is longer, so that the loan is repaid.
+ */
+export const PERMANENT_RENTAL_YEARS = 30;
+export const permanentRentalYears = (state: CalculatorState) =>
+  Math.max(PERMANENT_RENTAL_YEARS, state.useLoan ? state.loanTermYears : 0);
+
 export interface CalculatorOutput {
   outcomes: ScenarioOutcome[];
-  comparison: Comparison;
   opportunity: Opportunity | null;
   /** Purchase price actually used (the asking price when not set). */
   purchasePrice: number | null;
@@ -74,7 +79,11 @@ export function runCalculator(
   const loanAmount = purchasePrice ? effectiveLoanAmount(state, purchasePrice, params) : 0;
   const rentalHoldingMonths = Math.round(state.rentalYears * 12);
 
-  const property = (holdingMonths: number, exitPrice: number): PropertyInputs => ({
+  const property = (
+    holdingMonths: number,
+    exitPrice: number | null,
+    costs: { condominiumMonthly: number; insuranceAnnual: number },
+  ): PropertyInputs => ({
     purchasePrice: purchasePrice!,
     propertyUse: state.propertyUse,
     vpt: isSet(state.vpt) ? state.vpt : undefined,
@@ -90,13 +99,12 @@ export function runCalculator(
     sellingCommissionRate: state.sellingCommissionRate,
     otherTaxableIncome: state.otherTaxableIncome ?? 0,
     buyerNonResident: state.buyerNonResident,
-    condominiumMonthly: state.condominiumMonthly,
-    insuranceAnnual: state.insuranceAnnual,
+    ...costs,
   });
 
-  // Rentals are sold at the end of the holding period, at today's value (no appreciation is
-  // assumed): the value after works when the user plans a renovation and gave one, otherwise
-  // the current market value.
+  // The short-term rental is sold at the end of the holding period, at today's value (no
+  // appreciation is assumed): the value after works when the user plans a renovation and gave
+  // one, otherwise the current market value.
   const rentalBase =
     state.renovationBudget > 0 && isSet(state.resaleValue) ? state.resaleValue : state.marketValue;
   const rentalExit = isSet(rentalBase) ? rentalBase : 0;
@@ -118,8 +126,12 @@ export function runCalculator(
             kind: "flip",
             result: runFlip(
               {
-                ...property(state.flipMonths, state.resaleValue!),
-                utilitiesMonthly: state.utilitiesMonthly,
+                ...property(state.flipMonths, state.resaleValue!, {
+                  condominiumMonthly: state.condominiumMonthly,
+                  insuranceAnnual: state.insuranceAnnual,
+                }),
+                // Utilities while holding the property for resale are not counted.
+                utilitiesMonthly: 0,
               },
               params,
             ),
@@ -132,7 +144,6 @@ export function runCalculator(
     const m = missing(
       !purchasePrice && "purchasePrice",
       !isSet(state.monthlyRent) && "monthlyRent",
-      !isSet(rentalBase) && "marketValue",
     );
     outcomes.push(
       m.length
@@ -141,10 +152,16 @@ export function runCalculator(
             kind: "longTermRental",
             result: runLongTermRental(
               {
-                ...property(rentalHoldingMonths, rentalExit),
+                // Let for good: no sale, measured over PERMANENT_RENTAL_YEARS.
+                ...property(permanentRentalYears(state) * 12, null, {
+                  condominiumMonthly: state.rentalCondominiumMonthly,
+                  insuranceAnnual: state.rentalInsuranceMonthly * 12,
+                }),
                 monthlyRent: state.monthlyRent!,
                 rentGrowthRate: state.rentGrowthRate,
-                vacancyRate: state.vacancyRate,
+                // Leases follow one another, with the vacancy between them.
+                contractMonths: state.contractYears * 12,
+                vacancyMonths: state.vacancyMonths,
                 maintenanceRate: state.maintenanceRate,
                 managementRate: state.managementRate,
                 rentalTax:
@@ -171,10 +188,13 @@ export function runCalculator(
     } else {
       const result = runShortTermRental(
         {
-          ...property(rentalHoldingMonths, rentalExit),
+          ...property(rentalHoldingMonths, rentalExit, {
+            condominiumMonthly: state.alCondominiumMonthly,
+            insuranceAnnual: state.alInsuranceAnnual,
+          }),
           adr: seasonsToMonths(state.nightlyRate as { high: number; mid: number; low: number }),
           occupancy: seasonsToMonths(state.occupancy as { high: number; mid: number; low: number }),
-          adrGrowthRate: state.rentGrowthRate,
+          adrGrowthRate: state.nightlyGrowthRate,
           startMonth,
           averageStayNights: state.averageStayNights,
           cleaningFeePerStay: state.cleaningFeePerStay,
@@ -230,10 +250,8 @@ export function runCalculator(
     );
   }
 
-  const results = outcomes.flatMap((o) => (o.result ? [o.result] : []));
   return {
     outcomes,
-    comparison: compareScenarios(results, state.goal),
     opportunity:
       isSet(state.askingPrice) && isSet(state.marketValue)
         ? classifyOpportunity(state.askingPrice, state.marketValue)
@@ -241,4 +259,9 @@ export function runCalculator(
     purchasePrice,
     loanAmount,
   };
+}
+
+/** The outcomes of the deals the user chose; all of them for scenarios saved before choosing. */
+export function chosenOutcomes(output: CalculatorOutput, deals: ScenarioKind[]): ScenarioOutcome[] {
+  return deals.length > 0 ? output.outcomes.filter((o) => deals.includes(o.kind)) : output.outcomes;
 }

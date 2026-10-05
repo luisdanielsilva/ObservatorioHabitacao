@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { CalculatorState } from "@/lib/calculator/state";
+import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import type { Update } from "./Calculator";
 import { NumberField, SwitchField } from "./fields";
@@ -20,19 +21,25 @@ type NumericKey = {
  */
 export function AssumptionsSection({
   scope,
-  buying,
+  deals,
   state,
   update,
+  rentUpdate,
   locale,
 }: {
   scope: "common" | ScenarioKind;
-  /** Whether any chosen deal buys the property. */
-  buying: boolean;
+  /** The chosen deals. */
+  deals: ScenarioKind[];
   state: CalculatorState;
   update: Update;
+  /** The latest published rent update coefficient, the default yearly rent increase. */
+  rentUpdate: { value: number; date: string; source: string } | null;
   locale: string;
 }) {
   const t = useTranslations("evaluate");
+  const f = useFormat();
+  const buying = deals.some((d) => d !== "contractAssignment");
+  const selling = deals.includes("flip") || deals.includes("shortTermRental");
   const id = useId();
   const [open, setOpen] = useState(false);
 
@@ -61,26 +68,40 @@ export function AssumptionsSection({
       fields: [
         buying && field("imiRate", t("imiRate"), "percent"),
         field("vpt", t("vpt"), "money", { help: t("vptHelp"), nullable: true }),
-        buying && field("condominiumMonthly", t("condominium"), "money"),
-        buying && field("insuranceAnnual", t("insurance"), "money"),
-        buying && field("sellingCommissionRate", t("sellingCommission"), "percent"),
+        selling && field("sellingCommissionRate", t("sellingCommission"), "percent"),
       ],
     });
   }
   if (scope === "flip") {
     groups.push({
       title: t("deals.flip"),
-      fields: [field("utilitiesMonthly", t("utilities"), "money")],
+      fields: [
+        field("condominiumMonthly", t("condominium"), "money"),
+        field("insuranceAnnual", t("insurance"), "money"),
+      ],
     });
   }
   if (scope === "longTermRental") {
     groups.push({
       title: t("scenarioLongTerm"),
       fields: [
-        field("rentGrowthRate", t("rentGrowth"), "percent"),
-        field("vacancyRate", t("vacancy"), "percent", { help: t("vacancyHelp") }),
+        field("rentGrowthRate", t("rentGrowth"), "percent", {
+          help: rentUpdate
+            ? t("rentGrowthHelp", {
+                year: rentUpdate.date.slice(0, 4),
+                rate: f.percent(rentUpdate.value, 2),
+                source: rentUpdate.source,
+              })
+            : t("rentGrowthHelpNoSource"),
+        }),
+        field("vacancyMonths", t("vacancy"), "number", {
+          help: t("vacancyHelp"),
+          suffix: t("monthsShort"),
+        }),
         field("maintenanceRate", t("maintenance"), "percent"),
         field("managementRate", t("management"), "percent"),
+        field("rentalCondominiumMonthly", t("condominium"), "money"),
+        field("rentalInsuranceMonthly", t("insuranceMonthly"), "money"),
       ],
     });
   }
@@ -88,7 +109,7 @@ export function AssumptionsSection({
     groups.push({
       title: t("scenarioShortTerm"),
       fields: [
-        field("rentGrowthRate", t("nightlyGrowth"), "percent"),
+        field("nightlyGrowthRate", t("nightlyGrowth"), "percent"),
         field("alPlatformFeeRate", t("alPlatformFee"), "percent"),
         field("alManagementRate", t("alManagement"), "percent"),
         field("averageStayNights", t("averageStay"), "number"),
@@ -96,6 +117,8 @@ export function AssumptionsSection({
         field("cleaningCostPerStay", t("cleaningCost"), "money"),
         field("consumablesPerNight", t("consumables"), "money"),
         field("alUtilitiesMonthly", t("utilities"), "money"),
+        field("alCondominiumMonthly", t("condominium"), "money"),
+        field("alInsuranceAnnual", t("insurance"), "money"),
         field("furnishingCost", t("furnishing"), "money"),
         field("alRegistrationCost", t("alRegistration"), "money"),
       ],
@@ -110,6 +133,8 @@ export function AssumptionsSection({
       ],
     });
   }
+
+  if (groups.every((g) => g.fields.every((x) => !x))) return null;
 
   return (
     <section aria-labelledby={`${id}-title`} className="rounded-lg border p-4">

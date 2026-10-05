@@ -3,7 +3,10 @@ import type { CalculatorOutput, MissingField } from "./run";
 import type { CalculatorState } from "./state";
 
 export interface ScenarioSummary {
-  netProfit: number;
+  /** Null for a property that is kept (no sale). */
+  netProfit: number | null;
+  /** Kept property: rent left over the holding period (absent in older summaries). */
+  lifetimeCashFlow?: number | null;
   irr: number | null;
   roi: number | null;
   grossYield: number | null;
@@ -15,8 +18,6 @@ export interface ScenarioSummary {
 }
 
 export interface ResultsSummary {
-  best: ScenarioKind | null;
-  goal: string;
   opportunity: CalculatorOutput["opportunity"];
   scenarios: Partial<Record<ScenarioKind, ScenarioSummary | { missing: MissingField[] }>>;
 }
@@ -24,8 +25,6 @@ export interface ResultsSummary {
 /** The key figures stored with a saved scenario, for lists and previews. */
 export function summariseOutput(output: CalculatorOutput): ResultsSummary {
   return {
-    best: output.comparison.best,
-    goal: output.comparison.goal,
     opportunity: output.opportunity,
     scenarios: Object.fromEntries(
       output.outcomes.map((o) => [
@@ -33,6 +32,7 @@ export function summariseOutput(output: CalculatorOutput): ResultsSummary {
         o.result
           ? {
               netProfit: o.result.netProfit,
+              lifetimeCashFlow: o.result.lifetimeCashFlow,
               irr: o.result.irr,
               roi: o.result.roi,
               grossYield: o.result.grossYield,

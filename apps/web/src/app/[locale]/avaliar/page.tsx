@@ -3,6 +3,7 @@ import {
   getAreaTree,
   getLatestReferenceRate,
   getScenario,
+  RENT_UPDATE_RATE,
 } from "@olhovivo/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -35,6 +36,7 @@ export default async function EvaluatePage({
   const tree = getAreaTree(db);
   const parameterSet = getActiveParameterSet(db, "continente", new Date().getFullYear());
   const euribor = getLatestReferenceRate(db, "euribor_12m");
+  const rentUpdate = getLatestReferenceRate(db, RENT_UPDATE_RATE);
   const requestedArea = Number(Array.isArray(area) ? area[0] : area);
   // A listing link from the home page is read as soon as the page opens.
   const requestedLink = (Array.isArray(link) ? link[0] : link)?.trim().slice(0, 2000) || null;
@@ -60,6 +62,7 @@ export default async function EvaluatePage({
         tree={tree}
         params={parameterSet?.data ?? null}
         euribor12m={euribor ? { value: euribor.value, date: euribor.date } : null}
+        rentUpdate={rentUpdate ?? null}
         initialAreaId={Number.isInteger(requestedArea) && requestedArea > 0 ? requestedArea : null}
         initialLink={initial ? null : requestedLink}
         startManual={manual !== undefined}

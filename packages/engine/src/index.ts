@@ -20,8 +20,6 @@ export { runShortTermRental } from "./scenarios/shortTermRental";
 export type { AlRegistrationStatus, ShortTermRentalInputs } from "./scenarios/shortTermRental";
 export { runContractAssignment, suggestAssignmentPrice } from "./scenarios/contractAssignment";
 export type { ContractAssignmentInputs } from "./scenarios/contractAssignment";
-export { compareScenarios } from "./compare";
-export type { Comparison, Goal } from "./compare";
 export {
   sensitivity,
   shiftAdr,
