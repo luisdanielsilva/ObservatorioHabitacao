@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
     metadataBase: new URL(siteUrl()),
     title: { default: t("title"), template: "%s · OlhoVivo" },
     description: t("description"),
+    // The site has its own English version: browsers should not machine-translate the
+    // Portuguese pages (Chrome and Edge otherwise offer or apply it automatically).
+    other: { google: "notranslate" },
   };
 }
 
@@ -39,6 +42,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   return (
     <html
       lang={locale === "pt" ? "pt-PT" : "en"}
+      translate="no"
       className={`${sans.variable} ${mono.variable} h-full antialiased`}
       suppressHydrationWarning
     >

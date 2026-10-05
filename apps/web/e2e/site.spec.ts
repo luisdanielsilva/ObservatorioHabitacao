@@ -114,5 +114,8 @@ test.describe("with an English browser", () => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-PT");
+    // Browsers must not machine-translate it into English.
+    await expect(page.locator("html")).toHaveAttribute("translate", "no");
+    await expect(page.locator('meta[name="google"]')).toHaveAttribute("content", "notranslate");
   });
 });
