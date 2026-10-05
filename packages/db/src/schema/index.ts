@@ -6,3 +6,4 @@ export * from "./market";
 export * from "./operations";
 export * from "./parameters";
 export * from "./users";
+export * from "./photos";

@@ -1,6 +1,15 @@
 import { desc, eq, or } from "drizzle-orm";
 import type { Db } from "./client";
-import { accounts, analyses, consents, leads, scenarios, sessions, users } from "./schema";
+import {
+  accounts,
+  analyses,
+  consents,
+  leads,
+  scenarioPhotos,
+  scenarios,
+  sessions,
+  users,
+} from "./schema";
 
 /** Requests the user sent: by account, or by the email they used before signing up. */
 export function listUserLeads(db: Db, userId: string, email: string) {
@@ -82,6 +91,19 @@ export function exportUserData(db: Db, userId: string) {
       .all(),
     consents: db.select().from(consents).where(eq(consents.userId, userId)).all(),
     scenarios: db.select().from(scenarios).where(eq(scenarios.userId, userId)).all(),
+    // Photo details; the images themselves are downloaded from each scenario.
+    scenarioPhotos: db
+      .select({
+        id: scenarioPhotos.id,
+        scenarioId: scenarioPhotos.scenarioId,
+        originalName: scenarioPhotos.originalName,
+        bytes: scenarioPhotos.bytes,
+        createdAt: scenarioPhotos.createdAt,
+      })
+      .from(scenarioPhotos)
+      .innerJoin(scenarios, eq(scenarios.id, scenarioPhotos.scenarioId))
+      .where(eq(scenarios.userId, userId))
+      .all(),
     analyses: db.select().from(analyses).where(eq(analyses.userId, userId)).all(),
     requests: db
       .select()
@@ -92,9 +114,10 @@ export function exportUserData(db: Db, userId: string) {
 }
 
 /**
- * Deletes the account (RGPD art. 17). Scenarios, consents, sessions and linked accounts are
- * deleted with it (foreign-key cascade); analyses are kept anonymised; requests sent to the
- * team are anonymised, since the person asked to be forgotten.
+ * Deletes the account (RGPD art. 17). Scenarios (with their photo rows), consents, sessions
+ * and linked accounts are deleted with it (foreign-key cascade; the caller removes the photo
+ * files); analyses are kept anonymised; requests sent to the team are anonymised, since the
+ * person asked to be forgotten.
  */
 export function deleteAccount(db: Db, userId: string): boolean {
   const user = db.select().from(users).where(eq(users.id, userId)).get();
