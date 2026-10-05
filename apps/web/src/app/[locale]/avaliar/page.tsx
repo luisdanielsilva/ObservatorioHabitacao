@@ -58,7 +58,9 @@ export default async function EvaluatePage({
       <CalculatorRoot
         key={initial?.savedId ?? "new"}
         initial={initial}
-        restoreDraft={!initial && rascunho !== undefined}
+        // The evaluation in progress comes back, except for a saved scenario or a new link.
+        restoreDraft={!initial && !requestedLink}
+        autoSave={!initial && rascunho !== undefined}
         tree={tree}
         params={parameterSet?.data ?? null}
         euribor12m={euribor ? { value: euribor.value, date: euribor.date } : null}

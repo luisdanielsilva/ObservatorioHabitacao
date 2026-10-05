@@ -60,6 +60,9 @@ self-contained copy (`data/backups/olhovivo-YYYY-MM-DD.db`), checks its integrit
 the newest 14. The Hetzner VPS backup then includes these files. Adjust the time so it
 finishes before the VPS backup window.
 
+Property photos of saved scenarios are files in `data/photos/<scenario id>/` (or `PHOTOS_DIR`),
+not in the database: the VPS backup must include that folder too. At most 5 MB per scenario.
+
 **Restore test** (do this periodically, WBS 3.4.2):
 
 ```bash

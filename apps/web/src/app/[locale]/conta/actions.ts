@@ -4,18 +4,22 @@ import {
   deleteAccount,
   deleteScenario,
   getConsents,
+  scenarioIdsOfUser,
   setConsent,
   updateProfile,
 } from "@olhovivo/db";
 import { revalidatePath } from "next/cache";
 import { signOut } from "@/auth";
 import { getDb } from "@/lib/db";
+import { removeScenarioPhotos } from "@/lib/photos";
 import { getCurrentUser } from "@/lib/session";
 
 export async function deleteSavedScenario(id: number): Promise<boolean> {
   const user = await getCurrentUser();
   if (!user) return false;
   const ok = deleteScenario(getDb(), id, user.id);
+  // The photo rows went with the scenario; remove their files too.
+  if (ok) await removeScenarioPhotos(id);
   revalidatePath("/[locale]/conta", "page");
   return ok;
 }
@@ -52,7 +56,10 @@ export async function deleteMyAccount(_prev: DeleteState, form: FormData): Promi
     .trim()
     .toUpperCase();
   if (typed !== "APAGAR" && typed !== "DELETE") return { status: "mismatch" };
-  deleteAccount(getDb(), user.id);
+  const db = getDb();
+  const scenarioIds = scenarioIdsOfUser(db, user.id);
+  deleteAccount(db, user.id);
+  await Promise.all(scenarioIds.map(removeScenarioPhotos));
   await signOut({ redirectTo: "/" });
   return { status: "idle" };
 }

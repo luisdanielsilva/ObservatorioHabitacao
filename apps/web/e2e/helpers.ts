@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
 
 /** Collects CSP violations and uncaught errors on a page. */
@@ -61,4 +62,35 @@ export async function expectNoHorizontalScroll(page: Page) {
     () => document.documentElement.scrollWidth - window.innerWidth,
   );
   expect(overflow).toBeLessThanOrEqual(0);
+}
+
+/**
+ * Signs in from the sign-in page with a magic link read from the dev server's log (emails are
+ * logged when no email provider is configured).
+ */
+export async function signInWithLink(page: Page, email: string, log: string) {
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Enviar link de acesso" }).click();
+  await expect(page).toHaveURL(/\/entrar\/verificar/);
+  let link: string | undefined;
+  await expect
+    .poll(() => {
+      link = [
+        ...readFileSync(log, "utf8").matchAll(/https?:\/\/\S+\/api\/auth\/callback\/resend\?\S+/g),
+      ]
+        .map((m) => m[0])
+        .filter((l) => l.includes(encodeURIComponent(email)))
+        .at(-1);
+      return Boolean(link);
+    })
+    .toBe(true);
+  await page.goto(link!);
+}
+
+/** From the results: save the scenario, signing in when asked. */
+export async function saveSignedIn(page: Page, email: string, log: string) {
+  await page.getByRole("button", { name: "Guardar", exact: true }).click();
+  await page.getByRole("link", { name: "Guardar →" }).click();
+  await signInWithLink(page, email, log);
+  await expect(page).toHaveURL(/cenario=\d+/);
 }

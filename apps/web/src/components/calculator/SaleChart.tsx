@@ -2,7 +2,7 @@
 
 import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
 import { useTranslations } from "next-intl";
-import { useDeferredValue, useId, useMemo, useState } from "react";
+import { useDeferredValue, useId, useMemo } from "react";
 import {
   CartesianGrid,
   Line,
@@ -23,7 +23,7 @@ import { SCENARIO_COLORS } from "./colors";
 
 /**
  * The lowest sale price without a loss, and how much a higher price earns: a profit curve from
- * the break-even price upwards, with a slider to read the profit at any price.
+ * the break-even price upwards (hovering over it shows the profit at each price).
  */
 export function SaleChart({
   deal,
@@ -44,15 +44,11 @@ export function SaleChart({
     () => (params ? saleAnalysis(deferred, params, startMonth, deal) : null),
     [deferred, params, startMonth, deal],
   );
-  const [chosen, setChosen] = useState<number | null>(null);
 
   if (!analysis || analysis.points.length === 0) return null;
   const { breakEven, expected, points, years } = analysis;
   const min = points[0]!.price;
   const max = points.at(-1)!.price;
-  const step = Math.max(500, Math.round((max - min) / 200 / 500) * 500);
-  const price = Math.min(max, Math.max(min, chosen ?? expected ?? min));
-  const profit = params ? profitAtSale(deferred, params, startMonth, deal, price) : null;
   const expectedProfit =
     params && expected !== null ? profitAtSale(deferred, params, startMonth, deal, expected) : null;
   const priceLabel = t(`priceLabel.${deal}`);
@@ -89,30 +85,6 @@ export function SaleChart({
           </div>
         )}
       </dl>
-
-      <div className="space-y-1">
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <label htmlFor={`${id}-price`}>{priceLabel}</label>
-          <output htmlFor={`${id}-price`} className="font-semibold tabular-nums" aria-live="polite">
-            {f.euro(price)} → {profit === null ? "—" : f.euro(profit)}
-          </output>
-        </div>
-        <input
-          id={`${id}-price`}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={price}
-          onChange={(e) => setChosen(Number(e.target.value))}
-          aria-valuetext={`${f.euro(price)}: ${t("profit")} ${profit === null ? "—" : f.euro(profit)}`}
-          className="w-full accent-[var(--primary)]"
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{f.euro(min)}</span>
-          <span>{f.euro(max)}</span>
-        </div>
-      </div>
 
       <figure className="space-y-2">
         <figcaption className="text-xs text-muted-foreground">{t("chartCaption")}</figcaption>
@@ -162,7 +134,6 @@ export function SaleChart({
                   strokeDasharray="2 4"
                 />
               )}
-              <ReferenceLine x={price} stroke={SCENARIO_COLORS[deal]} strokeOpacity={0.6} />
               <Line
                 type="monotone"
                 dataKey="profit"

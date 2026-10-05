@@ -1,50 +1,70 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Calculator, type CalculatorProps } from "@/components/calculator/Calculator";
-import { DRAFT_KEY } from "@/components/calculator/SaveBar";
-import { normaliseState } from "@/lib/calculator/state";
+import { useRouter } from "@/i18n/navigation";
+import { clearDraft, readDraft } from "@/lib/calculator/draft";
 
 const subscribe = () => () => {};
-const readDraft = () => {
-  try {
-    return localStorage.getItem(DRAFT_KEY);
-  } catch {
-    return null;
-  }
-};
 
 /**
- * Restores inputs kept in the browser while the user signed in to save them (?rascunho=1).
- * The draft is read with useSyncExternalStore (null on the server), and the calculator is
- * remounted with it once it is available. SaveBar clears it once the scenario is saved.
+ * Keeps the evaluation in progress across the site: the calculator saves it in this browser as
+ * the user works (lib/calculator/draft), and it is restored here when the page is opened again.
+ *
+ * The draft can only be read in the browser, so the server renders a placeholder and the
+ * calculator is created once, on the client, from the draft (or empty). Creating it on the
+ * server first would autosave an empty evaluation over the user's draft.
  */
 export function CalculatorRoot({
   restoreDraft,
   ...props
-}: CalculatorProps & { restoreDraft: boolean }) {
-  const raw = useSyncExternalStore(subscribe, readDraft, () => null);
-  const draft = restoreDraft && raw ? parseDraft(raw) : null;
+}: CalculatorProps & {
+  /** Restore the evaluation in progress (not when opening a saved scenario or a new link). */
+  restoreDraft: boolean;
+}) {
+  const isClient = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
+  const [generation, setGeneration] = useState(0);
+  const router = useRouter();
 
-  return draft ? (
-    <Calculator
-      key="draft"
+  if (!isClient) return <CalculatorPlaceholder />;
+  return (
+    <ClientCalculator
+      key={generation}
       {...props}
-      initial={{ state: draft.state, savedId: null, name: draft.name }}
+      restoreDraft={restoreDraft}
+      onReset={() => {
+        clearDraft();
+        router.replace("/avaliar");
+        setGeneration((g) => g + 1);
+      }}
     />
-  ) : (
-    <Calculator key="default" {...props} />
   );
 }
 
-function parseDraft(raw: string) {
-  try {
-    const parsed = JSON.parse(raw) as { name?: unknown; state?: unknown };
-    return {
-      name: typeof parsed.name === "string" ? parsed.name.slice(0, 120) : null,
-      state: normaliseState(parsed.state),
-    };
-  } catch {
-    return null;
-  }
+function ClientCalculator({ restoreDraft, ...props }: CalculatorProps & { restoreDraft: boolean }) {
+  // Read once, when this calculator is created; the calculator keeps it up to date afterwards.
+  const [draft] = useState(() => (restoreDraft ? readDraft() : null));
+  return (
+    <Calculator
+      {...props}
+      initial={
+        draft ? { state: draft.state, savedId: draft.savedId, name: draft.name } : props.initial
+      }
+    />
+  );
+}
+
+/** Same outline as the four steps, while the browser reads the evaluation in progress. */
+function CalculatorPlaceholder() {
+  return (
+    <div className="mx-auto max-w-4xl space-y-4" aria-hidden>
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="h-[72px] animate-pulse rounded-xl border bg-card/40" />
+      ))}
+    </div>
+  );
 }

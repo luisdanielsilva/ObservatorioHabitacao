@@ -92,6 +92,9 @@ Scenarios point to the analysis they came from.
 
 **Scenarios** — `scenarios`: user, property snapshot, inputs, parameter-set id, results
 cache, duplicated-from. _Planned (Phase 2):_ public share token for X/Facebook links.
+`scenario_photos`: up to 30 photos or 5 MB per saved scenario; the images are re-encoded to
+WebP (max 1600 px, no metadata) and stored as files under `data/photos/<scenario id>/`, served
+only to the scenario's owner, and removed with the scenario or the account.
 
 **Users** — `users` (role, plan, locale, Auth.js fields), `accounts`, `sessions`,
 `verification_tokens` (Auth.js), `consents` (RGPD log, one row per change).

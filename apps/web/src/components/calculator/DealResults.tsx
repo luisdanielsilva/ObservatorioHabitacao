@@ -60,6 +60,7 @@ export function DealResults({
   startMonth,
   onAddDeal,
   saveBar,
+  photos,
 }: {
   deals: ScenarioKind[];
   output: CalculatorOutput | null;
@@ -70,6 +71,8 @@ export function DealResults({
   onAddDeal: (kind: ScenarioKind) => void;
   /** The scenario's name and save button, shown after the comparison. */
   saveBar: React.ReactNode;
+  /** The property's photos, under the save button. */
+  photos: React.ReactNode;
 }) {
   const t = useTranslations("evaluate");
   const f = useFormat();
@@ -200,6 +203,7 @@ export function DealResults({
 
       {/* The scenario (name and save), then sharing, after the comparison. */}
       {saveBar}
+      {photos}
       <ShareMock />
 
       <p className="text-xs text-muted-foreground">

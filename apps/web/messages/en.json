@@ -390,7 +390,7 @@
     "saveChanges": "Save changes",
     "duplicate": "Duplicate",
     "duplicated": "Copy created.",
-    "signinToSave": "Sign in to save. The values you entered are kept in this browser.",
+    "signinToSave": "To save, you need to sign in. The evaluation stays in this browser and is saved to your account as soon as you sign in.",
     "limitReached": "You have reached your plan's limit of saved scenarios.",
     "saveError": "Could not save. Please try again.",
     "copySuffix": "(copy)",
@@ -490,7 +490,8 @@
       "imi": "IMI",
       "condominium": "Condominium",
       "insurance": "Home insurance"
-    }
+    },
+    "newEvaluation": "New evaluation"
   },
   "prices": {
     "title": "House prices in Portugal",
@@ -885,5 +886,26 @@
     "profit": "profit",
     "chartCaption": "Net profit by sale price, from the lowest price without a loss.",
     "chartAlt": "Net profit from {profitFrom} to {profitTo} for sale prices from {from} to {to}."
+  },
+  "photos": {
+    "title": "Property photos",
+    "intro": "Up to 30 photos or 5 MB per scenario, whichever comes first.",
+    "saveFirst": "Save the scenario to add photos of the property.",
+    "signin": "Sign in to see and add this scenario's photos.",
+    "usage": "{count} of {maxCount} photos · {size} of {maxSize} MB",
+    "add": "Add photos",
+    "uploading": "Uploading {done} of {total}…",
+    "added": "{count, plural, =0 {No photos added} one {1 photo added} other {# photos added}}{skipped, plural, =0 {.} one {; 1 file is not a valid image.} other {; # files are not valid images.}}",
+    "errors": {
+      "too_many": "You have reached the limit of 30 photos for this scenario.",
+      "too_large": "You have reached the 5 MB photo limit for this scenario.",
+      "signin": "Sign in to add photos.",
+      "not_found": "Scenario not found.",
+      "rate_limited": "Too many uploads in a row. Wait a moment and try again."
+    },
+    "loadError": "The photos could not be loaded.",
+    "deleteError": "The photo could not be deleted.",
+    "alt": "Property photo {n}",
+    "delete": "Delete photo {n}"
   }
 }

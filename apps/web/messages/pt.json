@@ -390,7 +390,7 @@
     "saveChanges": "Guardar alterações",
     "duplicate": "Duplicar",
     "duplicated": "Cópia criada.",
-    "signinToSave": "Entre na sua conta para guardar. Os valores introduzidos ficam guardados neste navegador.",
+    "signinToSave": "Para guardar precisa de entrar na sua conta. A avaliação fica guardada neste navegador e é guardada na conta assim que entrar.",
     "limitReached": "Atingiu o limite de cenários guardados do seu plano.",
     "saveError": "Não foi possível guardar. Tente novamente.",
     "copySuffix": "(cópia)",
@@ -490,7 +490,8 @@
       "imi": "IMI",
       "condominium": "Condomínio",
       "insurance": "Seguro multirriscos"
-    }
+    },
+    "newEvaluation": "Nova avaliação"
   },
   "prices": {
     "title": "Preços das casas em Portugal",
@@ -885,5 +886,26 @@
     "profit": "lucro",
     "chartCaption": "Lucro líquido em função do preço de venda, a partir do preço mínimo sem prejuízo.",
     "chartAlt": "Lucro líquido entre {profitFrom} e {profitTo} para preços de venda de {from} a {to}."
+  },
+  "photos": {
+    "title": "Fotografias do imóvel",
+    "intro": "Até 30 fotografias ou 5 MB por cenário, o que for atingido primeiro.",
+    "saveFirst": "Guarde o cenário para adicionar fotografias do imóvel.",
+    "signin": "Entre na sua conta para ver e adicionar as fotografias deste cenário.",
+    "usage": "{count} de {maxCount} fotografias · {size} de {maxSize} MB",
+    "add": "Adicionar fotografias",
+    "uploading": "A enviar {done} de {total}…",
+    "added": "{count, plural, =0 {Nenhuma fotografia adicionada} one {1 fotografia adicionada} other {# fotografias adicionadas}}{skipped, plural, =0 {.} one {; 1 ficheiro não é uma imagem válida.} other {; # ficheiros não são imagens válidas.}}",
+    "errors": {
+      "too_many": "Atingiu o limite de 30 fotografias neste cenário.",
+      "too_large": "Atingiu o limite de 5 MB de fotografias neste cenário.",
+      "signin": "Entre na sua conta para adicionar fotografias.",
+      "not_found": "Cenário não encontrado.",
+      "rate_limited": "Demasiados envios seguidos. Aguarde um pouco e tente novamente."
+    },
+    "loadError": "Não foi possível carregar as fotografias.",
+    "deleteError": "Não foi possível apagar a fotografia.",
+    "alt": "Fotografia {n} do imóvel",
+    "delete": "Apagar fotografia {n}"
   }
 }

@@ -196,13 +196,9 @@ test("sale chart: lowest price without a loss, and profit above it", async ({ pa
   const breakEven = sale.getByText("Preço mínimo de venda sem prejuízo").locator("+ dd");
   await expect(breakEven).toHaveText(/^4\d\d\s\d{3}\s€$/);
 
-  // Moving the slider up raises the profit read out next to it.
-  const slider = sale.getByRole("slider", { name: "Preço de venda" });
-  const output = sale.locator("output");
-  await slider.press("Home");
-  const atMin = await output.textContent();
-  await slider.press("End");
-  await expect(output).not.toHaveText(atMin!);
+  // The profit at the price entered; no slider.
+  await expect(sale.getByText("Lucro ao preço que indicou (480 000 €)")).toBeVisible();
+  await expect(sale.getByRole("slider")).toHaveCount(0);
 
   // Sharing comes after the scenario's name and save, as mock-ups that do nothing yet.
   const share = results.getByRole("region", { name: "Partilhar resultados" });
@@ -350,4 +346,36 @@ test("purchase costs, loan charges and yearly IMI are shown", async ({ page }) =
   await expect(details.getByText("Custos anuais")).toBeVisible();
   await expect(details.getByText("IMI", { exact: true })).toBeVisible();
   await expect(details.getByText("Seguro multirriscos", { exact: true })).toBeVisible();
+});
+
+test("the evaluation is kept while moving around the site, until a new one", async ({ page }) => {
+  await page.goto("/avaliar");
+  await fillPropertyByHand(page);
+  await chooseDeals(page, "Arrendamento de longa duração");
+  await nextPanel(page);
+  await fillRental(page);
+  await showResults(page);
+
+  // Away to other pages and back: the evaluation is still there, at the results.
+  await page.goto("/precos");
+  await page.goto("/metodologia");
+  await page.goto("/avaliar");
+  await expect(step(page, "Imóvel")).toContainText("Apartamento T2 · 80 m² · 400 000 €");
+  await expect(
+    step(page, "Resultados").getByRole("term").filter({ hasText: "Cash flow mensal" }),
+  ).toBeVisible();
+  // Also after trying to save without an account and coming back.
+  await page.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(page.getByText(/Para guardar precisa de entrar/)).toBeVisible();
+  await page.goBack();
+  await page.goto("/avaliar?manual=1");
+  await expect(step(page, "Imóvel")).toContainText("400 000 €");
+
+  // "Nova avaliação" clears it.
+  await page.goto("/avaliar");
+  await page.getByRole("button", { name: "Nova avaliação" }).click();
+  await expect(page.getByRole("button", { name: "Preencher manualmente" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Preencher manualmente" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Nova avaliação" })).toHaveCount(0);
 });

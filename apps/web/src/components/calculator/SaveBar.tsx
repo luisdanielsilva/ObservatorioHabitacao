@@ -1,8 +1,8 @@
 "use client";
 
-import { Copy, Save } from "lucide-react";
+import { Copy, FolderOpen, Save } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import {
   duplicateSavedScenario,
   saveScenario,
@@ -12,17 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useRouter } from "@/i18n/navigation";
+import { writeDraft } from "@/lib/calculator/draft";
 import type { CalculatorState } from "@/lib/calculator/state";
-
-export const DRAFT_KEY = "olhovivo:calculator-draft";
 
 /** Saves the current inputs as a scenario, or duplicates the saved one. */
 export function SaveBar({
   state,
   savedId,
   defaultName,
+  autoSave = false,
   children,
 }: {
+  /** Save as soon as the bar appears (the user signed in to save). */
+  autoSave?: boolean;
   state: CalculatorState;
   savedId: number | null;
   defaultName: string;
@@ -47,22 +49,23 @@ export function SaveBar({
     startTransition(async () => {
       const r = await saveScenario({ id: savedId, name: shownName, state });
       setResult(r);
-      if (r.status === "signin") {
-        try {
-          localStorage.setItem(DRAFT_KEY, JSON.stringify({ name: shownName, state }));
-        } catch {
-          // Storage unavailable (private mode): the user can still sign in and re-enter values.
-        }
-      }
+      // The evaluation itself is kept by the calculator; keep the name and the saved id too.
+      if (r.status === "signin") writeDraft({ state, name: shownName });
       if (r.status === "saved") {
-        try {
-          localStorage.removeItem(DRAFT_KEY);
-        } catch {
-          // ignore
-        }
+        writeDraft({ state, savedId: r.id, name: shownName });
         if (r.id !== savedId) go(r.id);
       }
     });
+
+  // Back from signing in to save: finish the save the user asked for.
+  const autoSaved = useRef(false);
+  useEffect(() => {
+    if (!autoSave || autoSaved.current) return;
+    autoSaved.current = true;
+    save();
+    // Runs once, when the bar first appears.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const duplicate = () =>
     startTransition(async () => {
@@ -109,6 +112,14 @@ export function SaveBar({
           <Button variant="outline" onClick={duplicate} disabled={pending}>
             <Copy />
             {t("duplicate")}
+          </Button>
+        )}
+        {savedId && (
+          <Button asChild variant="ghost">
+            <Link href="/conta">
+              <FolderOpen />
+              {t("myScenarios")}
+            </Link>
           </Button>
         )}
         {children}

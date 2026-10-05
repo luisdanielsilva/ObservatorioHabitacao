@@ -1,6 +1,13 @@
-import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { chooseDeals, field, fillPropertyByHand, nextPanel, showResults, step } from "./helpers";
+import {
+  chooseDeals,
+  field,
+  fillPropertyByHand,
+  nextPanel,
+  showResults,
+  signInWithLink,
+  step,
+} from "./helpers";
 
 /**
  * Sign-in with a magic link read from the dev server's log (emails are logged when no email
@@ -20,30 +27,15 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   await field(page, "Preço de venda após obras").fill("300000");
   await showResults(page);
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await expect(page.getByText(/Entre na sua conta para guardar/)).toBeVisible();
+  await expect(page.getByText(/Para guardar precisa de entrar/)).toBeVisible();
   await page.getByRole("link", { name: "Guardar →" }).click();
 
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Enviar link de acesso" }).click();
-  await expect(page).toHaveURL(/\/entrar\/verificar/);
-
-  let link: string | undefined;
-  await expect
-    .poll(() => {
-      const log = readFileSync(LOG!, "utf8");
-      link = [...log.matchAll(/https?:\/\/\S+\/api\/auth\/callback\/resend\?\S+/g)]
-        .map((m) => m[0])
-        .filter((l) => l.includes(encodeURIComponent(email)))
-        .at(-1);
-      return Boolean(link);
-    })
-    .toBe(true);
-  await page.goto(link!);
+  await signInWithLink(page, email, LOG!);
 
   // The inputs typed before signing in are restored, and the page opens at the results.
   await expect(step(page, "Imóvel")).toContainText("250 000 €");
   await expect(step(page, "Tipo de negócio")).toContainText("Compra e revenda");
-  await page.getByRole("button", { name: "Guardar", exact: true }).click();
+  // The save the user asked for is finished without clicking again.
   await expect(page).toHaveURL(/cenario=\d+/);
 
   await page.goto("/conta");

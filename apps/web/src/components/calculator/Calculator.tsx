@@ -1,5 +1,8 @@
 "use client";
 
+import { RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { writeDraft } from "@/lib/calculator/draft";
 import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
@@ -20,6 +23,7 @@ import { DetailsStep, detailsSummary } from "./DealDetails";
 import { DealResults } from "./DealResults";
 import { DealStep } from "./DealStep";
 import { ListingStep } from "./ListingStep";
+import { PhotosSection } from "./PhotosSection";
 import { SaveBar } from "./SaveBar";
 import { StepCard, type StepStatus } from "./StepCard";
 
@@ -38,6 +42,10 @@ export interface CalculatorProps {
   initialLink?: string | null;
   /** Open the property fields for manual entry straight away. */
   startManual?: boolean;
+  /** Clears the evaluation in progress and starts a new one. */
+  onReset?: () => void;
+  /** Save straight away (back from signing in to save). */
+  autoSave?: boolean;
 }
 
 export function Calculator({
@@ -49,6 +57,8 @@ export function Calculator({
   initial,
   initialLink,
   startManual,
+  onReset,
+  autoSave,
 }: CalculatorProps) {
   const locale = useLocale();
   const te = useTranslations("evaluate");
@@ -74,6 +84,11 @@ export function Calculator({
   const reference = state.areaId !== null && loaded?.areaId === state.areaId ? loaded.data : null;
 
   const update: Update = useCallback((patch) => setState((s) => ({ ...s, ...patch })), []);
+
+  // Keep the evaluation in this browser as the user works, so it is still here after moving
+  // around the site or signing in to save it.
+  const savedId = initial?.savedId ?? null;
+  useEffect(() => writeDraft({ state, savedId }), [state, savedId]);
 
   // Market reference and IMI rate for the chosen area.
   useEffect(() => {
@@ -144,8 +159,22 @@ export function Calculator({
     .filter(Boolean)
     .join(" · ");
 
+  const started =
+    step !== "property" ||
+    state.url.trim() !== "" ||
+    missingProperty.length < 4 ||
+    savedId !== null;
+
   return (
     <div className="mx-auto max-w-4xl space-y-4">
+      {onReset && started && (
+        <div className="flex justify-end">
+          <Button variant="ghost" size="sm" onClick={onReset}>
+            <RotateCcw />
+            {te("newEvaluation")}
+          </Button>
+        </div>
+      )}
       <StepCard
         number={1}
         title={te("stepProperty")}
@@ -231,8 +260,10 @@ export function Calculator({
               params={params}
               startMonth={startMonth}
               onAddDeal={addDeal}
+              photos={<PhotosSection scenarioId={savedId} />}
               saveBar={
                 <SaveBar
+                  autoSave={autoSave}
                   state={state}
                   savedId={initial?.savedId ?? null}
                   defaultName={
