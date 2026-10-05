@@ -174,7 +174,7 @@ describe("engine with database data", () => {
         holdingMonths: 60,
         exitPrice: 460_000,
         sellingCommissionRate: 0.05,
-        marginalTaxRate: 0.37,
+        otherTaxableIncome: 40_000,
         condominiumMonthly: 60,
         insuranceAnnual: 300,
         adr: season.adr,

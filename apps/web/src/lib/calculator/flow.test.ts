@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialStep, missingDealFields, missingPropertyFields } from "./flow";
+import { detailsPanels, initialStep, missingDealFields, missingPropertyFields } from "./flow";
 import type { CalculatorOutput } from "./run";
 import { initialState } from "./state";
 
@@ -39,16 +39,28 @@ describe("missingPropertyFields", () => {
 
 describe("missingDealFields / initialStep", () => {
   it("starts at the property until it is complete", () => {
-    expect(initialStep(initialState({ deal: "flip" }), null, 0)).toBe("property");
+    expect(initialStep(initialState({ deals: ["flip"] }), null, 0)).toBe("property");
   });
 
   it("asks for the deal, then its details, then shows results", () => {
     expect(initialStep(complete, null, 3)).toBe("deal");
-    const rental = { ...complete, deal: "longTermRental" as const };
+    const rental = { ...complete, deals: ["longTermRental" as const] };
     expect(initialStep(rental, outputWith(["monthlyRent"]), 3)).toBe("details");
     expect(missingDealFields(outputWith(["monthlyRent"]), "longTermRental")).toEqual([
       "monthlyRent",
     ]);
     expect(initialStep(rental, outputWith(undefined), 3)).toBe("results");
+  });
+
+  it("stays on the details while any chosen deal misses inputs", () => {
+    const both = { ...complete, deals: ["flip" as const, "longTermRental" as const] };
+    const output = {
+      outcomes: [
+        { kind: "flip", result: {} },
+        { kind: "longTermRental", missing: ["monthlyRent"] },
+      ],
+    } as unknown as CalculatorOutput;
+    expect(initialStep(both, output, 3)).toBe("details");
+    expect(detailsPanels(both.deals)).toEqual(["common", "flip", "longTermRental"]);
   });
 });

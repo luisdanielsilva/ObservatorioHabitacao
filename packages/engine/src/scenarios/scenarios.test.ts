@@ -32,7 +32,8 @@ const base: PropertyInputs = {
   holdingMonths: 24,
   exitPrice: 200_000,
   sellingCommissionRate: 0,
-  marginalTaxRate: 0.35,
+  // 30 000 € of other income: the 6th 2025 bracket (34.9 %) runs up to 41 629 €.
+  otherTaxableIncome: 30_000,
   condominiumMonthly: 0,
   insuranceAnnual: 0,
 };
@@ -55,8 +56,9 @@ describe("runFlip", () => {
   it("computes profit after holding costs and capital gains tax", () => {
     // Holding costs: 25 IMI + 50 utilities = 75/month. Renovation 10 000/month for 3 months.
     // Sale: 300 000 − 5 % × 1.23 commission = 281 550.
-    // Gain: 281 550 − 200 000 − 6 764.69 − 30 000 = 44 785.31 → tax 50 % × 35 % = 7 837.43
-    const tax = 44_785.31 * 0.5 * 0.35;
+    // Gain: 281 550 − 200 000 − 6 764.69 − 30 000 = 44 785.31; 50 % = 22 392.655 added to
+    // 30 000: 11 629 at 34.9 % (to 41 629), 3 358 at 43.1 % (to 44 987), rest at 44.6 %.
+    const tax = 11_629 * 0.349 + 3_358 * 0.431 + (22_392.655 - 11_629 - 3_358) * 0.446;
     expect(flip.months.at(-1)!.capitalGainsTax).toBeCloseTo(tax, 2);
     expect(flip.netProfit).toBeCloseTo(-BOUGHT - 30_000 - 6 * 75 + 281_550 - tax, 2);
   });
@@ -145,16 +147,11 @@ describe("runLongTermRental", () => {
 
 describe("rentalIncomeTaxRate", () => {
   it("reduces the autonomous rate for long contracts", () => {
-    const rate = (contractYears: number) =>
-      rentalIncomeTaxRate({ mode: "autonomous", contractYears }, params, 0.4);
+    const rate = (contractYears: number) => rentalIncomeTaxRate(contractYears, params);
     expect(rate(1)).toBe(0.25);
     expect(rate(5)).toBe(0.15);
     expect(rate(12)).toBe(0.1);
     expect(rate(25)).toBe(0.05);
-  });
-
-  it("uses the marginal rate with englobamento", () => {
-    expect(rentalIncomeTaxRate({ mode: "marginal" }, params, 0.4)).toBe(0.4);
   });
 });
 
@@ -163,7 +160,7 @@ describe("runShortTermRental", () => {
   // Bookings: 18 250 + 60.83 × 30 cleaning fee = 20 075.
   // Costs: 12 × (25 IMI + 50 condo + 20 insurance) + 12 × 100 utilities
   //        + 15 % platform (3 011.25) + 60.83 × 30 cleaning (1 825) = 7 176.25.
-  // Tax: 20 075 × 35 % coefficient × 35 % marginal = 2 459.19.
+  // Tax: 20 075 × 35 % coefficient = 7 026.25 added to 30 000, all at 34.9 % = 2 452.16.
   const input: ShortTermRentalInputs = {
     ...base,
     condominiumMonthly: 50,
@@ -187,7 +184,7 @@ describe("runShortTermRental", () => {
   const al = runShortTermRental(input, params);
 
   it("computes yearly income, costs and tax", () => {
-    const tax = 20_075 * 0.35 * 0.35;
+    const tax = 20_075 * 0.35 * 0.349;
     expect(al.grossYield).toBeCloseTo(20_075 / BOUGHT, 8);
     expect(al.netYield).toBeCloseTo((20_075 - 7_176.25 - tax) / (BOUGHT + 10_000), 8);
     expect(al.totalInvestment).toBeCloseTo(BOUGHT + 10_000, 2);
@@ -211,7 +208,7 @@ describe("runShortTermRental", () => {
 
   it("taxes more in containment zones and blocks suspended areas", () => {
     const contained = runShortTermRental({ ...input, alStatus: "containment" }, params);
-    expect(contained.months[12]!.incomeTax).toBeCloseTo(20_075 * 0.5 * 0.35, 6);
+    expect(contained.months[12]!.incomeTax).toBeCloseTo(20_075 * 0.5 * 0.349, 6);
     expect(contained.warnings).toContain("al_containment_zone");
     expect(contained.viable).toBe(true);
 
@@ -229,7 +226,8 @@ describe("runContractAssignment", () => {
   // CPCV 300 000, deposit 30 000, market value 340 000 after 6 months.
   // Suggested assignment price: 30 000 + 50 % × 40 000 = 50 000 (premium 20 000).
   // Commission 5 % × 20 000 × 1.23 = 1 230; lawyer 500.
-  // Gain 18 270 → tax 18 270 × 50 % × 35 % = 3 197.25. Net profit 15 072.75.
+  // Gain 18 270 → 9 135 added to 30 000 of other income, at 34.9 % = 3 188.115.
+  // Net profit 15 081.885.
   const input = {
     cpcvPrice: 300_000,
     deposit: 30_000,
@@ -240,7 +238,7 @@ describe("runContractAssignment", () => {
     otherCosts: 500,
     upfrontTransferTaxes: false,
     propertyUse: "secondary" as const,
-    marginalTaxRate: 0.35,
+    otherTaxableIncome: 30_000,
   };
   input.assignmentPrice = suggestAssignmentPrice(input);
   const result = runContractAssignment(input, params);
@@ -250,9 +248,9 @@ describe("runContractAssignment", () => {
   });
 
   it("computes profit and return on the deposit", () => {
-    expect(result.netProfit).toBeCloseTo(15_072.75, 2);
-    expect(result.returnOnDeposit).toBeCloseTo(15_072.75 / 30_000, 10);
-    expect(result.irr).toBeCloseTo((45_072.75 / 30_000) ** 2 - 1, 8);
+    expect(result.netProfit).toBeCloseTo(15_081.885, 2);
+    expect(result.returnOnDeposit).toBeCloseTo(15_081.885 / 30_000, 10);
+    expect(result.irr).toBeCloseTo((45_081.885 / 30_000) ** 2 - 1, 8);
     expect(result.warnings).toEqual([]);
   });
 
@@ -261,7 +259,7 @@ describe("runContractAssignment", () => {
     const upfront = runContractAssignment({ ...input, upfrontTransferTaxes: true }, params);
     const gain = 18_270 - 14_189.69;
     expect(upfront.ownCapital).toBeCloseTo(44_189.69, 2);
-    expect(upfront.netProfit).toBeCloseTo(gain - gain * 0.5 * 0.35, 2);
+    expect(upfront.netProfit).toBeCloseTo(gain - gain * 0.5 * 0.349, 2);
     expect(upfront.warnings).toContain("assignment_upfront_imt");
   });
 

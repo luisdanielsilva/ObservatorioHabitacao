@@ -14,6 +14,19 @@ const imtTable = z
     "brackets must be in ascending order",
   );
 
+const ascending = (values: number[]) => values.every((v, i) => i === 0 || v > values[i - 1]!);
+
+const irs = z.object({
+  brackets: z
+    .array(z.object({ upTo: z.number().positive().nullable(), rate }))
+    .min(1)
+    .refine((b) => b.at(-1)!.upTo === null, "last bracket must be open-ended")
+    .refine((b) => ascending(b.map((x) => x.upTo ?? Infinity)), "brackets must be ascending"),
+  solidarity: z
+    .array(z.object({ over: amount, rate }))
+    .refine((s) => ascending(s.map((x) => x.over)), "thresholds must be ascending"),
+});
+
 /** Validates a ParameterSet before it is stored; mirrors `ParameterSet` in the engine. */
 export const parameterSetSchema: z.ZodType<ParameterSet> = z.object({
   year: z.number().int().min(2000).max(2100),
@@ -47,6 +60,7 @@ export const parameterSetSchema: z.ZodType<ParameterSet> = z.object({
     vatRate: rate,
     vatExemptionThreshold: amount,
   }),
+  irs,
   capitalGains: z.object({ inclusionRate: rate }),
   contractAssignment: z.object({ inclusionRate: rate }),
 });

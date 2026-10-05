@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { chooseDeal, field, fillPropertyByHand, showResults, step } from "./helpers";
+import { chooseDeals, field, fillPropertyByHand, nextPanel, showResults, step } from "./helpers";
 
 /**
  * Sign-in with a magic link read from the dev server's log (emails are logged when no email
@@ -15,7 +15,8 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
 
   await page.goto("/avaliar");
   await fillPropertyByHand(page, "250000");
-  await chooseDeal(page, "Compra e revenda");
+  await chooseDeals(page, "Compra e revenda");
+  await nextPanel(page);
   await field(page, "Preço de venda após obras").fill("300000");
   await showResults(page);
   await page.getByRole("button", { name: "Guardar", exact: true }).click();

@@ -1,9 +1,14 @@
 "use client";
 
-import type { Goal, ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import {
+  compareScenarios,
+  type Goal,
+  type ScenarioKind,
+  type ScenarioResult,
+} from "@olhovivo/engine";
 import { AlertTriangle, Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
@@ -44,12 +49,18 @@ export const METRICS: { key: MetricKey; format: "euro" | "percent" | "years" }[]
 
 /** The four strategies side by side, with the best one for the user's goal highlighted. */
 export function Results({
-  output,
+  output: fullOutput,
   goal,
   onGoalChange,
   onFillMissing,
+  only,
+  showDetails = true,
 }: {
   output: CalculatorOutput | null;
+  /** Costs and warnings per strategy; off where each deal shows its own. */
+  showDetails?: boolean;
+  /** Limits the comparison to these strategies; the best one is chosen among them. */
+  only?: ScenarioKind[];
   goal: Goal;
   onGoalChange: (goal: Goal) => void;
   /** Opens the details of a strategy that still needs inputs (not on shared pages). */
@@ -60,6 +71,12 @@ export function Results({
   const ts = useTranslations("scenarios");
   const f = useFormat();
   const id = useId();
+  const output = useMemo(() => {
+    if (!fullOutput || !only) return fullOutput;
+    const outcomes = fullOutput.outcomes.filter((o) => only.includes(o.kind));
+    const results = outcomes.flatMap((o) => (o.result ? [o.result] : []));
+    return { ...fullOutput, outcomes, comparison: compareScenarios(results, goal) };
+  }, [fullOutput, only, goal]);
 
   if (!output) {
     return (
@@ -210,7 +227,7 @@ export function Results({
 
       <CashFlowChart outcomes={output.outcomes} />
 
-      <ScenarioDetails outcomes={output.outcomes} />
+      {showDetails && <ScenarioDetails outcomes={output.outcomes} />}
     </section>
   );
 }

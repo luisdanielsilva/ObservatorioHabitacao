@@ -31,11 +31,18 @@ export async function fillPropertyByHand(page: Page, askingPrice = "400000") {
   await page.getByRole("button", { name: "Continuar" }).click();
 }
 
-export async function chooseDeal(page: Page, name: string) {
-  await page.getByRole("radio", { name: new RegExp(`^${name}`) }).click();
-  await expect(
-    step(page, "Detalhes do negócio").getByRole("button", { name: "Ver resultados" }),
-  ).toBeVisible();
+/** Step 2: ticks the deals and continues to the shared details panel. */
+export async function chooseDeals(page: Page, ...names: string[]) {
+  for (const name of names) {
+    await page.getByRole("checkbox", { name: new RegExp(`^${name}`) }).click();
+  }
+  await step(page, "Tipo de negócio").getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByRole("heading", { name: /^1 de \d+: / })).toBeVisible();
+}
+
+/** Step 3: moves to the next details panel. */
+export async function nextPanel(page: Page) {
+  await page.getByRole("button", { name: "Seguinte" }).click();
 }
 
 /** Step 3 for a long-term rental: 1 600 €/month on a property worth 440 000 €. */

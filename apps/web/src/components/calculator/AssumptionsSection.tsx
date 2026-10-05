@@ -14,14 +14,20 @@ type NumericKey = {
   [K in keyof CalculatorState]: CalculatorState[K] extends number | null ? K : never;
 }[keyof CalculatorState];
 
-/** Default values behind the calculation, limited to those the chosen deal uses. */
+/**
+ * Default values behind the calculation: those the chosen deals share (`scope` "common"), or
+ * those of one deal.
+ */
 export function AssumptionsSection({
-  deal,
+  scope,
+  buying,
   state,
   update,
   locale,
 }: {
-  deal: ScenarioKind;
+  scope: "common" | ScenarioKind;
+  /** Whether any chosen deal buys the property. */
+  buying: boolean;
   state: CalculatorState;
   update: Update;
   locale: string;
@@ -48,24 +54,26 @@ export function AssumptionsSection({
     />
   );
 
-  const buying = deal !== "contractAssignment";
-  const groups: { title: string; fields: (React.ReactNode | false)[] }[] = [
-    {
+  const groups: { title: string; fields: (React.ReactNode | false)[] }[] = [];
+  if (scope === "common") {
+    groups.push({
       title: t("assumptionsProperty"),
       fields: [
         buying && field("imiRate", t("imiRate"), "percent"),
         field("vpt", t("vpt"), "money", { help: t("vptHelp"), nullable: true }),
         buying && field("condominiumMonthly", t("condominium"), "money"),
         buying && field("insuranceAnnual", t("insurance"), "money"),
-        deal === "flip" && field("utilitiesMonthly", t("utilities"), "money"),
         buying && field("sellingCommissionRate", t("sellingCommission"), "percent"),
-        field("appreciationRate", t("appreciation"), "percent", {
-          help: t(deal === "contractAssignment" ? "appreciationHelpCessao" : "appreciationHelp"),
-        }),
       ],
-    },
-  ];
-  if (deal === "longTermRental") {
+    });
+  }
+  if (scope === "flip") {
+    groups.push({
+      title: t("deals.flip"),
+      fields: [field("utilitiesMonthly", t("utilities"), "money")],
+    });
+  }
+  if (scope === "longTermRental") {
     groups.push({
       title: t("scenarioLongTerm"),
       fields: [
@@ -76,7 +84,7 @@ export function AssumptionsSection({
       ],
     });
   }
-  if (deal === "shortTermRental") {
+  if (scope === "shortTermRental") {
     groups.push({
       title: t("scenarioShortTerm"),
       fields: [
@@ -93,7 +101,7 @@ export function AssumptionsSection({
       ],
     });
   }
-  if (deal === "contractAssignment") {
+  if (scope === "contractAssignment") {
     groups.push({
       title: t("cessaoTitle"),
       fields: [
@@ -130,7 +138,7 @@ export function AssumptionsSection({
             <div className="grid gap-4 sm:grid-cols-2">{g.fields}</div>
           </fieldset>
         ))}
-        {deal === "shortTermRental" && (
+        {scope === "shortTermRental" && (
           <SwitchField
             label={t("vatRegistered")}
             checked={state.vatRegistered}

@@ -89,7 +89,7 @@ describe("sensitivity", () => {
     holdingMonths: 120,
     exitPrice: 240_000,
     sellingCommissionRate: 0.05,
-    marginalTaxRate: 0.35,
+    otherTaxableIncome: 30_000,
     condominiumMonthly: 40,
     insuranceAnnual: 200,
     monthlyRent: 1_000,

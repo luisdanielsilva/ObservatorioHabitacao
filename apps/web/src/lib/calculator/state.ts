@@ -16,8 +16,8 @@ export type Condition = (typeof CONDITIONS)[number];
 
 /** `null` means the user has not entered a value. Rates are fractions (0.05 = 5 %). */
 export interface CalculatorState {
-  /** The deal the user is evaluating; null until chosen. */
-  deal: ScenarioKind | null;
+  /** The deals the user is evaluating, in the order of SCENARIO_KINDS; empty until chosen. */
+  deals: ScenarioKind[];
 
   // 1. Property
   url: string;
@@ -48,13 +48,17 @@ export interface CalculatorState {
   renovationBudget: number;
   renovationMonths: number;
   useLoan: boolean;
-  /** null = 70 % of the purchase price. */
+  /** null = the most banks lend for the property use (maxLtv in the parameter set). */
   loanAmount: number | null;
   interestRate: number;
   loanTermYears: number;
   flipMonths: number;
   rentalYears: number;
-  marginalTaxRate: number;
+  /**
+   * Other annual taxable income (salaries, pensions…). Gains and short-term rental income are
+   * added to it and taxed at the IRS brackets. null = not given, taken as 0.
+   */
+  otherTaxableIncome: number | null;
   buyerNonResident: boolean;
   rentalTaxMode: "autonomous" | "marginal";
   contractYears: number;
@@ -66,7 +70,6 @@ export interface CalculatorState {
   insuranceAnnual: number;
   utilitiesMonthly: number;
   sellingCommissionRate: number;
-  appreciationRate: number;
   rentGrowthRate: number;
   vacancyRate: number;
   maintenanceRate: number;
@@ -87,8 +90,6 @@ export interface CalculatorState {
   goal: Goal;
 }
 
-/** Share of the purchase price borrowed when the user has not set a loan amount. */
-export const DEFAULT_LTV = 0.7;
 /** Used when no Euribor value is available. */
 export const FALLBACK_INTEREST_RATE = 0.035;
 /** Used when the municipality's IMI rate is unknown (the legal range is 0.3 %–0.45 %). */
@@ -100,7 +101,7 @@ export const FALLBACK_IMI_RATE = 0.003;
  */
 export function initialState(overrides: Partial<CalculatorState> = {}): CalculatorState {
   return {
-    deal: null,
+    deals: [],
     url: "",
     areaId: null,
     address: "",
@@ -132,7 +133,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     loanTermYears: 30,
     flipMonths: 12,
     rentalYears: 10,
-    marginalTaxRate: 0.35,
+    otherTaxableIncome: null,
     buyerNonResident: false,
     rentalTaxMode: "autonomous",
     contractYears: 3,
@@ -143,7 +144,6 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     insuranceAnnual: 250,
     utilitiesMonthly: 50,
     sellingCommissionRate: 0.05,
-    appreciationRate: 0.03,
     rentGrowthRate: 0.02,
     vacancyRate: 1 / 12,
     maintenanceRate: 0.05,
@@ -167,7 +167,6 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
 }
 
 const ENUMS: Partial<Record<keyof CalculatorState, readonly string[]>> = {
-  deal: ["flip", "longTermRental", "shortTermRental", "contractAssignment"],
   propertyType: PROPERTY_TYPES,
   condition: CONDITIONS,
   propertyUse: ["secondary", "hpp"],
@@ -203,6 +202,19 @@ function normaliseValue(raw: unknown, fallback: unknown, allowed?: readonly stri
  * dropped and every value must have the expected type, otherwise the default is used. Strings
  * are capped so that stored scenarios stay small.
  */
+export const DEAL_KINDS: readonly ScenarioKind[] = [
+  "flip",
+  "longTermRental",
+  "shortTermRental",
+  "contractAssignment",
+];
+
+/** Known deal kinds, without repeats, in the canonical order. */
+export function normaliseDeals(raw: unknown): ScenarioKind[] {
+  const list = Array.isArray(raw) ? raw : [];
+  return DEAL_KINDS.filter((k) => list.includes(k));
+}
+
 export function normaliseState(raw: unknown): CalculatorState {
   const defaults = initialState();
   const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
@@ -214,6 +226,8 @@ export function normaliseState(raw: unknown): CalculatorState {
         : normaliseValue(source[key], fallback, ENUMS[key as keyof CalculatorState]),
     ]),
   ) as unknown as CalculatorState;
+  // Scenarios saved before several deals could be chosen have a single `deal`.
+  state.deals = normaliseDeals(source.deals ?? (source.deal ? [source.deal] : []));
   state.url = state.url.slice(0, 2000);
   state.address = state.address.slice(0, 300);
   return state;

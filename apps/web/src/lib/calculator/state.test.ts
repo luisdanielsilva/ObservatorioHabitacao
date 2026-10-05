@@ -35,4 +35,13 @@ describe("normaliseState", () => {
     expect(normaliseState("nope")).toEqual(initialState());
     expect(normaliseState({ url: "x".repeat(5000) }).url).toHaveLength(2000);
   });
+
+  it("keeps known deals in order and reads the single deal of older scenarios", () => {
+    expect(normaliseState({ deals: ["shortTermRental", "flip", "x", "flip"] }).deals).toEqual([
+      "flip",
+      "shortTermRental",
+    ]);
+    expect(normaliseState({ deal: "longTermRental" }).deals).toEqual(["longTermRental"]);
+    expect(normaliseState({}).deals).toEqual([]);
+  });
 });

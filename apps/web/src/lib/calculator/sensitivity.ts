@@ -29,6 +29,7 @@ export function shiftState(
   state: CalculatorState,
   variable: SensitivityVariable,
   delta: number,
+  params: ParameterSet,
 ): CalculatorState {
   switch (variable) {
     case "price": {
@@ -38,7 +39,7 @@ export function shiftState(
       return {
         ...state,
         purchasePrice: price * (1 + delta),
-        loanAmount: effectiveLoanAmount(state, price),
+        loanAmount: effectiveLoanAmount(state, price, params),
       };
     }
     case "rent":
@@ -77,7 +78,7 @@ export function sensitivityTable(
   deltas: readonly number[],
 ): SensitivityRow[] {
   return deltas.map((delta) => {
-    const output = runCalculator(shiftState(state, variable, delta), params, startMonth);
+    const output = runCalculator(shiftState(state, variable, delta, params), params, startMonth);
     const row: SensitivityRow = { delta };
     for (const kind of SCENARIO_KINDS) {
       const result: ScenarioResult | undefined = output.outcomes.find(

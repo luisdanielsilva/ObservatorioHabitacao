@@ -1,3 +1,4 @@
+import { irsOnExtraIncome } from "../tax";
 import { imt, roundCents } from "../acquisition";
 import { annualise, irr } from "../metrics";
 import type { ParameterSet, PropertyUse } from "../params";
@@ -32,7 +33,8 @@ export interface ContractAssignmentInputs {
   upfrontTransferTaxes: boolean;
   propertyUse: PropertyUse;
   vpt?: number;
-  marginalTaxRate: number;
+  /** The investor's other annual taxable income (0 when unknown); the gain is added to it. */
+  otherTaxableIncome: number;
   buyerNonResident?: boolean;
 }
 
@@ -69,7 +71,11 @@ export function runContractAssignment(
   const premium = input.assignmentPrice - input.deposit;
   const commission = Math.max(0, premium) * input.commissionRate * (1 + params.vatRate);
   const gain = premium - commission - input.otherCosts - upfrontTaxes;
-  const tax = Math.max(0, gain) * params.contractAssignment.inclusionRate * input.marginalTaxRate;
+  const tax = irsOnExtraIncome(
+    input.otherTaxableIncome,
+    Math.max(0, gain) * params.contractAssignment.inclusionRate,
+    params,
+  );
 
   const ownCapital = input.deposit + upfrontTaxes;
   const months = [emptyLine(0, -ownCapital, -ownCapital)];

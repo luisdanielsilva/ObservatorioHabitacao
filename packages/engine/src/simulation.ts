@@ -1,3 +1,4 @@
+import { irsOnExtraIncome } from "./tax";
 import { acquisitionCosts, type AcquisitionCosts } from "./acquisition";
 import { amortize, type Loan, type LoanMonth } from "./financing";
 import { annualise, irr } from "./metrics";
@@ -35,8 +36,11 @@ export interface PropertyInputs {
   /** Agency commission on the sale, excluding VAT. */
   sellingCommissionRate: number;
 
-  /** The investor's marginal IRS rate, used for capital gains and category B income. */
-  marginalTaxRate: number;
+  /**
+   * The investor's other annual taxable income (0 when unknown). Gains and category B income
+   * are added to it and taxed at the progressive IRS rates (englobamento).
+   */
+  otherTaxableIncome: number;
   /** The buyer is not resident in Portugal (non-resident IMT rate where it applies). */
   buyerNonResident?: boolean;
 
@@ -244,8 +248,11 @@ export function simulate(spec: SimulationSpec): Simulation {
         input.purchasePrice -
         acquisition.deductibleForCapitalGains -
         input.renovationBudget;
-      line.capitalGainsTax =
-        Math.max(0, gain) * params.capitalGains.inclusionRate * input.marginalTaxRate;
+      line.capitalGainsTax = irsOnExtraIncome(
+        input.otherTaxableIncome,
+        Math.max(0, gain) * params.capitalGains.inclusionRate,
+        params,
+      );
     }
 
     line.cashFlow =

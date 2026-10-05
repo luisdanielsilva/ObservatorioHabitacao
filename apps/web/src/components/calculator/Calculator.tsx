@@ -6,6 +6,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import { findAreaChain, type AreaTree } from "@/components/shared/AreaPicker";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import {
+  detailsPanels,
   hasTypology,
   initialStep,
   missingDealFields,
@@ -13,9 +14,9 @@ import {
   type Step,
 } from "@/lib/calculator/flow";
 import { runCalculator } from "@/lib/calculator/run";
-import { initialState, type CalculatorState } from "@/lib/calculator/state";
+import { initialState, normaliseDeals, type CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
-import { DealDetails, dealSummary } from "./DealDetails";
+import { DetailsStep, detailsSummary } from "./DealDetails";
 import { DealResults } from "./DealResults";
 import { DealStep } from "./DealStep";
 import { ListingStep } from "./ListingStep";
@@ -107,13 +108,20 @@ export function Calculator({
       ? initialStep(initial.state, safeRun(initial.state, params, startMonth), areaDepth)
       : "property",
   );
-  const deal = state.deal;
+  const deals = state.deals;
+  const [panel, setPanel] = useState(0);
   const order: Step[] = ["property", "deal", "details", "results"];
   const status = (s: Step): StepStatus =>
     s === step ? "active" : order.indexOf(s) < order.indexOf(step) ? "done" : "upcoming";
-  const chooseDeal = (kind: ScenarioKind) => {
-    update({ deal: kind });
+  const openDetails = (atPanel = 0) => {
+    setPanel(atPanel);
     setStep("details");
+  };
+  // From the comparison: add a strategy and open its details.
+  const addDeal = (kind: ScenarioKind) => {
+    const next = normaliseDeals([...deals, kind]);
+    update({ deals: next });
+    openDetails(detailsPanels(next).indexOf(kind));
   };
 
   const f = useFormat();
@@ -159,24 +167,28 @@ export function Calculator({
         number={2}
         title={te("stepDeal")}
         status={status("deal")}
-        summary={deal && te(`deals.${deal}`)}
+        summary={deals.map((d) => te(`deals.${d}`)).join(", ")}
         editLabel={te("edit")}
         onEdit={() => setStep("deal")}
       >
-        <DealStep deal={deal} onChoose={chooseDeal} />
+        <DealStep
+          deals={deals}
+          onChange={(next) => update({ deals: next })}
+          onContinue={() => openDetails()}
+        />
       </StepCard>
 
       <StepCard
         number={3}
         title={te("stepDetails")}
         status={status("details")}
-        summary={deal && dealSummary(deal, state, f, (key, values) => te(key, values))}
+        summary={detailsSummary(deals, state, f, (key, values) => te(key, values))}
         editLabel={te("edit")}
-        onEdit={() => setStep("details")}
+        onEdit={() => openDetails()}
       >
-        {deal && (
-          <DealDetails
-            deal={deal}
+        {deals.length > 0 && (
+          <DetailsStep
+            deals={deals}
             state={state}
             update={update}
             updateAssumptions={(patch) => {
@@ -186,10 +198,13 @@ export function Calculator({
             reference={reference}
             loanAmount={output?.loanAmount ?? 0}
             purchasePrice={output?.purchasePrice ?? null}
+            params={params}
             euribor12m={euribor12m}
             spread={params?.financing.typicalSpread ?? null}
             nonResidentRule={params?.imt.nonResidentHousingRate !== undefined}
-            missing={missingDealFields(output, deal)}
+            missing={(d) => missingDealFields(output, d)}
+            panel={panel}
+            onPanelChange={setPanel}
             onShowResults={() => setStep("results")}
             locale={locale}
           />
@@ -202,7 +217,7 @@ export function Calculator({
         status={status("results")}
         editLabel={te("edit")}
       >
-        {deal && (
+        {deals.length > 0 && (
           <>
             <SaveBar
               state={state}
@@ -218,13 +233,13 @@ export function Calculator({
               }
             />
             <DealResults
-              deal={deal}
+              deals={deals}
               output={output}
               state={state}
               params={params}
               startMonth={startMonth}
               onGoalChange={(goal) => update({ goal })}
-              onFillMissing={chooseDeal}
+              onAddDeal={addDeal}
             />
           </>
         )}

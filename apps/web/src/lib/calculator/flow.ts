@@ -26,7 +26,7 @@ export function missingPropertyFields(state: CalculatorState, areaDepth: number)
   return missing;
 }
 
-/** Inputs the chosen deal still needs, as reported by the calculation. */
+/** Inputs a deal still needs, as reported by the calculation. */
 export function missingDealFields(
   output: CalculatorOutput | null,
   deal: ScenarioKind,
@@ -41,7 +41,23 @@ export function initialStep(
   areaDepth: number,
 ): Step {
   if (missingPropertyFields(state, areaDepth).length > 0) return "property";
-  if (state.deal === null) return "deal";
-  if (!output || missingDealFields(output, state.deal).length > 0) return "details";
+  if (state.deals.length === 0) return "deal";
+  if (!output || state.deals.some((d) => missingDealFields(output, d).length > 0)) {
+    return "details";
+  }
   return "results";
 }
+
+/**
+ * The details step is filled in panels: what the deals share (purchase, financing, taxes),
+ * then one panel per chosen deal.
+ */
+export type DetailsPanel = "common" | ScenarioKind;
+
+export function detailsPanels(deals: ScenarioKind[]): DetailsPanel[] {
+  return ["common", ...deals];
+}
+
+/** Whether any chosen deal buys the property (all but the contract position sale). */
+export const buysProperty = (deals: ScenarioKind[]) =>
+  deals.some((d) => d !== "contractAssignment");

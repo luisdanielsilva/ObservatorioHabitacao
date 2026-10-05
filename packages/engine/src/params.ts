@@ -96,6 +96,16 @@ export interface ParameterSet {
     vatExemptionThreshold: number;
   };
 
+  /**
+   * IRS general rates for one taxpayer (CIRS art. 68): marginal rate per bracket of taxable
+   * income, last bracket open-ended; and the solidarity surcharge (art. 68-A), each rate
+   * applying to income above `over` up to the next threshold.
+   */
+  irs: {
+    brackets: { upTo: number | null; rate: number }[];
+    solidarity: { over: number; rate: number }[];
+  };
+
   /** Capital gains (mais-valias, category G) for resident individuals. */
   capitalGains: {
     /** Share of the gain added to taxable income. */

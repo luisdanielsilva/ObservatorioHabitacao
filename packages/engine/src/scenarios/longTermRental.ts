@@ -1,3 +1,4 @@
+import { irsOnExtraIncome } from "../tax";
 import type { ParameterSet } from "../params";
 import {
   fixedCostsMonthly,
@@ -12,7 +13,7 @@ import {
 /**
  * How category F rental income is taxed:
  * - autonomous: the special flat rate, reduced for long contracts
- * - marginal: added to other income (englobamento) at the investor's marginal rate
+ * - marginal: added to the investor's other income (englobamento), at the progressive IRS rates
  */
 export type RentalTax = { mode: "autonomous"; contractYears: number } | { mode: "marginal" };
 
@@ -30,15 +31,10 @@ export interface LongTermRentalInputs extends PropertyInputs {
   rentalTax: RentalTax;
 }
 
-/** Income tax rate on rental income for the chosen tax mode. */
-export function rentalIncomeTaxRate(
-  tax: RentalTax,
-  params: ParameterSet,
-  marginalTaxRate: number,
-): number {
-  if (tax.mode === "marginal") return marginalTaxRate;
+/** The flat rate on rental income for a contract of the given length (CIRS art. 72). */
+export function rentalIncomeTaxRate(contractYears: number, params: ParameterSet): number {
   const reduced = params.rentalIncome.longContractRates
-    .filter((r) => tax.contractYears >= r.minYears)
+    .filter((r) => contractYears >= r.minYears)
     .sort((a, b) => b.minYears - a.minYears)[0];
   return reduced?.rate ?? params.rentalIncome.autonomousRate;
 }
@@ -54,7 +50,12 @@ export function runLongTermRental(
 ): ScenarioResult {
   const fixed = fixedCostsMonthly(input);
   const renovationMonths = Math.max(0, Math.round(input.renovationMonths));
-  const taxRate = rentalIncomeTaxRate(input.rentalTax, params, input.marginalTaxRate);
+  const rentalTax = input.rentalTax;
+  // One year of net rent: at the flat rate, or added to the investor's other income.
+  const taxOnNetRent = (net: number) =>
+    rentalTax.mode === "marginal"
+      ? irsOnExtraIncome(input.otherTaxableIncome, net, params)
+      : Math.max(0, net) * rentalIncomeTaxRate(rentalTax.contractYears, params);
 
   const operating = (m: number): OperatingMonth => {
     if (m <= renovationMonths) return { income: 0, costs: fixed };
@@ -71,7 +72,7 @@ export function runLongTermRental(
     input,
     params,
     operating,
-    incomeTax: (block) => Math.max(0, sum(block.map((o) => o.income - o.costs))) * taxRate,
+    incomeTax: (block) => taxOnNetRent(sum(block.map((o) => o.income - o.costs))),
   });
 
   return summarise("longTermRental", sim, input.loan?.amount ?? 0, {

@@ -1,23 +1,28 @@
 "use client";
 
-import type { ScenarioKind, Seasonal } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind, Seasonal } from "@olhovivo/engine";
+import { ArrowLeft, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
+import { buysProperty, detailsPanels, type DetailsPanel } from "@/lib/calculator/flow";
 import type { MissingField } from "@/lib/calculator/run";
 import type { CalculatorState } from "@/lib/calculator/state";
+import { englobamentoThreshold } from "@/lib/calculator/tax";
 import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
+import { cn } from "@/lib/utils";
 import { AssumptionsSection } from "./AssumptionsSection";
 import type { Update } from "./Calculator";
+import { SCENARIO_COLORS } from "./CashFlowChart";
 import { NumberField, NumberInput, SelectField, SwitchField } from "./fields";
 
 const SEASONS = ["high", "mid", "low"] as const;
 
-export interface DealDetailsProps {
-  deal: ScenarioKind;
+export interface DetailsStepProps {
+  deals: ScenarioKind[];
   state: CalculatorState;
   update: Update;
   /** Updates assumptions; tracks a manual IMI rate. */
@@ -25,20 +30,311 @@ export interface DealDetailsProps {
   reference: ReferenceResponse | null;
   loanAmount: number;
   purchasePrice: number | null;
+  /** The active tax parameters (LTV limits, IRS brackets, rental tax). */
+  params: ParameterSet | null;
   euribor12m: { value: number; date: string } | null;
   spread: number | null;
   nonResidentRule: boolean;
-  missing: MissingField[];
+  /** Missing inputs per deal, from the calculation. */
+  missing: (deal: ScenarioKind) => MissingField[];
+  panel: number;
+  onPanelChange: (panel: number) => void;
   onShowResults: () => void;
   locale: string;
 }
 
-/** Step 3: the inputs the chosen deal needs, then financing, taxes and assumptions. */
-export function DealDetails(props: DealDetailsProps) {
-  const { deal, state, update, missing, onShowResults, locale } = props;
+/**
+ * Step 3: the details, one panel at a time — first what the chosen deals share (purchase,
+ * financing, taxes), then each deal's own inputs — and finally the results.
+ */
+export function DetailsStep(props: DetailsStepProps) {
+  const { deals, missing, panel, onPanelChange, onShowResults } = props;
+  const t = useTranslations("evaluate");
+  const [tried, setTried] = useState(false);
+  const panels = detailsPanels(deals);
+  const index = Math.min(panel, panels.length - 1);
+  const current = panels[index]!;
+  const currentMissing = current === "common" ? [] : missing(current);
+  const last = index === panels.length - 1;
+  const title = (p: DetailsPanel) =>
+    p === "common" ? t(buysProperty(deals) ? "panelCommon" : "panelCommonCessao") : t(`deals.${p}`);
+
+  const go = (to: number) => {
+    setTried(false);
+    onPanelChange(to);
+  };
+
+  return (
+    <>
+      {panels.length > 1 && (
+        <nav aria-label={t("panelsLabel")}>
+          <ol className="flex flex-wrap gap-2">
+            {panels.map((p, i) => (
+              <li key={p}>
+                <button
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-current={i === index ? "step" : undefined}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                    i === index && "border-primary bg-primary/10 font-medium text-foreground",
+                    i !== index && "text-muted-foreground",
+                  )}
+                >
+                  {p !== "common" && (
+                    <span
+                      aria-hidden
+                      className="size-2 rounded-full"
+                      style={{ background: SCENARIO_COLORS[p] }}
+                    />
+                  )}
+                  {i + 1}. {title(p)}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      <section aria-labelledby="details-panel-title" className="space-y-5">
+        <h3 id="details-panel-title" className="font-semibold">
+          {t("panelProgress", { current: index + 1, total: panels.length, name: title(current) })}
+        </h3>
+        {current === "common" ? (
+          <CommonPanel {...props} />
+        ) : (
+          <DealPanel deal={current} {...props} />
+        )}
+      </section>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground" aria-live="polite">
+          {tried && currentMissing.length > 0
+            ? t("missing", {
+                fields: currentMissing.map((m) => t(`missingFields.${m}`)).join(", "),
+              })
+            : t("requiredNote")}
+        </p>
+        <div className="flex shrink-0 gap-2">
+          {index > 0 && (
+            <Button variant="outline" onClick={() => go(index - 1)}>
+              <ArrowLeft />
+              {t("back")}
+            </Button>
+          )}
+          <Button
+            onClick={() => {
+              setTried(true);
+              if (currentMissing.length > 0) return;
+              if (last) {
+                // Every deal must be complete; open the first one that is not.
+                const incomplete = panels.findIndex((p) => p !== "common" && missing(p).length);
+                if (incomplete >= 0) go(incomplete);
+                else onShowResults();
+              } else {
+                go(index + 1);
+              }
+            }}
+          >
+            {last ? t("showResults") : t("next")}
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CommonPanel(props: DetailsStepProps) {
+  const { deals, state, update, locale, nonResidentRule } = props;
   const t = useTranslations("evaluate");
   const f = useFormat();
-  const [tried, setTried] = useState(false);
+  const buying = buysProperty(deals);
+
+  return (
+    <>
+      {buying && (
+        <fieldset className="space-y-4">
+          <legend className="text-sm font-medium">{t("purchase")}</legend>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <NumberField
+              label={t("purchasePrice")}
+              help={t("purchasePriceHelp")}
+              kind="money"
+              value={state.purchasePrice}
+              placeholder={state.askingPrice ? String(state.askingPrice) : undefined}
+              onChange={(purchasePrice) => update({ purchasePrice })}
+              locale={locale}
+            />
+            <div />
+            <NumberField
+              label={t("renovationBudget")}
+              kind="money"
+              value={state.renovationBudget}
+              onChange={(v) => update({ renovationBudget: v ?? 0 })}
+              locale={locale}
+            />
+            <NumberField
+              label={t("renovationMonths")}
+              kind="number"
+              suffix={t("monthsShort")}
+              value={state.renovationMonths}
+              onChange={(v) => update({ renovationMonths: Math.round(v ?? 0) })}
+              locale={locale}
+            />
+          </div>
+        </fieldset>
+      )}
+
+      <PropertyUse {...props} />
+
+      {buying && <Financing {...props} />}
+
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-medium">{t("taxes")}</legend>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <NumberField
+            label={t("otherTaxableIncome")}
+            help={t("otherTaxableIncomeHelp")}
+            kind="money"
+            value={state.otherTaxableIncome}
+            placeholder="0"
+            hint={
+              props.params &&
+              t("irsBracketsHint", {
+                year: props.params.year,
+                min: f.percent(props.params.irs.brackets[0]!.rate, 1),
+                max: f.percent(props.params.irs.brackets.at(-1)!.rate, 0),
+              })
+            }
+            onChange={(otherTaxableIncome) => update({ otherTaxableIncome })}
+            locale={locale}
+          />
+          {nonResidentRule && (
+            <div className="sm:col-span-2">
+              <SwitchField
+                label={t("buyerNonResident")}
+                help={t("buyerNonResidentHelp")}
+                checked={state.buyerNonResident}
+                onChange={(buyerNonResident) => update({ buyerNonResident })}
+              />
+            </div>
+          )}
+        </div>
+      </fieldset>
+
+      <AssumptionsSection
+        scope="common"
+        buying={buying}
+        state={state}
+        update={props.updateAssumptions}
+        locale={locale}
+      />
+    </>
+  );
+}
+
+/**
+ * The property use sets the IMT table and how much banks may lend (Banco de Portugal: 90 % for
+ * an own permanent home, 80 % otherwise). Changing it resets the loan to that maximum.
+ */
+function PropertyUse({ state, update, params }: DetailsStepProps) {
+  const t = useTranslations("evaluate");
+  const f = useFormat();
+  const maxLtv = params?.financing.maxLtv;
+  const ltv = maxLtv ? (state.propertyUse === "hpp" ? maxLtv.hpp : maxLtv.other) : null;
+
+  return (
+    <div className="space-y-2">
+      <SelectField
+        label={t("propertyUse")}
+        value={state.propertyUse}
+        options={(["secondary", "hpp"] as const).map((v) => ({
+          value: v,
+          label: t(`uses.${v}`),
+        }))}
+        onChange={(propertyUse) => update({ propertyUse, loanAmount: null })}
+      />
+      {ltv !== null && (
+        <p className="flex items-start gap-1.5 text-xs text-muted-foreground" aria-live="polite">
+          <Info className="mt-px size-3.5 shrink-0" aria-hidden />
+          {t("ltvInfo", { ltv: f.percent(ltv, 0), down: f.percent(1 - ltv, 0) })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Financing({
+  state,
+  update,
+  loanAmount,
+  purchasePrice,
+  params,
+  euribor12m,
+  spread,
+  locale,
+}: DetailsStepProps) {
+  const t = useTranslations("evaluate");
+  const f = useFormat();
+  const maxLtv = params?.financing.maxLtv;
+  const ltv = maxLtv ? (state.propertyUse === "hpp" ? maxLtv.hpp : maxLtv.other) : null;
+  return (
+    <fieldset className="space-y-4">
+      <legend className="text-sm font-medium">{t("financing")}</legend>
+      <SwitchField
+        label={t("useLoan")}
+        checked={state.useLoan}
+        onChange={(useLoan) => update({ useLoan })}
+      />
+      {state.useLoan && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <NumberField
+            label={t("loanAmount")}
+            help={t("loanAmountHelp")}
+            kind="money"
+            value={state.loanAmount}
+            placeholder={loanAmount ? String(loanAmount) : undefined}
+            hint={
+              purchasePrice && loanAmount
+                ? `${f.percent(loanAmount / purchasePrice, 0)} LTV${ltv !== null ? ` · ${t("ltvMax", { ltv: f.percent(ltv, 0) })}` : ""}`
+                : undefined
+            }
+            onChange={(v) => update({ loanAmount: v })}
+            locale={locale}
+          />
+          <NumberField
+            label={t("interestRate")}
+            help={
+              euribor12m && spread !== null
+                ? t("interestRateHelp", {
+                    euribor: f.percent(euribor12m.value, 2),
+                    spread: f.percent(spread, 2),
+                  })
+                : t("interestRateHelpNoEuribor")
+            }
+            kind="percent"
+            value={state.interestRate}
+            onChange={(v) => update({ interestRate: v ?? 0 })}
+            locale={locale}
+          />
+          <NumberField
+            label={t("loanTerm")}
+            kind="number"
+            suffix={t("yearsShort")}
+            value={state.loanTermYears}
+            onChange={(v) => update({ loanTermYears: Math.max(1, Math.round(v ?? 30)) })}
+            locale={locale}
+          />
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
+function DealPanel({ deal, ...props }: DetailsStepProps & { deal: ScenarioKind }) {
+  const { state, update, locale } = props;
+  const t = useTranslations("evaluate");
+  const f = useFormat();
 
   // Reference hints: what the INE medians imply for this property's area.
   const m2 = state.areaM2;
@@ -63,14 +359,103 @@ export function DealDetails(props: DealDetailsProps) {
       locale={locale}
     />
   );
+  const holdingYears = (
+    <NumberField
+      label={t("holdingYears")}
+      help={t("holdingYearsHelp")}
+      kind="number"
+      suffix={t("yearsShort")}
+      value={state.rentalYears}
+      onChange={(v) => update({ rentalYears: Math.max(1, Math.min(40, Math.round(v ?? 10))) })}
+      locale={locale}
+    />
+  );
 
   return (
     <>
       <p className="text-sm text-muted-foreground">{t(`dealIntro.${deal}`)}</p>
 
-      {deal === "contractAssignment" ? (
-        <fieldset className="space-y-4">
-          <legend className="text-sm font-medium">{t("cessaoTitle")}</legend>
+      {deal === "flip" && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <NumberField
+            label={t("resaleValue")}
+            help={t("resaleValueHelp")}
+            kind="money"
+            required
+            value={state.resaleValue}
+            onChange={(resaleValue) => update({ resaleValue })}
+            hint={saleHint}
+            locale={locale}
+          />
+          <NumberField
+            label={t("flipMonths")}
+            kind="number"
+            suffix={t("monthsShort")}
+            value={state.flipMonths}
+            onChange={(v) => update({ flipMonths: Math.max(1, Math.round(v ?? 12)) })}
+            locale={locale}
+          />
+          {marketValue(false)}
+        </div>
+      )}
+
+      {deal === "longTermRental" && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <NumberField
+              label={t("monthlyRent")}
+              help={t("monthlyRentHelp")}
+              kind="money"
+              required
+              value={state.monthlyRent}
+              onChange={(monthlyRent) => update({ monthlyRent })}
+              hint={rentHint}
+              locale={locale}
+            />
+            {marketValue(true)}
+            {holdingYears}
+          </div>
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-medium">{t("taxes")}</legend>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SelectField
+                label={t("rentalTaxMode")}
+                value={state.rentalTaxMode}
+                options={[
+                  { value: "autonomous", label: t("rentalTaxAutonomous") },
+                  { value: "marginal", label: t("rentalTaxMarginal") },
+                ]}
+                onChange={(rentalTaxMode) => update({ rentalTaxMode })}
+              />
+              <EnglobamentoNote params={props.params} />
+              {state.rentalTaxMode === "autonomous" && (
+                <NumberField
+                  label={t("contractYears")}
+                  help={t("contractYearsHelp")}
+                  kind="number"
+                  suffix={t("yearsShort")}
+                  value={state.contractYears}
+                  onChange={(v) => update({ contractYears: Math.max(1, Math.round(v ?? 1)) })}
+                  locale={locale}
+                />
+              )}
+            </div>
+          </fieldset>
+        </>
+      )}
+
+      {deal === "shortTermRental" && (
+        <>
+          <SeasonTable state={state} update={update} locale={locale} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {marketValue(true)}
+            {holdingYears}
+          </div>
+        </>
+      )}
+
+      {deal === "contractAssignment" && (
+        <>
           <div className="grid gap-4 sm:grid-cols-2">
             <NumberField
               label={t("cpcvPrice")}
@@ -116,145 +501,38 @@ export function DealDetails(props: DealDetailsProps) {
             checked={state.upfrontTransferTaxes}
             onChange={(upfrontTransferTaxes) => update({ upfrontTransferTaxes })}
           />
-        </fieldset>
-      ) : (
-        <>
-          <fieldset className="space-y-4">
-            <legend className="text-sm font-medium">{t("purchase")}</legend>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <NumberField
-                label={t("purchasePrice")}
-                help={t("purchasePriceHelp")}
-                kind="money"
-                value={state.purchasePrice}
-                placeholder={state.askingPrice ? String(state.askingPrice) : undefined}
-                onChange={(purchasePrice) => update({ purchasePrice })}
-                locale={locale}
-              />
-              <SelectField
-                label={t("propertyUse")}
-                value={state.propertyUse}
-                options={(["secondary", "hpp"] as const).map((v) => ({
-                  value: v,
-                  label: t(`uses.${v}`),
-                }))}
-                onChange={(propertyUse) => update({ propertyUse })}
-              />
-              <NumberField
-                label={t("renovationBudget")}
-                kind="money"
-                value={state.renovationBudget}
-                onChange={(v) => update({ renovationBudget: v ?? 0 })}
-                locale={locale}
-              />
-              <NumberField
-                label={t("renovationMonths")}
-                kind="number"
-                suffix={t("monthsShort")}
-                value={state.renovationMonths}
-                onChange={(v) => update({ renovationMonths: Math.round(v ?? 0) })}
-                locale={locale}
-              />
-            </div>
-          </fieldset>
-
-          <fieldset className="space-y-4">
-            <legend className="text-sm font-medium">{t(`dealValues.${deal}`)}</legend>
-            {deal === "flip" && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <NumberField
-                  label={t("resaleValue")}
-                  help={t("resaleValueHelp")}
-                  kind="money"
-                  required
-                  value={state.resaleValue}
-                  onChange={(resaleValue) => update({ resaleValue })}
-                  hint={saleHint}
-                  locale={locale}
-                />
-                <NumberField
-                  label={t("flipMonths")}
-                  kind="number"
-                  suffix={t("monthsShort")}
-                  value={state.flipMonths}
-                  onChange={(v) => update({ flipMonths: Math.max(1, Math.round(v ?? 12)) })}
-                  locale={locale}
-                />
-                {marketValue(false)}
-              </div>
-            )}
-            {deal === "longTermRental" && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <NumberField
-                  label={t("monthlyRent")}
-                  help={t("monthlyRentHelp")}
-                  kind="money"
-                  required
-                  value={state.monthlyRent}
-                  onChange={(monthlyRent) => update({ monthlyRent })}
-                  hint={rentHint}
-                  locale={locale}
-                />
-                {marketValue(true)}
-                <RentalYears {...props} />
-              </div>
-            )}
-            {deal === "shortTermRental" && (
-              <>
-                <SeasonTable state={state} update={update} locale={locale} />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {marketValue(true)}
-                  <RentalYears {...props} />
-                </div>
-              </>
-            )}
-          </fieldset>
-
-          <Financing {...props} />
         </>
       )}
 
-      <Taxes {...props} />
-
       <AssumptionsSection
-        deal={deal}
+        scope={deal}
+        buying={buysProperty(props.deals)}
         state={state}
         update={props.updateAssumptions}
         locale={locale}
       />
-
-      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {tried && missing.length > 0
-            ? t("missing", { fields: missing.map((m) => t(`missingFields.${m}`)).join(", ") })
-            : t("requiredNote")}
-        </p>
-        <Button
-          onClick={() => {
-            setTried(true);
-            if (missing.length === 0) onShowResults();
-          }}
-          className="shrink-0"
-        >
-          {t("showResults")}
-        </Button>
-      </div>
     </>
   );
 }
 
-function RentalYears({ state, update, locale }: DealDetailsProps) {
+/**
+ * When adding rents to other income can cost less than the flat rate (CIRS art. 72 n.º 13).
+ * Information only; the calculation uses the option the user picks.
+ */
+function EnglobamentoNote({ params }: { params: ParameterSet | null }) {
   const t = useTranslations("evaluate");
+  const f = useFormat();
+  const threshold = params && englobamentoThreshold(params);
+  if (!threshold) return null;
   return (
-    <NumberField
-      label={t("holdingYears")}
-      help={t("holdingYearsHelp")}
-      kind="number"
-      suffix={t("yearsShort")}
-      value={state.rentalYears}
-      onChange={(v) => update({ rentalYears: Math.max(1, Math.min(40, Math.round(v ?? 10))) })}
-      locale={locale}
-    />
+    <p className="flex items-start gap-1.5 text-xs text-muted-foreground sm:col-span-2">
+      <Info className="mt-px size-3.5 shrink-0" aria-hidden />
+      {t("englobamentoNote", {
+        income: f.euro(threshold.income),
+        marginal: f.percent(threshold.marginalRate, 1),
+        flat: f.percent(threshold.flatRate, 0),
+      })}
+    </p>
   );
 }
 
@@ -339,160 +617,32 @@ function SeasonTable({
   );
 }
 
-function Financing({
-  state,
-  update,
-  loanAmount,
-  purchasePrice,
-  euribor12m,
-  spread,
-  locale,
-}: DealDetailsProps) {
-  const t = useTranslations("evaluate");
-  const f = useFormat();
-  return (
-    <fieldset className="space-y-4">
-      <legend className="text-sm font-medium">{t("financing")}</legend>
-      <SwitchField
-        label={t("useLoan")}
-        checked={state.useLoan}
-        onChange={(useLoan) => update({ useLoan })}
-      />
-      {state.useLoan && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <NumberField
-            label={t("loanAmount")}
-            help={t("loanAmountHelp")}
-            kind="money"
-            value={state.loanAmount}
-            placeholder={loanAmount ? String(loanAmount) : undefined}
-            hint={
-              purchasePrice && loanAmount
-                ? `${f.percent(loanAmount / purchasePrice, 0)} LTV`
-                : undefined
-            }
-            onChange={(v) => update({ loanAmount: v })}
-            locale={locale}
-          />
-          <NumberField
-            label={t("interestRate")}
-            help={
-              euribor12m && spread !== null
-                ? t("interestRateHelp", {
-                    euribor: f.percent(euribor12m.value, 2),
-                    spread: f.percent(spread, 2),
-                  })
-                : t("interestRateHelpNoEuribor")
-            }
-            kind="percent"
-            value={state.interestRate}
-            onChange={(v) => update({ interestRate: v ?? 0 })}
-            locale={locale}
-          />
-          <NumberField
-            label={t("loanTerm")}
-            kind="number"
-            suffix={t("yearsShort")}
-            value={state.loanTermYears}
-            onChange={(v) => update({ loanTermYears: Math.max(1, Math.round(v ?? 30)) })}
-            locale={locale}
-          />
-        </div>
-      )}
-    </fieldset>
-  );
-}
+type SummaryKey =
+  "purchase" | "resale" | "rent" | "nightly" | "deposit" | "assignment" | "loan" | "noLoan";
 
-function Taxes({ deal, state, update, nonResidentRule, locale }: DealDetailsProps) {
-  const t = useTranslations("evaluate");
-  const rental = deal === "longTermRental";
-  return (
-    <fieldset className="space-y-4">
-      <legend className="text-sm font-medium">{t("taxes")}</legend>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {deal === "contractAssignment" && (
-          <SelectField
-            label={t("propertyUse")}
-            value={state.propertyUse}
-            options={(["secondary", "hpp"] as const).map((v) => ({
-              value: v,
-              label: t(`uses.${v}`),
-            }))}
-            onChange={(propertyUse) => update({ propertyUse })}
-          />
-        )}
-        <NumberField
-          label={t("marginalTaxRate")}
-          help={t("marginalTaxRateHelp")}
-          kind="percent"
-          value={state.marginalTaxRate}
-          onChange={(v) => update({ marginalTaxRate: Math.min(1, v ?? 0) })}
-          locale={locale}
-        />
-        {rental && (
-          <SelectField
-            label={t("rentalTaxMode")}
-            value={state.rentalTaxMode}
-            options={[
-              { value: "autonomous", label: t("rentalTaxAutonomous") },
-              { value: "marginal", label: t("rentalTaxMarginal") },
-            ]}
-            onChange={(rentalTaxMode) => update({ rentalTaxMode })}
-          />
-        )}
-        {rental && state.rentalTaxMode === "autonomous" && (
-          <NumberField
-            label={t("contractYears")}
-            help={t("contractYearsHelp")}
-            kind="number"
-            suffix={t("yearsShort")}
-            value={state.contractYears}
-            onChange={(v) => update({ contractYears: Math.max(1, Math.round(v ?? 1)) })}
-            locale={locale}
-          />
-        )}
-        {nonResidentRule && (
-          <div className="sm:col-span-2">
-            <SwitchField
-              label={t("buyerNonResident")}
-              help={t("buyerNonResidentHelp")}
-              checked={state.buyerNonResident}
-              onChange={(buyerNonResident) => update({ buyerNonResident })}
-            />
-          </div>
-        )}
-      </div>
-    </fieldset>
-  );
-}
-
-/** One line describing the deal's main inputs, for the collapsed step. */
-export function dealSummary(
-  deal: ScenarioKind,
+/** One line describing the main inputs, for the collapsed step. */
+export function detailsSummary(
+  deals: ScenarioKind[],
   state: CalculatorState,
   f: Formatter,
-  t: (
-    key: `summary.${"purchase" | "resale" | "rent" | "nightly" | "deposit" | "assignment" | "loan" | "noLoan"}`,
-    values?: { value: string },
-  ) => string,
+  t: (key: `summary.${SummaryKey}`, values?: { value: string }) => string,
 ): string {
   const price = state.purchasePrice ?? state.askingPrice;
   const parts: (string | false | null)[] = [];
-  if (deal === "contractAssignment") {
-    parts.push(
-      state.deposit !== null && t("summary.deposit", { value: f.euro(state.deposit) }),
-      state.assignmentPrice !== null &&
-        t("summary.assignment", { value: f.euro(state.assignmentPrice) }),
-    );
-  } else {
+  if (buysProperty(deals)) {
     parts.push(price !== null && t("summary.purchase", { value: f.euro(price) }));
-    if (deal === "flip" && state.resaleValue !== null)
-      parts.push(t("summary.resale", { value: f.euro(state.resaleValue) }));
-    if (deal === "longTermRental" && state.monthlyRent !== null)
-      parts.push(t("summary.rent", { value: f.euro(state.monthlyRent) }));
-    if (deal === "shortTermRental" && state.nightlyRate.high !== null)
-      parts.push(t("summary.nightly", { value: f.euro(state.nightlyRate.high) }));
     parts.push(state.useLoan ? t("summary.loan") : t("summary.noLoan"));
+  }
+  if (deals.includes("flip") && state.resaleValue !== null)
+    parts.push(t("summary.resale", { value: f.euro(state.resaleValue) }));
+  if (deals.includes("longTermRental") && state.monthlyRent !== null)
+    parts.push(t("summary.rent", { value: f.euro(state.monthlyRent) }));
+  if (deals.includes("shortTermRental") && state.nightlyRate.high !== null)
+    parts.push(t("summary.nightly", { value: f.euro(state.nightlyRate.high) }));
+  if (deals.includes("contractAssignment")) {
+    if (state.deposit !== null) parts.push(t("summary.deposit", { value: f.euro(state.deposit) }));
+    if (state.assignmentPrice !== null)
+      parts.push(t("summary.assignment", { value: f.euro(state.assignmentPrice) }));
   }
   return parts.filter(Boolean).join(" · ");
 }

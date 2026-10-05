@@ -1,3 +1,4 @@
+import { irsOnExtraIncome } from "../tax";
 import type { ParameterSet } from "../params";
 import {
   fixedCostsMonthly,
@@ -51,8 +52,8 @@ const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 /**
  * Short-term rental, with monthly seasonality. Income is taxed in category B under the
- * simplified regime: a coefficient of gross income is taxable at the marginal IRS rate,
- * and actual expenses are not deducted.
+ * simplified regime: a coefficient of gross income is added to the investor's other income
+ * and taxed at the progressive IRS rates; actual expenses are not deducted.
  */
 export function runShortTermRental(
   input: ShortTermRentalInputs,
@@ -93,7 +94,12 @@ export function runShortTermRental(
     params,
     upfrontExtra: input.furnishingCost + input.registrationCost,
     operating,
-    incomeTax: (block) => sum(block.map((o) => o.income)) * coefficient * input.marginalTaxRate,
+    incomeTax: (block) =>
+      irsOnExtraIncome(
+        input.otherTaxableIncome,
+        sum(block.map((o) => o.income)) * coefficient,
+        params,
+      ),
   });
 
   const result = summarise("shortTermRental", sim, input.loan?.amount ?? 0, {

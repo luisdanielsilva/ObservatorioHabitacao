@@ -19,6 +19,8 @@ export const SOURCES_2026 = {
   rentalIncome: `${PF}/cirs_rep/Pages/irs72.aspx`,
   alCoefficients: `${PF}/cirs_rep/Pages/irs31.aspx`,
   capitalGains: `${PF}/cirs_rep/Pages/irs43.aspx`,
+  irs: `${PF}/cirs_rep/Pages/irs68.aspx`,
+  irsSolidarity: `${PF}/cirs_rep/Pages/irs68a.aspx`,
   vatExemption: `${PF}/civa_rep/Pages/artigo-53-o-do-civa.aspx`,
   budgetLaw:
     "https://info.portaldasfinancas.gov.pt/pt/informacao_fiscal/legislacao/diplomas_legislativos/Documents/Lei-73-A-2025.pdf",
@@ -113,6 +115,25 @@ export const parameters2026: ParameterSet = {
     vatRate: 0.06,
     vatExemptionThreshold: 15_000,
   },
+  // IRS general rates, CIRS art. 68 as amended by Lei n.º 73-A/2025, and the solidarity
+  // surcharge, art. 68-A. Single taxpayer.
+  irs: {
+    brackets: [
+      { upTo: 8342, rate: 0.125 },
+      { upTo: 12587, rate: 0.157 },
+      { upTo: 17838, rate: 0.212 },
+      { upTo: 23089, rate: 0.241 },
+      { upTo: 29397, rate: 0.311 },
+      { upTo: 43090, rate: 0.349 },
+      { upTo: 46566, rate: 0.431 },
+      { upTo: 86634, rate: 0.446 },
+      { upTo: null, rate: 0.48 },
+    ],
+    solidarity: [
+      { over: 80000, rate: 0.025 },
+      { over: 250000, rate: 0.05 },
+    ],
+  },
   // CIRS art. 43 n.º 2 b): 50 % of gains from art. 10 n.º 1 a) (sale of property) and
   // d) (paid assignment of contractual positions on property).
   capitalGains: { inclusionRate: 0.5 },
@@ -120,6 +141,7 @@ export const parameters2026: ParameterSet = {
 };
 
 export const PARAMETERS_2026_NOTES = [
+  `IRS brackets 12.5 %–48 % and solidarity surcharge 2.5 % / 5 %: CIRS art. 68 (Lei n.º 73-A/2025) and 68-A — ${SOURCES_2026.irs}, ${SOURCES_2026.irsSolidarity}`,
   "Draft 2026 mainland parameters, read from the Portal das Finanças consolidated codes on 2026-10-03. Not yet reviewed by a tax advisor.",
   `IMT tables (hpp, secondary), 6.5 % other urban, 5 % rustic: CIMT art. 17 n.º 1 as amended by Lei n.º 73-A/2025 — ${SOURCES_2026.imt}`,
   `Stamp duty 0.8 % / 0.6 % / 4 %: TGIS verbas 1.1, 17.1.3, 17.3.1 — ${SOURCES_2026.stampDuty}`,

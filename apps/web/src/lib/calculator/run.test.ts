@@ -25,13 +25,35 @@ describe("runCalculator", () => {
     expect(outcome(out, "flip").missing).toEqual(["purchasePrice"]);
   });
 
-  it("uses the asking price and a 70 % loan by default", () => {
+  it("uses the asking price and the most banks lend for the use by default", () => {
     const out = run({ askingPrice: 200_000, resaleValue: 260_000 });
     expect(out.purchasePrice).toBe(200_000);
-    expect(out.loanAmount).toBe(140_000);
+    expect(out.loanAmount).toBe(160_000); // 80 % for investment / second homes
     const flip = outcome(out, "flip").result!;
-    expect(flip.loanAmount).toBe(140_000);
+    expect(flip.loanAmount).toBe(160_000);
+    expect(flip.warnings).not.toContain("ltv_above_limit");
     expect(flip.months).toHaveLength(13); // purchase + 12 months
+
+    const home = run({ askingPrice: 200_000, resaleValue: 260_000, propertyUse: "hpp" });
+    expect(home.loanAmount).toBe(180_000); // 90 % for an own permanent home
+    expect(outcome(home, "flip").result!.warnings).not.toContain("ltv_above_limit");
+  });
+
+  it("taxes a sale gain at the IRS brackets on top of other income", () => {
+    const flip = (otherTaxableIncome: number | null) =>
+      outcome(
+        run({ askingPrice: 200_000, resaleValue: 260_000, otherTaxableIncome }),
+        "flip",
+      ).result!.months.at(-1)!.capitalGainsTax;
+    // The same gain costs more for someone with a higher income; empty counts as no income.
+    expect(flip(60_000)).toBeGreaterThan(flip(10_000));
+    expect(flip(null)).toBe(flip(0));
+  });
+
+  it("keeps a loan amount the user entered", () => {
+    expect(run({ askingPrice: 200_000, loanAmount: 100_000, propertyUse: "hpp" }).loanAmount).toBe(
+      100_000,
+    );
   });
 
   it("runs without a loan when financing is off", () => {
@@ -57,10 +79,10 @@ describe("runCalculator", () => {
     expect(out.comparison.ranking).toHaveLength(4);
     expect(out.opportunity?.signal).toBe("opportunity"); // 200 000 vs 220 000 = −9 %
 
-    // Rentals are sold at the renovated value grown for 10 years.
+    // Rentals are sold at the renovated value, with no appreciation.
     const rental = outcome(out, "longTermRental").result!;
     const sale = rental.months.at(-1)!.saleProceeds;
-    expect(sale).toBeCloseTo(260_000 * 1.03 ** 10 * (1 - 0.05 * 1.23), 2);
+    expect(sale).toBeCloseTo(260_000 * (1 - 0.05 * 1.23), 2);
   });
 
   it("hides the AL registry warning until the registry exists", () => {

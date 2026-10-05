@@ -24,6 +24,7 @@
     "import:rnal": "tsx src/scripts/import.ts rnal",
     "import:all": "tsx src/scripts/import.ts all",
     "params:2026": "tsx src/scripts/parameters.ts",
+    "params:irs": "tsx src/scripts/addIrsBrackets.ts",
     "db:backup": "tsx src/scripts/backup.ts"
   },
   "devDependencies": {

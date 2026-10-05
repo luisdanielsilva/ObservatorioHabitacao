@@ -55,6 +55,24 @@ export const params2025: ParameterSet = {
     vatRate: 0.06,
     vatExemptionThreshold: 15_000,
   },
+  // CIRS art. 68 as amended by Lei 55-A/2025 (2025 income); art. 68-A.
+  irs: {
+    brackets: [
+      { upTo: 8059, rate: 0.125 },
+      { upTo: 12160, rate: 0.16 },
+      { upTo: 17233, rate: 0.215 },
+      { upTo: 22306, rate: 0.244 },
+      { upTo: 28400, rate: 0.314 },
+      { upTo: 41629, rate: 0.349 },
+      { upTo: 44987, rate: 0.431 },
+      { upTo: 83696, rate: 0.446 },
+      { upTo: null, rate: 0.48 },
+    ],
+    solidarity: [
+      { over: 80000, rate: 0.025 },
+      { over: 250000, rate: 0.05 },
+    ],
+  },
   capitalGains: { inclusionRate: 0.5 },
   contractAssignment: { inclusionRate: 0.5 },
 };

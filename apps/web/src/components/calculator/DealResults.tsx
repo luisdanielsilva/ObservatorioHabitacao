@@ -8,11 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { HelpTip } from "@/components/shared/HelpTip";
-import type { CalculatorOutput } from "@/lib/calculator/run";
+import type { CalculatorOutput, ScenarioOutcome } from "@/lib/calculator/run";
 import type { CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
-import { CashFlowChart } from "./CashFlowChart";
+import { CashFlowChart, SCENARIO_COLORS } from "./CashFlowChart";
 import { formatMetric, METRICS, Results, ScenarioDetails, type MetricKey } from "./Results";
 import { Sensitivity } from "./Sensitivity";
 
@@ -42,62 +42,180 @@ const HEADLINE: Record<ScenarioKind, MetricKey[]> = {
   contractAssignment: ["netProfit", "returnOnDeposit", "irr", "ownCapital"],
 };
 
-/** Step 4: the chosen deal's results, its sensitivity, and the comparison on request. */
+/**
+ * Step 4: the chosen deals' results. With several deals, they are compared first and each has a
+ * tab; with one, the comparison with the other strategies is offered on request.
+ */
 export function DealResults({
-  deal,
+  deals,
   output,
   state,
   params,
   startMonth,
   onGoalChange,
-  onFillMissing,
+  onAddDeal,
 }: {
-  deal: ScenarioKind;
+  deals: ScenarioKind[];
   output: CalculatorOutput | null;
   state: CalculatorState;
   params: ParameterSet | null;
   startMonth: number;
   onGoalChange: (goal: Goal) => void;
-  onFillMissing: (kind: ScenarioKind) => void;
+  /** Adds a strategy to the chosen deals and opens its details. */
+  onAddDeal: (kind: ScenarioKind) => void;
 }) {
   const t = useTranslations("evaluate");
-  const tm = useTranslations("metrics");
   const f = useFormat();
   const id = useId();
   const [comparing, setComparing] = useState(false);
+  const [tab, setTab] = useState<ScenarioKind>(deals[0]!);
+  const shown = deals.includes(tab) ? tab : deals[0]!;
 
-  const outcome = output?.outcomes.find((o) => o.kind === deal);
-  if (!output || !outcome?.result) {
+  const outcomes = deals
+    .map((d) => output?.outcomes.find((o) => o.kind === d))
+    .filter((o): o is ScenarioOutcome => !!o?.result);
+  if (!output || outcomes.length === 0) {
     return <p className="text-sm text-muted-foreground">{t("noParameters")}</p>;
   }
-  const result = outcome.result;
-  const format = (key: MetricKey) => METRICS.find((m) => m.key === key)!.format;
+  const several = deals.length > 1;
   const opportunity = output.opportunity;
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2">
-        {!result.viable && <Badge variant="destructive">{t("notViable")}</Badge>}
-        {opportunity && (
-          <>
-            <Badge
-              className={cn(
-                opportunity.signal === "opportunity" && "bg-positive text-background",
-                opportunity.signal === "fair" && "bg-secondary text-secondary-foreground",
-                opportunity.signal === "above" && "bg-destructive text-white",
-              )}
-            >
-              {t(`opportunity.${opportunity.signal}`)}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              {t("opportunity.text", { diff: f.signedPercent(opportunity.difference) })}
-            </span>
-          </>
-        )}
-      </div>
+      {opportunity && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            className={cn(
+              opportunity.signal === "opportunity" && "bg-positive text-background",
+              opportunity.signal === "fair" && "bg-secondary text-secondary-foreground",
+              opportunity.signal === "above" && "bg-destructive text-white",
+            )}
+          >
+            {t(`opportunity.${opportunity.signal}`)}
+          </Badge>
+          <span className="text-sm text-muted-foreground">
+            {t("opportunity.text", { diff: f.signedPercent(opportunity.difference) })}
+          </span>
+        </div>
+      )}
 
+      {several && (
+        <div className="rounded-lg border p-4">
+          <Results
+            output={output}
+            only={deals}
+            goal={state.goal}
+            onGoalChange={onGoalChange}
+            showDetails={false}
+          />
+        </div>
+      )}
+
+      {several ? (
+        <div className="space-y-5">
+          <div role="tablist" aria-label={t("dealTabs")} className="flex flex-wrap gap-1 border-b">
+            {deals.map((d) => (
+              <button
+                key={d}
+                id={`${id}-tab-${d}`}
+                type="button"
+                role="tab"
+                aria-selected={shown === d}
+                aria-controls={`${id}-panel`}
+                tabIndex={shown === d ? 0 : -1}
+                onClick={() => setTab(d)}
+                onKeyDown={(e) => {
+                  const i = deals.indexOf(shown);
+                  const next =
+                    e.key === "ArrowRight"
+                      ? deals[(i + 1) % deals.length]
+                      : e.key === "ArrowLeft"
+                        ? deals[(i - 1 + deals.length) % deals.length]
+                        : undefined;
+                  if (next) {
+                    setTab(next);
+                    document.getElementById(`${id}-tab-${next}`)?.focus();
+                  }
+                }}
+                className={cn(
+                  "-mb-px flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  shown === d
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className="size-2.5 rounded-full"
+                  style={{ background: SCENARIO_COLORS[d] }}
+                />
+                {t(`deals.${d}`)}
+              </button>
+            ))}
+          </div>
+          <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${shown}`}>
+            <DealOutcome outcome={outcomes.find((o) => o.kind === shown)!} />
+          </div>
+        </div>
+      ) : (
+        <DealOutcome outcome={outcomes[0]!} />
+      )}
+
+      {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
+      <Sensitivity state={state} params={params} startMonth={startMonth} enabled only={deals} />
+
+      {deals.length < 4 && (
+        <div className="space-y-4 rounded-lg border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="font-semibold">{t("compareTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("compareHelp")}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-expanded={comparing}
+              aria-controls={`${id}-compare`}
+              onClick={() => setComparing((c) => !c)}
+            >
+              {comparing ? t("hideComparison") : t("showComparison")}
+              <ChevronDown className={cn("transition-transform", comparing && "rotate-180")} />
+            </Button>
+          </div>
+          <div id={`${id}-compare`} hidden={!comparing}>
+            {comparing && (
+              <Results
+                output={output}
+                goal={state.goal}
+                onGoalChange={onGoalChange}
+                onFillMissing={onAddDeal}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        {params && t("parameters", { year: params.year })} {t("saveSoon")}
+      </p>
+      <Disclaimer />
+    </>
+  );
+}
+
+/** One deal's headline figures, cash flow, costs and warnings. */
+function DealOutcome({ outcome }: { outcome: ScenarioOutcome }) {
+  const t = useTranslations("evaluate");
+  const tm = useTranslations("metrics");
+  const f = useFormat();
+  const result = outcome.result!;
+  const format = (key: MetricKey) => METRICS.find((m) => m.key === key)!.format;
+
+  return (
+    <div className="space-y-5">
+      {!result.viable && <Badge variant="destructive">{t("notViable")}</Badge>}
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {HEADLINE[deal].map((key, i) => {
+        {HEADLINE[outcome.kind].map((key, i) => {
           const value = result[key];
           return (
             <div
@@ -122,47 +240,8 @@ export function DealResults({
           );
         })}
       </dl>
-
       <CashFlowChart outcomes={[outcome]} />
-
       <ScenarioDetails outcomes={[outcome]} defaultOpen />
-
-      {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
-      <Sensitivity state={state} params={params} startMonth={startMonth} enabled only={[deal]} />
-
-      <div className="space-y-4 rounded-lg border p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="font-semibold">{t("compareTitle")}</h3>
-            <p className="text-sm text-muted-foreground">{t("compareHelp")}</p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            aria-expanded={comparing}
-            aria-controls={`${id}-compare`}
-            onClick={() => setComparing((c) => !c)}
-          >
-            {comparing ? t("hideComparison") : t("showComparison")}
-            <ChevronDown className={cn("transition-transform", comparing && "rotate-180")} />
-          </Button>
-        </div>
-        <div id={`${id}-compare`} hidden={!comparing}>
-          {comparing && (
-            <Results
-              output={output}
-              goal={state.goal}
-              onGoalChange={onGoalChange}
-              onFillMissing={onFillMissing}
-            />
-          )}
-        </div>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        {params && t("parameters", { year: params.year })} {t("saveSoon")}
-      </p>
-      <Disclaimer />
-    </>
+    </div>
   );
 }

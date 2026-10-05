@@ -62,28 +62,33 @@ operating income.
 **Long-term rental.** Rent × (1 − vacancy), growing yearly. Costs: IMI, condominium,
 insurance, maintenance and management (shares of collected rent). Category F tax on rent
 minus those costs (loan interest not deductible): autonomous rate 25 %, reduced to
-15 / 10 / 5 % for contracts of 5 / 10 / 20+ years, or the marginal rate with englobamento.
+15 / 10 / 5 % for contracts of 5 / 10 / 20+ years, or englobamento: the net rent is added to the
+investor's other taxable income and taxed at the IRS brackets.
 
 **Short-term rental (AL).** Per calendar month: nights = days × occupancy; stays = nights ÷
 average stay; bookings = nights × ADR + stays × cleaning fee. VAT (6 %) is removed when the
 owner is registered. Costs: platform fee (on bookings), management (on income), cleaning
 per stay, consumables per night, utilities, IMI, condominium, insurance. Category B
-simplified regime: tax = income × coefficient (0.35; 0.50 in containment zones) × marginal
-rate. A warning is raised in containment zones and above the VAT exemption threshold; a
+simplified regime: income × coefficient (0.35; 0.50 in containment zones) is added to the
+investor's other taxable income and taxed at the IRS brackets (the extra tax is what is charged). A warning is raised in containment zones and above the VAT exemption threshold; a
 municipality that has suspended new registrations makes the scenario non-viable.
 
 **Contract assignment (cessão de posição contratual).** Assignment price = total paid by the
 new buyer, including the deposit reimbursement. Premium = assignment price − deposit.
 Commission (+ VAT) is charged on the premium. Optionally, IMT and stamp duty on the CPCV
 price are paid upfront (when the CPCV allows assignment to a third party). Gain = premium −
-commission − other costs − upfront taxes; 50 % is taxed at the marginal rate. A warning is
+commission − other costs − upfront taxes; 50 % is added to other income and taxed at the IRS
+brackets. A warning is
 raised when the new buyer's total (CPCV price − deposit + assignment price) exceeds market
 value. Default assignment price: deposit + 50 % of (market value − CPCV price).
 
 ## Capital gains (sale)
 
 Gain = sale price − selling costs − purchase price − (IMT + stamp duty + deed) − renovation.
-50 % of a positive gain is taxed at the investor's marginal IRS rate.
+50 % of a positive gain is added to the investor's other annual taxable income and taxed at the
+IRS brackets (CIRS art. 68) plus the solidarity surcharge (art. 68-A): the tax charged is
+IRS(other + 50 % × gain) − IRS(other). There is no flat rate on property gains for individuals,
+resident or not (the 28 % non-resident rate was revoked in 2023). Other income defaults to 0.
 
 ## Comparison and sensitivity
 

@@ -18,32 +18,32 @@ const state = initialState({
 
 describe("shiftState", () => {
   it("shifts the price but keeps the loan, like the engine helper", () => {
-    const s = shiftState(state, "price", 0.1);
+    const s = shiftState(state, "price", 0.1, params);
     expect(s.purchasePrice).toBeCloseTo(220_000, 6);
-    expect(s.loanAmount).toBe(140_000);
+    expect(s.loanAmount).toBe(160_000); // 80 % of the original 200 000
   });
 
   it("scales long-term rent and nightly rates together", () => {
-    const s = shiftState(state, "rent", -0.1);
+    const s = shiftState(state, "rent", -0.1, params);
     expect(s.monthlyRent).toBe(900);
     expect(s.nightlyRate).toEqual({ high: 108, mid: 81, low: 63 });
   });
 
   it("moves occupancy in points within 0–100 %", () => {
-    const { high, mid, low } = shiftState(state, "occupancy", 0.2).occupancy;
+    const { high, mid, low } = shiftState(state, "occupancy", 0.2, params).occupancy;
     expect(high).toBe(1);
     expect(mid).toBeCloseTo(0.9, 12);
     expect(low).toBeCloseTo(0.7, 12);
   });
 
   it("moves the interest rate in points, never below zero", () => {
-    expect(shiftState(state, "interest", 0.01).interestRate).toBeCloseTo(0.045, 10);
-    expect(shiftState(state, "interest", -0.1).interestRate).toBe(0);
+    expect(shiftState(state, "interest", 0.01, params).interestRate).toBeCloseTo(0.045, 10);
+    expect(shiftState(state, "interest", -0.1, params).interestRate).toBe(0);
   });
 
   it("leaves the state alone when there is no price", () => {
     const empty = initialState();
-    expect(shiftState(empty, "price", 0.1)).toBe(empty);
+    expect(shiftState(empty, "price", 0.1, params)).toBe(empty);
   });
 });
 

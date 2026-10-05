@@ -13,7 +13,7 @@ import {
   type ScenarioKind,
   type ScenarioResult,
 } from "@olhovivo/engine";
-import { DEFAULT_LTV, type CalculatorState } from "./state";
+import type { CalculatorState } from "./state";
 
 export const SCENARIO_KINDS: ScenarioKind[] = [
   "flip",
@@ -38,10 +38,19 @@ export interface CalculatorOutput {
   loanAmount: number;
 }
 
-/** The loan used: the user's amount, or 70 % of the purchase price. */
-export function effectiveLoanAmount(state: CalculatorState, purchasePrice: number): number {
+/** The most banks may lend as a share of the price (Banco de Portugal limit for the use). */
+export function maxLtv(propertyUse: CalculatorState["propertyUse"], params: ParameterSet): number {
+  return propertyUse === "hpp" ? params.financing.maxLtv.hpp : params.financing.maxLtv.other;
+}
+
+/** The loan used: the user's amount, or the most banks lend for the property use. */
+export function effectiveLoanAmount(
+  state: CalculatorState,
+  purchasePrice: number,
+  params: ParameterSet,
+): number {
   if (!state.useLoan) return 0;
-  return state.loanAmount ?? Math.round(purchasePrice * DEFAULT_LTV);
+  return state.loanAmount ?? Math.round(purchasePrice * maxLtv(state.propertyUse, params));
 }
 
 const isSet = (v: number | null): v is number => v !== null && Number.isFinite(v) && v > 0;
@@ -62,7 +71,7 @@ export function runCalculator(
     : isSet(state.askingPrice)
       ? state.askingPrice
       : null;
-  const loanAmount = purchasePrice ? effectiveLoanAmount(state, purchasePrice) : 0;
+  const loanAmount = purchasePrice ? effectiveLoanAmount(state, purchasePrice, params) : 0;
   const rentalHoldingMonths = Math.round(state.rentalYears * 12);
 
   const property = (holdingMonths: number, exitPrice: number): PropertyInputs => ({
@@ -79,19 +88,18 @@ export function runCalculator(
     holdingMonths,
     exitPrice,
     sellingCommissionRate: state.sellingCommissionRate,
-    marginalTaxRate: state.marginalTaxRate,
+    otherTaxableIncome: state.otherTaxableIncome ?? 0,
     buyerNonResident: state.buyerNonResident,
     condominiumMonthly: state.condominiumMonthly,
     insuranceAnnual: state.insuranceAnnual,
   });
 
-  // Rentals are sold at the end of the holding period. The starting value is the value after
-  // works when the user plans a renovation and gave one, otherwise the current market value.
+  // Rentals are sold at the end of the holding period, at today's value (no appreciation is
+  // assumed): the value after works when the user plans a renovation and gave one, otherwise
+  // the current market value.
   const rentalBase =
     state.renovationBudget > 0 && isSet(state.resaleValue) ? state.resaleValue : state.marketValue;
-  const rentalExit = isSet(rentalBase)
-    ? rentalBase * (1 + state.appreciationRate) ** state.rentalYears
-    : 0;
+  const rentalExit = isSet(rentalBase) ? rentalBase : 0;
 
   const outcomes: ScenarioOutcome[] = [];
   const missing = (...fields: (MissingField | false)[]) =>
@@ -206,15 +214,14 @@ export function runCalculator(
                 deposit: state.deposit!,
                 assignmentMonth: state.assignmentMonths,
                 assignmentPrice: state.assignmentPrice!,
-                marketValueAtAssignment:
-                  state.marketValue! *
-                  (1 + state.appreciationRate) ** (state.assignmentMonths / 12),
+                // Today's value: no appreciation is assumed.
+                marketValueAtAssignment: state.marketValue!,
                 commissionRate: state.assignmentCommissionRate,
                 otherCosts: state.assignmentOtherCosts,
                 upfrontTransferTaxes: state.upfrontTransferTaxes,
                 propertyUse: state.propertyUse,
                 vpt: isSet(state.vpt) ? state.vpt : undefined,
-                marginalTaxRate: state.marginalTaxRate,
+                otherTaxableIncome: state.otherTaxableIncome ?? 0,
                 buyerNonResident: state.buyerNonResident,
               },
               params,
