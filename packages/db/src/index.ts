@@ -9,3 +9,4 @@ export * from "./scenarios";
 export * from "./account";
 export * from "./rateLimit";
 export * from "./admin";
+export { RENT_UPDATE_RATE } from "./import/rentUpdate";
