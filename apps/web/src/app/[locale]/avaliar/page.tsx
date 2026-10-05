@@ -48,7 +48,12 @@ export default async function EvaluatePage({
     const user = await requireUser(locale, `/avaliar?cenario=${scenarioId}`);
     const saved = getScenario(db, scenarioId, user.id);
     if (saved) {
-      initial = { state: normaliseState(saved.inputs), savedId: saved.id, name: saved.name };
+      initial = {
+        state: normaliseState(saved.inputs),
+        savedId: saved.id,
+        name: saved.name,
+        shareToken: saved.shareToken,
+      };
     }
   }
 

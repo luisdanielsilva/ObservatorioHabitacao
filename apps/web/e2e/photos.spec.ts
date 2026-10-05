@@ -69,6 +69,24 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
   expect((await stranger.request.get(src!)).status()).toBe(401);
   await stranger.close();
 
+  // The owner's PDF report has the photos; the one behind the read-only link does not.
+  const pdf = (await (await page.request.get(`/api/scenarios/${scenarioId}/pdf`)).body()).toString(
+    "latin1",
+  );
+  expect(pdf.startsWith("%PDF")).toBe(true);
+  expect(pdf.match(/\/Subtype \/Image/g)).toHaveLength(2);
+  const popup = page.waitForEvent("popup");
+  await page.context().route("https://wa.me/**", (r) => r.fulfill({ body: "WhatsApp" }));
+  await step(page, "Resultados").getByRole("button", { name: "WhatsApp" }).click();
+  await (await popup).close();
+  const link = await step(page, "Resultados").getByLabel("Link só de leitura").inputValue();
+  const token = link.split("/partilha/")[1];
+  const shared = (await (await page.request.get(`/api/partilha/${token}/pdf`)).body()).toString(
+    "latin1",
+  );
+  expect(shared.startsWith("%PDF")).toBe(true);
+  expect(shared).not.toContain("/Subtype /Image");
+
   // Delete one; it stays deleted after a reload.
   await photos.getByRole("button", { name: "Apagar fotografia 1" }).click();
   await expect(photos.getByRole("img")).toHaveCount(1);

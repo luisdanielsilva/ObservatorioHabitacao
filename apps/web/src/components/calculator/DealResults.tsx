@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { SCENARIO_COLORS } from "./colors";
 import { formatMetric, METRICS, Results, ScenarioDetails, type MetricKey } from "./Results";
 import { SaleChart } from "./SaleChart";
-import { ShareMock } from "./ShareMock";
 
 /** The indicators that matter most for each deal, in order. */
 const HEADLINE: Record<ScenarioKind, MetricKey[]> = {
@@ -61,6 +60,7 @@ export function DealResults({
   onAddDeal,
   saveBar,
   photos,
+  share,
 }: {
   deals: ScenarioKind[];
   output: CalculatorOutput | null;
@@ -73,6 +73,8 @@ export function DealResults({
   saveBar: React.ReactNode;
   /** The property's photos, under the save button. */
   photos: React.ReactNode;
+  /** Sharing the results, after the photos. */
+  share: React.ReactNode;
 }) {
   const t = useTranslations("evaluate");
   const f = useFormat();
@@ -204,7 +206,7 @@ export function DealResults({
       {/* The scenario (name and save), then sharing, after the comparison. */}
       {saveBar}
       {photos}
-      <ShareMock />
+      {share}
 
       <p className="text-xs text-muted-foreground">
         {params && t("parameters", { year: params.year })}

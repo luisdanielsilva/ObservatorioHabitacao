@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { reportLocale } from "@/lib/report/locale";
 import { pdfResponse, renderScenarioPdf, reportFilename } from "@/lib/report/render";
 
-/** PDF report of a shared scenario, for anyone with the share link. */
+/** PDF report of a shared scenario, for anyone with the share link (no photos). */
 export async function GET(request: Request, { params }: RouteContext<"/api/partilha/[token]/pdf">) {
   const scenario = getSharedScenario(getDb(), (await params).token);
   if (!scenario) return NextResponse.json({ error: "not found" }, { status: 404 });

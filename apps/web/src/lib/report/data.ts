@@ -6,6 +6,7 @@ import {
   type MarketReferenceValue,
   type ScenarioRow,
 } from "@olhovivo/db";
+import type { ParameterSet } from "@olhovivo/engine";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { runCalculator, type CalculatorOutput } from "@/lib/calculator/run";
@@ -17,6 +18,9 @@ export interface ReportData {
   output: CalculatorOutput;
   breadcrumb: string[];
   reference: { sale: MarketReferenceValue | null; rent: MarketReferenceValue | null };
+  /** The parameter set the scenario was saved with, and the purchase month used. */
+  parameters: ParameterSet;
+  startMonth: number;
   parametersYear: number;
   parametersVerified: boolean;
   updatedAt: string;
@@ -50,6 +54,8 @@ export function buildReportData(scenario: ScenarioRow): ReportData | undefined {
       sale: areaId ? (getMarketReference(db, areaId, "sale_eur_m2_median") ?? null) : null,
       rent: areaId ? (getMarketReference(db, areaId, "rent_eur_m2_median") ?? null) : null,
     },
+    parameters: params.data,
+    startMonth,
     parametersYear: params.year,
     parametersVerified: params.verifiedAt !== null,
     updatedAt: scenario.updatedAt,

@@ -15,6 +15,7 @@ describe("pdfSafe", () => {
     expect(pdfSafe(formatted)).not.toMatch(/[^\u0000-ÿ€]/);
     expect(pdfSafe("a b – c ≈ d → e")).toBe("a b - c ~ d -> e");
     expect(pdfSafe("✓ ok")).toBe(" ok");
+    expect(pdfSafe("Lisboa › Cascais")).toBe("Lisboa > Cascais");
   });
 });
 

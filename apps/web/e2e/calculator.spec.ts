@@ -200,14 +200,27 @@ test("sale chart: lowest price without a loss, and profit above it", async ({ pa
   await expect(sale.getByText("Lucro ao preço que indicou (480 000 €)")).toBeVisible();
   await expect(sale.getByRole("slider")).toHaveCount(0);
 
-  // Sharing comes after the scenario's name and save, as mock-ups that do nothing yet.
+  // Sharing comes after the scenario's name and save; signed out, it asks to sign in first.
   const share = results.getByRole("region", { name: "Partilhar resultados" });
-  for (const name of ["Email", "WhatsApp", "Facebook Messenger", "Ver PDF"]) {
-    await expect(share.getByRole("button", { name, exact: true })).toBeDisabled();
+  for (const name of [
+    "Email",
+    "WhatsApp",
+    "Facebook Messenger",
+    "Enviar para o email da conta",
+    "Ver PDF",
+  ]) {
+    await expect(share.getByRole("button", { name, exact: true })).toBeEnabled();
   }
   const saveBox = await results.getByRole("button", { name: "Guardar", exact: true }).boundingBox();
   const shareBox = await share.boundingBox();
   expect(shareBox!.y).toBeGreaterThan(saveBox!.y);
+
+  await share.getByRole("button", { name: "Email", exact: true }).click();
+  await expect(share.getByText("Entre na sua conta para guardar e partilhar")).toBeVisible();
+  await expect(share.getByRole("link", { name: "Entrar →" })).toHaveAttribute(
+    "href",
+    /\/entrar\?voltar=.*rascunho/,
+  );
 });
 
 test("a listing link is read and fills the property (reader mocked)", async ({ page }) => {

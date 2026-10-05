@@ -102,7 +102,14 @@ export default async function SharedScenarioPage({
         </CardContent>
       </Card>
 
-      <SharedResults output={output} deals={data.state.deals} paramsYear={data.parametersYear} />
+      <SharedResults
+        output={output}
+        deals={state.deals}
+        state={state}
+        params={data.parameters}
+        startMonth={data.startMonth}
+        paramsYear={data.parametersYear}
+      />
     </div>
   );
 }

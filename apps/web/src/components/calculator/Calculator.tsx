@@ -25,6 +25,8 @@ import { DealStep } from "./DealStep";
 import { ListingStep } from "./ListingStep";
 import { PhotosSection } from "./PhotosSection";
 import { SaveBar } from "./SaveBar";
+import { scenarioKey, type SavedScenario } from "./saved";
+import { ShareSection } from "./ShareSection";
 import { StepCard, type StepStatus } from "./StepCard";
 
 export type Update = (patch: Partial<CalculatorState>) => void;
@@ -37,7 +39,16 @@ export interface CalculatorProps {
   rentUpdate: { value: number; date: string; source: string } | null;
   initialAreaId: number | null;
   /** A saved scenario (or restored draft) to start from instead of the defaults. */
-  initial?: { state: CalculatorState; savedId: number | null; name: string | null };
+  initial?: {
+    state: CalculatorState;
+    savedId: number | null;
+    name: string | null;
+    /**
+     * The saved scenario's share token, given only when `state` is exactly what was saved
+     * (opened from the server), so it can be shared without saving it again.
+     */
+    shareToken?: string | null;
+  };
   /** A listing link to read straight away (from the home page). */
   initialLink?: string | null;
   /** Open the property fields for manual entry straight away. */
@@ -85,10 +96,39 @@ export function Calculator({
 
   const update: Update = useCallback((patch) => setState((s) => ({ ...s, ...patch })), []);
 
+  // The scenario's name: typed by the user, or a default from the property.
+  const [name, setName] = useState<string | null>(initial?.name ?? null);
+  const shownName =
+    name ??
+    defaultScenarioName(
+      state,
+      tree,
+      (key, values) => te(key, values),
+      (type) => te(`types.${type}`),
+    );
+
+  // The saved scenario this evaluation belongs to, and whether it is saved as shown (its key is
+  // unknown when restored from a draft).
+  const currentKey = scenarioKey(shownName, state);
+  const [saved, setSaved] = useState<SavedScenario | null>(() =>
+    initial?.savedId
+      ? {
+          id: initial.savedId,
+          key: initial.shareToken !== undefined ? currentKey : null,
+          token: initial.shareToken ?? null,
+        }
+      : null,
+  );
+  const savedId = saved?.id ?? null;
+  const onSaved = useCallback((next: SavedScenario) => {
+    setSaved(next);
+    // The address opens this scenario again, without reloading the page.
+    window.history.replaceState(null, "", `?cenario=${next.id}`);
+  }, []);
+
   // Keep the evaluation in this browser as the user works, so it is still here after moving
   // around the site or signing in to save it.
-  const savedId = initial?.savedId ?? null;
-  useEffect(() => writeDraft({ state, savedId }), [state, savedId]);
+  useEffect(() => writeDraft({ state, savedId, name }), [state, savedId, name]);
 
   // Market reference and IMI rate for the chosen area.
   useEffect(() => {
@@ -265,16 +305,20 @@ export function Calculator({
                 <SaveBar
                   autoSave={autoSave}
                   state={state}
-                  savedId={initial?.savedId ?? null}
-                  defaultName={
-                    initial?.name ??
-                    defaultScenarioName(
-                      state,
-                      tree,
-                      (key, values) => te(key, values),
-                      (type) => te(`types.${type}`),
-                    )
-                  }
+                  name={shownName}
+                  onNameChange={setName}
+                  saved={saved}
+                  currentKey={currentKey}
+                  onSaved={onSaved}
+                />
+              }
+              share={
+                <ShareSection
+                  state={state}
+                  name={shownName}
+                  saved={saved}
+                  currentKey={currentKey}
+                  onSaved={onSaved}
                 />
               }
             />

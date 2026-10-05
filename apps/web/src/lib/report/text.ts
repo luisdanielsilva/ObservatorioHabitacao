@@ -8,6 +8,7 @@ export function pdfSafe(text: string): string {
     .replace(/[\u2212\u2013\u2014]/g, "-")
     .replace(/\u2248/g, "~")
     .replace(/\u2192/g, "->")
+    .replace(/\u203a/g, ">")
     .replace(/[\u201c\u201d]/g, '"')
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[^\u0000-\u00ff\u20ac]/g, "");

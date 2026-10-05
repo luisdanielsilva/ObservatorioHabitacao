@@ -1,16 +1,32 @@
 # OlhoVivo — Status
 
-Updated 2026-10-05, against [product-spec.md](product-spec.md) version 2. Known-good restore
-point: git tag `good-2026-10-04` (moved to `cfec12a` on 2026-10-05).
+Updated 2026-10-06, against [product-spec.md](product-spec.md) version 2. Known-good restore
+point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 193 unit tests (56 engine, 91 db, 46 web) and 29 end-to-end tests (Playwright, Chromium;
+Tests: 193 unit tests (56 engine, 91 db, 46 web) and 30 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-05)
+## Latest changes (2026-10-04 – 2026-10-06)
+
+**Sharing the results (2026-10-06)**
+
+- **Email, WhatsApp, Facebook Messenger and "Enviar para o email da conta"** all send a
+  read-only link to the evaluation (`/partilha/<token>`). "Ver PDF" downloads the full report.
+- **Saved first:** each option saves the evaluation as on screen (signing in if needed) and
+  turns its link on, so the link always shows what the user sees. The link stays the same
+  across saves; a note says when there are unsaved changes; it can be turned off.
+- **Channels:** email opens the mail app (`mailto:`); WhatsApp opens `wa.me` in a new tab;
+  Messenger opens the app on phones (`fb-messenger://`) and, on computers, copies the link and
+  opens messenger.com; the account email is sent by OlhoVivo (10 emails a day, shared with the
+  report emails).
+- **First save no longer reloads the page** (the address changes to `?cenario=<id>`).
+- **PDF report complete:** yearly costs per deal, the sale price and profit chart per deal and
+  the property photos (owner's PDF only; not in the PDF behind the read-only link).
+- **Read-only page** shows the sale price and profit chart too.
 
 **Avaliar anúncio, a four-step flow**
 
@@ -23,7 +39,7 @@ VPS (system libraries need sudo), so Safari is untested.
    message and the focus on the first one.
 4. **Results:** per deal headline figures; purchase costs line by line; yearly costs; the sale
    price and profit chart; the side-by-side comparison; the scenario name and save; photos;
-   sharing (mock-up).
+   sharing.
 
 **Calculation**
 
@@ -116,8 +132,8 @@ VPS (system libraries need sudo), so Safari is untested.
 | 5.3.7       | Sale-price analysis        | ✅     | Replaced the sensitivity sliders: break-even sale price and profit above it                  |
 | 6.3.1       | Favourites, saved searches | ⬜     | Tables only (Phase 3 with Comprar)                                                           |
 | 6.3.2       | Saved scenarios            | ✅     | Save, duplicate, open and delete (`/conta`); photos; draft kept in the browser               |
-| 6.3.3       | PDF report                 | 🟡     | Works from `/conta`; lacks yearly costs, the sale chart and photos                           |
-| 6.3.4       | Sharing                    | 🟡     | Evaluate page: email/WhatsApp/Messenger/PDF **mock-ups**; working sharing only on `/conta`   |
+| 6.3.3       | PDF report                 | ✅     | Yearly costs, sale chart per deal and photos (owner only); from results and `/conta`         |
+| 6.3.4       | Sharing                    | ✅     | Read-only link by email, WhatsApp, Messenger, account email; Ver PDF; also on `/conta`       |
 | 6.3.5       | Alerts engine              | ⬜     | Not started                                                                                  |
 | 6.4.1–6.4.2 | Leads, team notifications  | ✅     |                                                                                              |
 | 7.3         | Private area               | ✅     | `/conta`; data export includes photo details                                                 |
@@ -125,7 +141,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 8.6         | Analytics dashboard        | 🟡     | `logEvent` is never called: event counts stay empty                                          |
 | 9           | Content, SEO               | 🟡     | `/metodologia`; no analytics or conversion tracking                                          |
 | 10.2        | Cookie consent             | 🟡 👤  | `/cookies` page; no banner (only essential cookies and browser storage for the draft so far) |
-| 11.5        | End-to-end tests           | ✅     | 29 tests                                                                                     |
+| 11.5        | End-to-end tests           | ✅     | 30 tests                                                                                     |
 
 ## Known gaps
 
@@ -134,8 +150,9 @@ VPS (system libraries need sudo), so Safari is untested.
   home page by the owner's decision.
 - **Link reader without AI:** no `ANTHROPIC_API_KEY` yet, so only the page's structured data is
   used (Imovirtual: price, type, typology, location; often no area).
-- **Sharing on the evaluate page is a mock-up;** the PDF lacks yearly costs, the sale chart and
-  photos; photos are not on the public share page.
+- **Photos are not on the read-only page** nor in its PDF (private by default).
+- **Messenger on a computer** cannot be pre-filled without a Facebook app id: the link is copied
+  and messenger.com opened for the user to paste it.
 - **Default interest rate is an estimate** (Euribor + typical spread), lower than a real TAEG.
 - **Loan term up to 50 years,** while Banco de Portugal guidance caps new mortgages at 40.
 - **IMI uses the price when the VPT is unknown,** which overstates it (a warning is shown).
@@ -160,13 +177,12 @@ VPS (system libraries need sudo), so Safari is untested.
 
 **Development**
 
-1. Real sharing (email, WhatsApp, Messenger, PDF view/send) in place of the mock-ups.
-2. PDF: add yearly costs, the sale chart and photos; photos on the share page (opt-in).
-3. Record analytics events (`logEvent`) for searches, evaluations, saves and leads.
-4. Alerts engine (6.3.5).
-5. Remove or reuse `/api/geocode`.
-6. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
-7. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
+1. Photos on the read-only page and its PDF (opt-in by the owner).
+2. Record analytics events (`logEvent`) for searches, evaluations, saves and leads.
+3. Alerts engine (6.3.5).
+4. Remove or reuse `/api/geocode`.
+5. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
+6. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
    `packages/db/src/import/rentUpdate.ts` and run `npm run import:rents`.
 
 **On each deployment**

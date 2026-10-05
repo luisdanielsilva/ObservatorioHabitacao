@@ -6,7 +6,7 @@ import { reportLocale } from "@/lib/report/locale";
 import { pdfResponse, renderScenarioPdf, reportFilename } from "@/lib/report/render";
 import { getCurrentUser } from "@/lib/session";
 
-/** PDF report of a saved scenario, for its owner (WBS 6.3.3). */
+/** PDF report of a saved scenario, with its photos, for its owner (WBS 6.3.3). */
 export async function GET(request: Request, { params }: RouteContext<"/api/scenarios/[id]/pdf">) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "not signed in" }, { status: 401 });
@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: RouteContext<"/api/scena
   const scenario = Number.isInteger(id) ? getScenario(getDb(), id, user.id) : undefined;
   if (!scenario) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const pdf = await renderScenarioPdf(scenario, reportLocale(request));
+  const pdf = await renderScenarioPdf(scenario, reportLocale(request), { photos: true });
   if (!pdf) return NextResponse.json({ error: "cannot calculate" }, { status: 500 });
   return pdfResponse(pdf, reportFilename(scenario.name), "attachment");
 }

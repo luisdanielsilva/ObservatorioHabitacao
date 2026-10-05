@@ -1,12 +1,23 @@
 import "server-only";
-import type { ScenarioRow } from "@olhovivo/db";
+import { listPhotos, type ScenarioRow } from "@olhovivo/db";
 import type { ScenarioKind } from "@olhovivo/engine";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTranslations } from "next-intl/server";
+import sharp from "sharp";
 import type { AppLocale } from "@/i18n/routing";
+import { chosenOutcomes } from "@/lib/calculator/run";
+import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
+import { getDb } from "@/lib/db";
 import { createFormatter } from "@/lib/format";
+import { photoFilePath } from "@/lib/photos";
 import { buildReportData, type ReportData } from "./data";
-import { REPORT_METRICS, ScenarioReport, type ReportLabels } from "./Report";
+import {
+  REPORT_METRICS,
+  ScenarioReport,
+  type ReportLabels,
+  type ReportPhoto,
+  type ReportSale,
+} from "./Report";
 export { reportFilename } from "./text";
 
 /** Translated labels and value rows for a report, in `locale`. */
@@ -18,6 +29,8 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   const ta = await getTranslations({ locale, namespace: "acquisition" });
   const tw = await getTranslations({ locale, namespace: "warnings" });
   const tc = await getTranslations({ locale, namespace: "common" });
+  const tsale = await getTranslations({ locale, namespace: "sale" });
+  const tp = await getTranslations({ locale, namespace: "photos" });
   const f = createFormatter(locale);
   const { state, output } = data;
   const dateFormat = new Intl.DateTimeFormat(locale === "en" ? "en-IE" : "pt-PT", {
@@ -66,6 +79,26 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       ],
       total: ta("total"),
     },
+    annualCosts: {
+      label: te("annualCosts"),
+      items: [
+        ["imi", te("annualCostItems.imi")],
+        ["condominium", te("annualCostItems.condominium")],
+        ["insurance", te("annualCostItems.insurance")],
+      ],
+      total: ta("total"),
+    },
+    sale: {
+      title: tsale("title"),
+      breakEven: (kind) => tsale(`breakEven.${kind}`),
+      noBreakEven: tsale("noBreakEven"),
+      atExpected: (price) => tsale("atExpected", { price: f.euro(price) }),
+      help: (kind, years) => tsale(`help.${kind}`, { years }),
+      caption: tsale("chartCaption"),
+      priceLabel: (kind) => tsale(`priceLabel.${kind}`),
+      profit: tsale("profit"),
+    },
+    photos: tp("title"),
     warning: (code) => (tw.has(code as never) ? tw(code as never) : code),
     years: (n) => tm("years", { value: n }),
     rows: {
@@ -114,15 +147,62 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   };
 }
 
-/** Renders the PDF report of a saved scenario, or undefined if it cannot be calculated. */
+/**
+ * Renders the PDF report of a saved scenario, or undefined if it cannot be calculated. The
+ * property's photos are private: only in the owner's report, never in a shared one.
+ */
 export async function renderScenarioPdf(
   scenario: ScenarioRow,
   locale: AppLocale,
+  { photos = false }: { photos?: boolean } = {},
 ): Promise<Buffer | undefined> {
   const data = buildReportData(scenario);
   if (!data) return undefined;
   const labels = await reportLabels(data, locale);
-  return renderToBuffer(<ScenarioReport data={data} labels={labels} f={createFormatter(locale)} />);
+  return renderToBuffer(
+    <ScenarioReport
+      data={data}
+      labels={labels}
+      f={createFormatter(locale)}
+      sales={reportSales(data)}
+      photos={photos ? await reportPhotos(scenario) : []}
+    />,
+  );
+}
+
+/** The sale-price analysis of each chosen deal with results, as on the results page. */
+function reportSales(data: ReportData): ReportSale[] {
+  const { state, parameters, startMonth } = data;
+  return chosenOutcomes(data.output, state.deals).flatMap((o) => {
+    if (!o.result) return [];
+    const analysis = saleAnalysis(state, parameters, startMonth, o.kind);
+    if (!analysis || analysis.points.length === 0) return [];
+    const expectedProfit =
+      analysis.expected !== null
+        ? profitAtSale(state, parameters, startMonth, o.kind, analysis.expected)
+        : null;
+    return [{ kind: o.kind, analysis, expectedProfit }];
+  });
+}
+
+/** The scenario's photos as JPEG (the PDF format has no WebP), small enough for a report. */
+async function reportPhotos(scenario: ScenarioRow): Promise<ReportPhoto[]> {
+  const rows = listPhotos(getDb(), scenario.id, scenario.userId) ?? [];
+  const photos = await Promise.all(
+    rows.map(async (row): Promise<ReportPhoto | null> => {
+      try {
+        const { data, info } = await sharp(photoFilePath(scenario.id, row.fileName))
+          .resize({ width: 1000, height: 1000, fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 75 })
+          .toBuffer({ resolveWithObject: true });
+        return { data, width: info.width, height: info.height };
+      } catch (error) {
+        console.error("report photo failed", row.id, error);
+        return null;
+      }
+    }),
+  );
+  return photos.filter((p): p is ReportPhoto => p !== null);
 }
 
 export function pdfResponse(pdf: Buffer, filename: string, disposition: "inline" | "attachment") {

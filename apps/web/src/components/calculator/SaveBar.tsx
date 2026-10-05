@@ -11,49 +11,54 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useRouter } from "@/i18n/navigation";
-import { writeDraft } from "@/lib/calculator/draft";
+import { Link } from "@/i18n/navigation";
 import type { CalculatorState } from "@/lib/calculator/state";
+import { scenarioKey, type SavedScenario } from "./saved";
+
+/** Where to sign in to save, coming back to the evaluation in progress and saving it. */
+export function signInToSaveHref(locale: string) {
+  return {
+    pathname: "/entrar" as const,
+    query: { voltar: `${locale === "pt" ? "" : `/${locale}`}/avaliar?rascunho=1` },
+  };
+}
 
 /** Saves the current inputs as a scenario, or duplicates the saved one. */
 export function SaveBar({
   state,
-  savedId,
-  defaultName,
+  name,
+  onNameChange,
+  saved,
+  currentKey,
+  onSaved,
   autoSave = false,
   children,
 }: {
   /** Save as soon as the bar appears (the user signed in to save). */
   autoSave?: boolean;
   state: CalculatorState;
-  savedId: number | null;
-  defaultName: string;
+  name: string;
+  onNameChange: (name: string) => void;
+  saved: SavedScenario | null;
+  /** The current name and inputs, recorded as saved after a save. */
+  currentKey: string;
+  onSaved: (saved: SavedScenario) => void;
   children?: React.ReactNode;
 }) {
   const t = useTranslations("evaluate");
   const id = useId();
-  const router = useRouter();
   const locale = useLocale();
-  const [name, setName] = useState<string | null>(null);
   const [result, setResult] = useState<SaveResult | { status: "duplicated" } | null>(null);
   const [pending, startTransition] = useTransition();
-  const shownName = name ?? defaultName;
-
-  const go = (scenarioId: number) =>
-    router.replace(
-      { pathname: "/avaliar", query: { cenario: String(scenarioId) } },
-      { scroll: false },
-    );
+  const savedId = saved?.id ?? null;
 
   const save = () =>
     startTransition(async () => {
-      const r = await saveScenario({ id: savedId, name: shownName, state });
+      const key = currentKey;
+      const r = await saveScenario({ id: savedId, name, state });
       setResult(r);
-      // The evaluation itself is kept by the calculator; keep the name and the saved id too.
-      if (r.status === "signin") writeDraft({ state, name: shownName });
       if (r.status === "saved") {
-        writeDraft({ state, savedId: r.id, name: shownName });
-        if (r.id !== savedId) go(r.id);
+        onSaved({ id: r.id, key, token: r.id === savedId ? (saved?.token ?? null) : null });
       }
     });
 
@@ -67,14 +72,17 @@ export function SaveBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // A copy of the scenario as last saved; unsaved changes stay on screen, now for the copy.
   const duplicate = () =>
     startTransition(async () => {
       if (!savedId) return;
-      const r = await duplicateSavedScenario(savedId, `${shownName} ${t("copySuffix")}`);
+      const copyName = `${name} ${t("copySuffix")}`;
+      const r = await duplicateSavedScenario(savedId, copyName);
       if (r.status === "saved") {
         setResult({ status: "duplicated" });
-        setName(`${shownName} ${t("copySuffix")}`);
-        go(r.id);
+        onNameChange(copyName);
+        const inSync = saved?.key === currentKey;
+        onSaved({ id: r.id, key: inSync ? scenarioKey(copyName, state) : null, token: null });
       } else setResult(r);
     });
 
@@ -99,9 +107,9 @@ export function SaveBar({
           <Label htmlFor={`${id}-name`}>{t("scenarioName")}</Label>
           <Input
             id={`${id}-name`}
-            value={shownName}
+            value={name}
             maxLength={120}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => onNameChange(e.target.value)}
           />
         </div>
         <Button onClick={save} disabled={pending}>
@@ -128,13 +136,7 @@ export function SaveBar({
         {result?.status === "signin" ? (
           <>
             {t("signinToSave")}{" "}
-            <Link
-              href={{
-                pathname: "/entrar",
-                query: { voltar: `${locale === "pt" ? "" : `/${locale}`}/avaliar?rascunho=1` },
-              }}
-              className="font-medium text-primary underline"
-            >
+            <Link href={signInToSaveHref(locale)} className="font-medium text-primary underline">
               {t("save")} →
             </Link>
           </>

@@ -850,16 +850,32 @@
       "noUsers": "Nenhum utilizador encontrado."
     }
   },
-  "shareMock": {
+  "shareResults": {
     "title": "Partilhar resultados",
-    "soon": "Em breve",
-    "intro": "Envie os resultados por email, WhatsApp ou Facebook Messenger, ou gere um PDF para ver ou receber no email da sua conta. Ainda não está disponível.",
+    "intro": "Envie um link para esta simulação no OlhoVivo, só de leitura: quem o abrir vê os resultados mas não os pode alterar. Para criar o link, a simulação é guardada na sua conta tal como está.",
     "email": "Email",
     "whatsapp": "WhatsApp",
     "messenger": "Facebook Messenger",
+    "account": "Enviar para o email da conta",
     "pdf": "Relatório em PDF",
     "viewPdf": "Ver PDF",
-    "sendPdf": "Enviar para o email da conta"
+    "working": "A guardar a simulação…",
+    "link": "Link só de leitura",
+    "copy": "Copiar link",
+    "copied": "Link copiado.",
+    "linkOutdated": "Tem alterações por guardar: o link mostra a última versão guardada. Ao partilhar de novo, as alterações são guardadas.",
+    "disable": "Desativar link",
+    "disabled": "Link desativado: quem o tiver já não consegue abrir a simulação.",
+    "signin": "Entre na sua conta para guardar e partilhar esta simulação.",
+    "signinLink": "Entrar",
+    "limit": "Atingiu o limite de cenários guardados no seu plano.",
+    "emailLimit": "Atingiu o limite de 10 emails por dia.",
+    "error": "Não foi possível partilhar a simulação. Tente novamente.",
+    "sent": "Link enviado para {email}.",
+    "messageText": "Simulação de investimento imobiliário no OlhoVivo: {name}",
+    "emailSubject": "Simulação OlhoVivo: {name}",
+    "emailText": "Veja a simulação «{name}» no OlhoVivo, só de leitura:\n\n{url}\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nolhovivo.pt",
+    "messengerCopied": "Link copiado. Cole-o numa conversa do Messenger, que abriu num novo separador."
   },
   "sale": {
     "title": "Preço de venda e lucro",

@@ -850,16 +850,32 @@
       "noUsers": "No users found."
     }
   },
-  "shareMock": {
+  "shareResults": {
     "title": "Share the results",
-    "soon": "Coming soon",
-    "intro": "Send the results by email, WhatsApp or Facebook Messenger, or create a PDF to view or receive at your account's email. Not available yet.",
+    "intro": "Send a read-only link to this evaluation on OlhoVivo: whoever opens it sees the results but cannot change them. To create the link, the evaluation is saved to your account as it is.",
     "email": "Email",
     "whatsapp": "WhatsApp",
     "messenger": "Facebook Messenger",
+    "account": "Send to my account email",
     "pdf": "PDF report",
     "viewPdf": "View PDF",
-    "sendPdf": "Send to my account email"
+    "working": "Saving the evaluation…",
+    "link": "Read-only link",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "linkOutdated": "You have unsaved changes: the link shows the last saved version. Sharing again saves the changes.",
+    "disable": "Turn off link",
+    "disabled": "Link turned off: anyone who has it can no longer open the evaluation.",
+    "signin": "Sign in to save and share this evaluation.",
+    "signinLink": "Sign in",
+    "limit": "You have reached the number of saved scenarios in your plan.",
+    "emailLimit": "You have reached the limit of 10 emails per day.",
+    "error": "Could not share the evaluation. Please try again.",
+    "sent": "Link sent to {email}.",
+    "messageText": "Property investment evaluation on OlhoVivo: {name}",
+    "emailSubject": "OlhoVivo evaluation: {name}",
+    "emailText": "See the evaluation “{name}” on OlhoVivo, read-only:\n\n{url}\n\nResults are estimates and do not constitute financial or tax advice.\n\nolhovivo.pt",
+    "messengerCopied": "Link copied. Paste it into a Messenger chat, opened in a new tab."
   },
   "sale": {
     "title": "Sale price and profit",
