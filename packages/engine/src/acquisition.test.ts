@@ -56,7 +56,13 @@ describe("imt", () => {
 describe("acquisitionCosts", () => {
   it("adds taxes and fees for a financed purchase", () => {
     const costs = acquisitionCosts(
-      { price: 250_000, use: "secondary", loanAmount: 200_000 },
+      {
+        price: 250_000,
+        use: "secondary",
+        loanAmount: 200_000,
+        valuationFee: 250,
+        processingFee: 300,
+      },
       params,
     );
     expect(costs).toEqual({
@@ -64,9 +70,10 @@ describe("acquisitionCosts", () => {
       stampDutyPurchase: 2_000,
       stampDutyLoan: 1_200,
       deedAndRegistry: 700,
-      bankFees: 800,
+      valuationFee: 250,
+      processingFee: 300,
       otherCosts: 0,
-      total: 8_289.69 + 2_000 + 1_200 + 700 + 800,
+      total: 8_289.69 + 2_000 + 1_200 + 700 + 250 + 300,
       deductibleForCapitalGains: 8_289.69 + 2_000 + 700,
     });
   });
@@ -77,7 +84,8 @@ describe("acquisitionCosts", () => {
       params,
     );
     expect(costs.stampDutyLoan).toBe(0);
-    expect(costs.bankFees).toBe(0);
+    expect(costs.valuationFee).toBe(0);
+    expect(costs.processingFee).toBe(0);
     expect(costs.deedAndRegistry).toBe(500);
     expect(costs.total).toBeCloseTo(8_289.69 + 2_000 + 500 + 1_500, 2);
   });

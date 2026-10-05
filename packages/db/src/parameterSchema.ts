@@ -42,7 +42,6 @@ export const parameterSetSchema: z.ZodType<ParameterSet> = z.object({
   transactionFees: z.object({
     deedAndRegistry: amount,
     deedAndRegistryWithMortgage: amount,
-    bankFees: amount,
   }),
   financing: z.object({
     maxLtv: z.object({ hpp: rate, other: rate }),

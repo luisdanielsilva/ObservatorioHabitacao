@@ -138,14 +138,39 @@ describe("runLongTermRental", () => {
 
   it("charges only the early repayment fee and loan costs for a 0 % loan", () => {
     const financed = runLongTermRental(
-      { ...input, loan: { amount: 100_000, annualRate: 0, termYears: 10 } },
+      {
+        ...input,
+        loan: { amount: 100_000, annualRate: 0, termYears: 10 },
+        valuationFee: 250,
+        processingFee: 300,
+      },
       params,
     );
-    // Loan stamp duty 600, deed with mortgage +325, bank fees 800,
+    // Loan stamp duty 600, deed with mortgage +325, valuation 250, process opening 300,
     // early repayment fee 0.5 % × 80 000 outstanding = 400.
-    expect(financed.netProfit).toBeCloseTo(rental.netProfit! - 600 - 325 - 800 - 400, 2);
-    expect(financed.ownCapital).toBeCloseTo(BOUGHT + 600 + 325 + 800 - 100_000, 2);
+    expect(financed.netProfit).toBeCloseTo(rental.netProfit! - 600 - 325 - 550 - 400, 2);
+    expect(financed.ownCapital).toBeCloseTo(BOUGHT + 600 + 325 + 550 - 100_000, 2);
     expect(financed.monthlyCashFlow).toBeCloseTo(rental.monthlyCashFlow! - 833.33, 2);
+  });
+
+  it("charges the signing costs with a TAEG, but no stamp duty on each interest payment", () => {
+    const loan = { amount: 100_000, annualRate: 0.04, termYears: 10 };
+    const fees = { valuationFee: 250, processingFee: 300 };
+    const tan = runLongTermRental({ ...input, ...fees, loan }, params);
+    const taeg = runLongTermRental(
+      { ...input, ...fees, loan: { ...loan, rateType: "taeg" } },
+      params,
+    );
+    // Stamp duty on the loan (600), mortgage registration (+325) and fees: charged at signing.
+    expect(taeg.acquisition).toEqual(tan.acquisition);
+    expect(taeg.acquisition!.stampDutyLoan).toBe(600);
+    // The TAEG is the global rate: no 4 % stamp duty on top of the interest.
+    expect(taeg.months[1]!.debtService).toBeLessThan(tan.months[1]!.debtService);
+  });
+
+  it("reports the yearly IMI, condominium and insurance", () => {
+    // VPT 100 000 × 0.3 % = 300; condominium 50 × 12; insurance 240.
+    expect(rental.annualFixedCosts).toEqual({ imi: 300, condominium: 600, insurance: 240 });
   });
 
   it("delays rent until renovation ends and grows it yearly", () => {

@@ -6,6 +6,7 @@ import { initialState } from "./state";
 
 const params: ParameterSet = params2025;
 const state = initialState({
+  useLoan: true,
   askingPrice: 200_000,
   marketValue: 210_000,
   resaleValue: 260_000,

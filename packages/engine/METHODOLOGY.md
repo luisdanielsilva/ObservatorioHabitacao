@@ -33,8 +33,12 @@ proceeds at the assignment month.
 
 ## Financing
 
-Annuity loan, monthly rate = TAN ÷ 12. Imposto do Selo of 4 % is added to each interest
-payment. On sale, the outstanding balance is repaid plus an early repayment fee
+Annuity loan, monthly rate = annual rate ÷ 12. With a TAN (`rateType` "tan", the default),
+Imposto do Selo of 4 % is added to each interest payment. With a TAEG (`rateType` "taeg", used by
+the app as the loan's global rate), it is not. Either way, the one-off costs at signing are
+acquisition costs: stamp duty on the loan (0.6 %), the bank's valuation and process opening fees
+(inputs; the app defaults to 250 € and 300 €) and the deed and registry with mortgage. The app
+finances nothing by default; the term defaults to 30 years, up to 50. On sale, the outstanding balance is repaid plus an early repayment fee
 (default 0.5 % for variable-rate loans). A warning is raised when the loan exceeds the
 Banco de Portugal LTV limit (90 % own home, 80 % other).
 

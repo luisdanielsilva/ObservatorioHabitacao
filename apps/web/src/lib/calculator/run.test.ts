@@ -25,8 +25,14 @@ describe("runCalculator", () => {
     expect(outcome(out, "flip").missing).toEqual(["purchasePrice"]);
   });
 
-  it("uses the asking price and the most banks lend for the use by default", () => {
+  it("pays with own money by default", () => {
     const out = run({ askingPrice: 200_000, resaleValue: 260_000 });
+    expect(out.loanAmount).toBe(0);
+    expect(outcome(out, "flip").result!.acquisition!.stampDutyLoan).toBe(0);
+  });
+
+  it("with a loan, lends the most banks allow for the use by default", () => {
+    const out = run({ askingPrice: 200_000, resaleValue: 260_000, useLoan: true });
     expect(out.purchasePrice).toBe(200_000);
     expect(out.loanAmount).toBe(160_000); // 80 % for investment / second homes
     const flip = outcome(out, "flip").result!;
@@ -34,7 +40,12 @@ describe("runCalculator", () => {
     expect(flip.warnings).not.toContain("ltv_above_limit");
     expect(flip.months).toHaveLength(13); // purchase + 12 months
 
-    const home = run({ askingPrice: 200_000, resaleValue: 260_000, propertyUse: "hpp" });
+    const home = run({
+      askingPrice: 200_000,
+      resaleValue: 260_000,
+      propertyUse: "hpp",
+      useLoan: true,
+    });
     expect(home.loanAmount).toBe(180_000); // 90 % for an own permanent home
     expect(outcome(home, "flip").result!.warnings).not.toContain("ltv_above_limit");
   });
@@ -61,9 +72,8 @@ describe("runCalculator", () => {
   });
 
   it("keeps a loan amount the user entered", () => {
-    expect(run({ askingPrice: 200_000, loanAmount: 100_000, propertyUse: "hpp" }).loanAmount).toBe(
-      100_000,
-    );
+    const out = run({ askingPrice: 200_000, loanAmount: 100_000, useLoan: true });
+    expect(out.loanAmount).toBe(100_000);
   });
 
   it("runs without a loan when financing is off", () => {

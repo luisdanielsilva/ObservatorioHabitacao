@@ -71,6 +71,15 @@ export function AssumptionsSection({
         selling && field("sellingCommissionRate", t("sellingCommission"), "percent"),
       ],
     });
+    if (buying && state.useLoan) {
+      groups.push({
+        title: t("loanFees"),
+        fields: [
+          field("valuationFee", t("valuationFee"), "money", { help: t("loanFeesHelp") }),
+          field("processingFee", t("processingFee"), "money", { help: t("loanFeesHelp") }),
+        ],
+      });
+    }
   }
   if (scope === "flip") {
     groups.push({

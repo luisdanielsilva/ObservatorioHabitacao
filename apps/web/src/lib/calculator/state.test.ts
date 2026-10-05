@@ -25,7 +25,7 @@ describe("normaliseState", () => {
     const defaults = initialState();
     expect(state.askingPrice).toBeNull();
     expect(state.interestRate).toBe(defaults.interestRate);
-    expect(state.useLoan).toBe(true);
+    expect(state.useLoan).toBe(false);
     expect(state.propertyUse).toBe("secondary");
     expect(state.nightlyRate).toEqual({ high: 120, mid: null, low: null });
     expect(state.extras).toEqual(defaults.extras);

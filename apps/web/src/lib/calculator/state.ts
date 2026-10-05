@@ -66,6 +66,9 @@ export interface CalculatorState {
   // Assumptions (WBS 2.3.2 defaults, editable)
   imiRate: number;
   vpt: number | null;
+  /** Bank fees at signing, when there is a loan. */
+  valuationFee: number;
+  processingFee: number;
   // Condominium and insurance, separately for each deal.
   condominiumMonthly: number;
   insuranceAnnual: number;
@@ -100,6 +103,9 @@ export interface CalculatorState {
  * (reference rate "rent_update") is the default.
  */
 export const FALLBACK_RENT_UPDATE = 0.0224;
+/** Loan term: 30 years by default, up to 50. */
+export const DEFAULT_LOAN_TERM_YEARS = 30;
+export const MAX_LOAN_TERM_YEARS = 50;
 /** Used when no Euribor value is available. */
 export const FALLBACK_INTEREST_RATE = 0.035;
 /** Used when the municipality's IMI rate is unknown (the legal range is 0.3 %–0.45 %). */
@@ -137,10 +143,11 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     propertyUse: "secondary",
     renovationBudget: 0,
     renovationMonths: 0,
-    useLoan: true,
+    // By default the buyer pays with their own money; financing is opt-in.
+    useLoan: false,
     loanAmount: null,
     interestRate: FALLBACK_INTEREST_RATE,
-    loanTermYears: 30,
+    loanTermYears: DEFAULT_LOAN_TERM_YEARS,
     flipMonths: 12,
     rentalYears: 10,
     otherTaxableIncome: null,
@@ -150,6 +157,8 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
 
     imiRate: FALLBACK_IMI_RATE,
     vpt: null,
+    valuationFee: 250,
+    processingFee: 300,
     condominiumMonthly: 50,
     insuranceAnnual: 250,
     rentalCondominiumMonthly: 25,

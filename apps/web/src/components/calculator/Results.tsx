@@ -257,7 +257,8 @@ export function ScenarioDetails({
                   "stampDutyPurchase",
                   "stampDutyLoan",
                   "deedAndRegistry",
-                  "bankFees",
+                  "valuationFee",
+                  "processingFee",
                 ] as const
               )
                 .filter((k) => result.acquisition![k] > 0)
@@ -270,6 +271,28 @@ export function ScenarioDetails({
               <dt className="font-medium">{ta("total")}</dt>
               <dd className="text-right font-medium tabular-nums">
                 {f.euro(result.acquisition.total)}
+              </dd>
+            </dl>
+          )}
+          {result.annualFixedCosts && (
+            <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+              <dt className="col-span-2 flex items-center gap-1 font-medium">
+                {t("annualCosts")}
+                <HelpTip label={t("annualCosts")} text={t("annualCostsHelp")} />
+              </dt>
+              {(["imi", "condominium", "insurance"] as const).map((k) => (
+                <div key={k} className="contents">
+                  <dt className="text-muted-foreground">{t(`annualCostItems.${k}`)}</dt>
+                  <dd className="text-right tabular-nums">{f.euro(result.annualFixedCosts![k])}</dd>
+                </div>
+              ))}
+              <dt className="font-medium">{ta("total")}</dt>
+              <dd className="text-right font-medium tabular-nums">
+                {f.euro(
+                  result.annualFixedCosts.imi +
+                    result.annualFixedCosts.condominium +
+                    result.annualFixedCosts.insurance,
+                )}
               </dd>
             </dl>
           )}

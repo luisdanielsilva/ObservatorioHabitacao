@@ -38,8 +38,10 @@ export interface AcquisitionInput {
   loanAmount: number;
   /** Overrides the typical deed and registry fees from the parameters. */
   deedAndRegistry?: number;
-  /** Overrides the typical bank fees from the parameters. */
-  bankFees?: number;
+  /** Bank's property valuation fee, paid when there is a loan. */
+  valuationFee?: number;
+  /** Bank's process opening (dossier) fee, paid when there is a loan. */
+  processingFee?: number;
   /** Anything else the buyer pays: lawyer, inspection, intermediary. */
   otherCosts?: number;
   /** The buyer is not resident in Portugal (affects IMT on housing from 2026). */
@@ -51,7 +53,8 @@ export interface AcquisitionCosts {
   stampDutyPurchase: number;
   stampDutyLoan: number;
   deedAndRegistry: number;
-  bankFees: number;
+  valuationFee: number;
+  processingFee: number;
   otherCosts: number;
   total: number;
   /** Costs that count towards the acquisition value for capital gains (IMT, stamp duty, deed). */
@@ -71,7 +74,8 @@ export function acquisitionCosts(input: AcquisitionInput, params: ParameterSet):
     (hasLoan
       ? params.transactionFees.deedAndRegistryWithMortgage
       : params.transactionFees.deedAndRegistry);
-  const bankFees = hasLoan ? (input.bankFees ?? params.transactionFees.bankFees) : 0;
+  const valuationFee = hasLoan ? (input.valuationFee ?? 0) : 0;
+  const processingFee = hasLoan ? (input.processingFee ?? 0) : 0;
   const otherCosts = input.otherCosts ?? 0;
 
   return {
@@ -79,9 +83,17 @@ export function acquisitionCosts(input: AcquisitionInput, params: ParameterSet):
     stampDutyPurchase,
     stampDutyLoan,
     deedAndRegistry,
-    bankFees,
+    valuationFee,
+    processingFee,
     otherCosts,
-    total: imtDue + stampDutyPurchase + stampDutyLoan + deedAndRegistry + bankFees + otherCosts,
+    total:
+      imtDue +
+      stampDutyPurchase +
+      stampDutyLoan +
+      deedAndRegistry +
+      valuationFee +
+      processingFee +
+      otherCosts,
     deductibleForCapitalGains: imtDue + stampDutyPurchase + deedAndRegistry,
   };
 }

@@ -143,7 +143,8 @@ export function NumberField({
   const id = useId();
   return (
     <div className={cn("space-y-1.5", className)}>
-      <div className="flex items-center gap-1">
+      {/* Same height with or without a help icon, so fields side by side line up. */}
+      <div className="flex min-h-5 items-center gap-1">
         <FieldLabel htmlFor={id} required={input.required}>
           {label}
         </FieldLabel>
@@ -202,7 +203,8 @@ export function SelectField<T extends string | number>({
   const id = useId();
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-1">
+      {/* Same height with or without a help icon, so fields side by side line up. */}
+      <div className="flex min-h-5 items-center gap-1">
         <FieldLabel htmlFor={id} required={required}>
           {label}
         </FieldLabel>

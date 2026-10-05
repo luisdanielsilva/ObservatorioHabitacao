@@ -60,8 +60,6 @@ export interface ParameterSet {
     deedAndRegistry: number;
     /** Deed and registry including the mortgage. */
     deedAndRegistryWithMortgage: number;
-    /** Bank appraisal and processing fees. */
-    bankFees: number;
   };
 
   financing: {

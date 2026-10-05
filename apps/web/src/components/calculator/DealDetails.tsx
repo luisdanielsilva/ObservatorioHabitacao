@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { HelpTip } from "@/components/shared/HelpTip";
 import { buysProperty, detailsPanels, type DetailsPanel } from "@/lib/calculator/flow";
 import { permanentRentalYears, type MissingField } from "@/lib/calculator/run";
-import type { CalculatorState } from "@/lib/calculator/state";
+import {
+  DEFAULT_LOAN_TERM_YEARS,
+  MAX_LOAN_TERM_YEARS,
+  type CalculatorState,
+} from "@/lib/calculator/state";
 import { englobamentoThreshold } from "@/lib/calculator/tax";
 import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
@@ -334,7 +338,15 @@ function Financing({
             kind="number"
             suffix={t("yearsShort")}
             value={state.loanTermYears}
-            onChange={(v) => update({ loanTermYears: Math.max(1, Math.round(v ?? 30)) })}
+            help={t("loanTermHelp", { max: MAX_LOAN_TERM_YEARS })}
+            onChange={(v) =>
+              update({
+                loanTermYears: Math.min(
+                  MAX_LOAN_TERM_YEARS,
+                  Math.max(1, Math.round(v ?? DEFAULT_LOAN_TERM_YEARS)),
+                ),
+              })
+            }
             locale={locale}
           />
         </div>

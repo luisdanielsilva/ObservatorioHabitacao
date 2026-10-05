@@ -33,6 +33,7 @@ test("one deal: long-term rental, results and adding a strategy", async ({ page 
 
   // A loan above the limit triggers a warning in the deal's details.
   await step(page, "Detalhes do negócio").getByRole("button", { name: "Alterar" }).click();
+  await page.getByRole("switch", { name: "Com crédito habitação" }).click();
   await field(page, "Montante do empréstimo").fill("390000");
   await nextPanel(page);
   await showResults(page);
@@ -121,6 +122,12 @@ test("the property use sets the default loan (90 % own home, 80 % otherwise)", a
   await fillPropertyByHand(page);
   await chooseDeals(page, "Compra e revenda");
   const loan = field(page, "Montante do empréstimo");
+  // No financing by default: the buyer pays with their own money.
+  await expect(loan).toHaveCount(0);
+  await expect(
+    page.getByText(/financiam até 80% do valor \(entrada mínima de 20%\)/),
+  ).toBeVisible();
+  await page.getByRole("switch", { name: "Com crédito habitação" }).click();
   await expect(loan).toHaveAttribute("placeholder", "320000");
   await expect(
     page.getByText(/financiam até 80% do valor \(entrada mínima de 20%\)/),
@@ -177,6 +184,7 @@ test("sensitivity analysis responds to the slider", async ({ page }) => {
   await page.goto("/avaliar");
   await fillPropertyByHand(page);
   await chooseDeals(page, "Arrendamento de longa duração");
+  await page.getByRole("switch", { name: "Com crédito habitação" }).click();
   await nextPanel(page);
   await fillRental(page);
   await showResults(page);
@@ -271,4 +279,61 @@ test("long-term rental: kept for good, consecutive leases, legal rent update", a
   await expect(
     step(page, "Resultados").getByText(/sem venda: cash flow acumulado em 30 anos/),
   ).toBeVisible();
+});
+
+test("financing: off by default, TAEG rate, term up to 50 years, fields aligned", async ({
+  page,
+}) => {
+  await page.goto("/avaliar");
+  await fillPropertyByHand(page);
+  await chooseDeals(page, "Arrendamento de longa duração");
+  const loanSwitch = page.getByRole("switch", { name: "Com crédito habitação" });
+  await expect(loanSwitch).toHaveAttribute("aria-checked", "false");
+  await loanSwitch.click();
+
+  const rate = field(page, "Taxa de juro (TAEG)");
+  const term = field(page, "Prazo");
+  await expect(rate).toBeVisible();
+  await expect(term).toHaveValue("30");
+  await term.fill("60");
+  await term.blur();
+  await expect(term).toHaveValue("50");
+
+  // The three loan inputs start at the same height.
+  const tops = await Promise.all(
+    [field(page, "Montante do empréstimo"), rate, term].map(
+      async (f) => (await f.boundingBox())!.y,
+    ),
+  );
+  expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(1);
+});
+
+test("purchase costs, loan charges and yearly IMI are shown", async ({ page }) => {
+  await page.goto("/avaliar");
+  await fillPropertyByHand(page);
+  await chooseDeals(page, "Arrendamento de longa duração");
+  await page.getByRole("switch", { name: "Com crédito habitação" }).click();
+  // The note on the TAEG: loan charges are added separately at purchase.
+  await page.getByRole("button", { name: /Taxa de juro \(TAEG\)/ }).click();
+  await expect(page.getByText(/são somados à parte, na compra/)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await nextPanel(page);
+  await fillRental(page);
+  await showResults(page);
+
+  const details = step(page, "Resultados").locator("details").first();
+  for (const item of [
+    "IMT",
+    "Imposto do Selo (compra)",
+    "Imposto do Selo (crédito)",
+    "Casa Pronta (escritura e registo)",
+    "Avaliação do imóvel (banco)",
+    "Abertura de processo (banco)",
+  ]) {
+    await expect(details.getByText(item, { exact: true })).toBeVisible();
+  }
+  // Recurring yearly costs, IMI first.
+  await expect(details.getByText("Custos anuais")).toBeVisible();
+  await expect(details.getByText("IMI", { exact: true })).toBeVisible();
+  await expect(details.getByText("Seguro multirriscos", { exact: true })).toBeVisible();
 });

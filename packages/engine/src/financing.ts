@@ -1,9 +1,15 @@
 /** A fixed-payment (annuity) mortgage, the standard in Portugal. */
 export interface Loan {
   amount: number;
-  /** Nominal annual rate (TAN), e.g. Euribor + spread. */
+  /** Annual rate: nominal (TAN, e.g. Euribor + spread) or TAEG, see `rateType`. */
   annualRate: number;
   termYears: number;
+  /**
+   * "taeg": the rate is the loan's global rate, so no stamp duty is added to each interest
+   * payment. One-off costs at signing (stamp duty on the loan, valuation and process opening
+   * fees, mortgage registration) are still acquisition costs. Defaults to "tan".
+   */
+  rateType?: "tan" | "taeg";
 }
 
 export interface LoanMonth {

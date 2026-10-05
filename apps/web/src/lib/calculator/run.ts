@@ -92,11 +92,19 @@ export function runCalculator(
     renovationMonths: state.renovationMonths,
     loan:
       loanAmount > 0
-        ? { amount: loanAmount, annualRate: state.interestRate, termYears: state.loanTermYears }
+        ? {
+            amount: loanAmount,
+            // The user enters the TAEG: the loan's costs are included in the rate.
+            annualRate: state.interestRate,
+            termYears: state.loanTermYears,
+            rateType: "taeg",
+          }
         : null,
     holdingMonths,
     exitPrice,
     sellingCommissionRate: state.sellingCommissionRate,
+    valuationFee: state.valuationFee,
+    processingFee: state.processingFee,
     otherTaxableIncome: state.otherTaxableIncome ?? 0,
     buyerNonResident: state.buyerNonResident,
     ...costs,

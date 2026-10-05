@@ -19,7 +19,9 @@ export interface PropertyInputs {
   imiRate: number;
   /** Overrides for typical transaction fees, plus any other buying costs. */
   deedAndRegistry?: number;
-  bankFees?: number;
+  /** Bank's valuation and process opening fees, paid at purchase when there is a loan. */
+  valuationFee?: number;
+  processingFee?: number;
   otherAcquisitionCosts?: number;
 
   renovationBudget: number;
@@ -132,14 +134,33 @@ export interface ScenarioResult {
   paybackYears: number | null;
   /** Contract assignment only: net profit ÷ deposit (sinal). */
   returnOnDeposit: number | null;
+  /** Recurring yearly costs of owning the property; null when it is not bought. */
+  annualFixedCosts: AnnualFixedCosts | null;
 
   months: MonthLine[];
 }
 
+export interface AnnualFixedCosts {
+  /** IMI: VPT (or the price when unknown) × the municipal rate, every year. */
+  imi: number;
+  condominium: number;
+  insurance: number;
+}
+
+/** What the owner pays every year: IMI, condominium and insurance. */
+export function annualFixedCosts(input: PropertyInputs): AnnualFixedCosts {
+  const vpt = input.vpt ?? input.purchasePrice;
+  return {
+    imi: vpt * input.imiRate,
+    condominium: input.condominiumMonthly * 12,
+    insurance: input.insuranceAnnual,
+  };
+}
+
 /** Annual IMI, condominium and insurance spread per month. */
 export function fixedCostsMonthly(input: PropertyInputs): number {
-  const vpt = input.vpt ?? input.purchasePrice;
-  return (vpt * input.imiRate) / 12 + input.condominiumMonthly + input.insuranceAnnual / 12;
+  const { imi, condominium, insurance } = annualFixedCosts(input);
+  return (imi + condominium + insurance) / 12;
 }
 
 export interface SimulationSpec {
@@ -161,6 +182,7 @@ export interface SimulationSpec {
 export interface Simulation {
   /** True when the property is not sold at the end (exitPrice null). */
   kept: boolean;
+  annualFixedCosts: AnnualFixedCosts;
   acquisition: AcquisitionCosts;
   totalInvestment: number;
   ownCapital: number;
@@ -203,7 +225,8 @@ export function simulate(spec: SimulationSpec): Simulation {
       vpt: input.vpt,
       loanAmount,
       deedAndRegistry: input.deedAndRegistry,
-      bankFees: input.bankFees,
+      valuationFee: input.valuationFee,
+      processingFee: input.processingFee,
       otherCosts: input.otherAcquisitionCosts,
       nonResident: input.buyerNonResident,
     },
@@ -222,7 +245,12 @@ export function simulate(spec: SimulationSpec): Simulation {
 
   const stabilisedEnd = renovationMonths + 12;
   const schedule: LoanMonth[] = loan
-    ? amortize(loan, Math.max(holding, stabilisedEnd), params.stampDuty.interestRate)
+    ? amortize(
+        loan,
+        Math.max(holding, stabilisedEnd),
+        // A TAEG already includes the stamp duty on interest.
+        loan.rateType === "taeg" ? 0 : params.stampDuty.interestRate,
+      )
     : [];
   const debtService = (m: number) => {
     const l = schedule[m - 1];
@@ -303,6 +331,7 @@ export function simulate(spec: SimulationSpec): Simulation {
 
   return {
     kept: input.exitPrice === null,
+    annualFixedCosts: annualFixedCosts(input),
     acquisition,
     totalInvestment,
     ownCapital: totalInvestment - loanAmount,
@@ -372,6 +401,7 @@ export function summarise(
     lifetimeCashFlow,
     paybackYears,
     returnOnDeposit: null,
+    annualFixedCosts: sim.annualFixedCosts,
     months: sim.months,
   };
 }
