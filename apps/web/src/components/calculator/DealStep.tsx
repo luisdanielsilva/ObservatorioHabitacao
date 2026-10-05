@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { SCENARIO_KINDS } from "@/lib/calculator/run";
 import { normaliseDeals } from "@/lib/calculator/state";
 import { cn } from "@/lib/utils";
-import { SCENARIO_COLORS } from "./CashFlowChart";
+import { SCENARIO_COLORS } from "./colors";
 import { MissingAlert } from "./fields";
 
 /** Step 2: one or more deals to evaluate; their details are then filled in one after another. */

@@ -16,9 +16,10 @@ import {
 import type { CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
-import { CashFlowChart, SCENARIO_COLORS } from "./CashFlowChart";
+import { SCENARIO_COLORS } from "./colors";
 import { formatMetric, METRICS, Results, ScenarioDetails, type MetricKey } from "./Results";
-import { Sensitivity } from "./Sensitivity";
+import { SaleChart } from "./SaleChart";
+import { ShareMock } from "./ShareMock";
 
 /** The indicators that matter most for each deal, in order. */
 const HEADLINE: Record<ScenarioKind, MetricKey[]> = {
@@ -58,6 +59,7 @@ export function DealResults({
   params,
   startMonth,
   onAddDeal,
+  saveBar,
 }: {
   deals: ScenarioKind[];
   output: CalculatorOutput | null;
@@ -66,6 +68,8 @@ export function DealResults({
   startMonth: number;
   /** Adds a strategy to the chosen deals and opens its details. */
   onAddDeal: (kind: ScenarioKind) => void;
+  /** The scenario's name and save button, shown after the comparison. */
+  saveBar: React.ReactNode;
 }) {
   const t = useTranslations("evaluate");
   const f = useFormat();
@@ -154,15 +158,21 @@ export function DealResults({
             <DealOutcome
               outcome={outcomes.find((o) => o.kind === shown)!}
               rentalYears={permanentRentalYears(state)}
+              sale={
+                <SaleChart deal={shown} state={state} params={params} startMonth={startMonth} />
+              }
             />
           </div>
         </div>
       ) : (
-        <DealOutcome outcome={outcomes[0]!} rentalYears={permanentRentalYears(state)} />
+        <DealOutcome
+          outcome={outcomes[0]!}
+          rentalYears={permanentRentalYears(state)}
+          sale={
+            <SaleChart deal={deals[0]!} state={state} params={params} startMonth={startMonth} />
+          }
+        />
       )}
-
-      {/* Open to everyone during the beta; see entitlementsFor in lib/entitlements. */}
-      <Sensitivity state={state} params={params} startMonth={startMonth} enabled only={deals} />
 
       {deals.length < 4 && (
         <div className="space-y-4 rounded-lg border p-4">
@@ -188,22 +198,29 @@ export function DealResults({
         </div>
       )}
 
+      {/* The scenario (name and save), then sharing, after the comparison. */}
+      {saveBar}
+      <ShareMock />
+
       <p className="text-xs text-muted-foreground">
-        {params && t("parameters", { year: params.year })} {t("saveSoon")}
+        {params && t("parameters", { year: params.year })}
       </p>
       <Disclaimer />
     </>
   );
 }
 
-/** One deal's headline figures, cash flow, costs and warnings. */
+/** One deal's headline figures, costs and warnings, and what its sale must bring in. */
 function DealOutcome({
   outcome,
   rentalYears,
+  sale,
 }: {
   outcome: ScenarioOutcome;
   /** Years over which a long-term rental's profit and IRR are measured. */
   rentalYears: number;
+  /** The break-even sale chart. */
+  sale: React.ReactNode;
 }) {
   const t = useTranslations("evaluate");
   const tm = useTranslations("metrics");
@@ -245,8 +262,8 @@ function DealOutcome({
           );
         })}
       </dl>
-      <CashFlowChart outcomes={[outcome]} />
       <ScenarioDetails outcomes={[outcome]} defaultOpen />
+      {sale}
     </div>
   );
 }

@@ -49,7 +49,7 @@ added later if ML training (automatic estimates, Phase 4) needs it.
    browser. Admins come from `ADMIN_EMAILS`. Transactional email goes through Resend's HTTP API
    (`RESEND_API_KEY`); without a key, emails are written to the server log (development).
 8. **Freemium by entitlements.** `src/lib/entitlements.ts` lists what each plan includes
-   (saved-scenario limit, PDF, sensitivity, alerts). Limits only apply with `ENFORCE_PLANS=true`;
+   (saved-scenario limit, PDF, sale-price analysis, alerts). Limits only apply with `ENFORCE_PLANS=true`;
    during the beta everything is open.
 
 ## Data flow for Avaliar anúncio

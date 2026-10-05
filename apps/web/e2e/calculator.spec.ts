@@ -180,24 +180,38 @@ test("contract position sale on its own", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("sensitivity analysis responds to the slider", async ({ page }) => {
+test("sale chart: lowest price without a loss, and profit above it", async ({ page }) => {
   await page.goto("/avaliar");
   await fillPropertyByHand(page);
-  await chooseDeals(page, "Arrendamento de longa duração");
-  await page.getByRole("switch", { name: "Com crédito habitação" }).click();
+  await chooseDeals(page, "Compra e revenda");
   await nextPanel(page);
-  await fillRental(page);
+  await field(page, "Preço de venda após obras").fill("480000");
   await showResults(page);
-  const panel = page.getByRole("region", { name: "Análise de sensibilidade" });
-  await panel.getByRole("radio", { name: "Juro" }).click();
-  await panel
-    .getByRole("combobox", { name: "Indicador", exact: true })
-    .selectOption({ label: "Cash flow mensal" });
-  await panel.getByRole("slider").fill("0.02");
-  await expect(panel.locator("output")).toContainText("+2");
-  const rental = panel.getByRole("row", { name: /Arrendamento/ });
-  // Higher interest → lower cash flow: the difference is negative.
-  await expect(rental.getByRole("cell").last()).toHaveText(/^−/);
+
+  const results = step(page, "Resultados");
+  await expect(results.getByText("Saldo acumulado ao longo do tempo")).toHaveCount(0);
+  const sale = results.getByRole("region", { name: "Preço de venda e lucro" });
+  await expect(sale.getByText("Preço mínimo de venda sem prejuízo")).toBeVisible();
+  // 400 000 bought: with costs and taxes, breaking even needs a higher sale price.
+  const breakEven = sale.getByText("Preço mínimo de venda sem prejuízo").locator("+ dd");
+  await expect(breakEven).toHaveText(/^4\d\d\s\d{3}\s€$/);
+
+  // Moving the slider up raises the profit read out next to it.
+  const slider = sale.getByRole("slider", { name: "Preço de venda" });
+  const output = sale.locator("output");
+  await slider.press("Home");
+  const atMin = await output.textContent();
+  await slider.press("End");
+  await expect(output).not.toHaveText(atMin!);
+
+  // Sharing comes after the scenario's name and save, as mock-ups that do nothing yet.
+  const share = results.getByRole("region", { name: "Partilhar resultados" });
+  for (const name of ["Email", "WhatsApp", "Facebook Messenger", "Ver PDF"]) {
+    await expect(share.getByRole("button", { name, exact: true })).toBeDisabled();
+  }
+  const saveBox = await results.getByRole("button", { name: "Guardar", exact: true }).boundingBox();
+  const shareBox = await share.boundingBox();
+  expect(shareBox!.y).toBeGreaterThan(saveBox!.y);
 });
 
 test("a listing link is read and fills the property (reader mocked)", async ({ page }) => {

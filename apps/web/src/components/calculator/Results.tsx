@@ -11,7 +11,7 @@ import type { CalculatorOutput, ScenarioOutcome } from "@/lib/calculator/run";
 import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
-import { CashFlowChart, SCENARIO_COLORS } from "./CashFlowChart";
+import { SCENARIO_COLORS } from "./colors";
 
 export type MetricKey =
   | "totalInvestment"
@@ -179,8 +179,6 @@ export function Results({
           </tbody>
         </table>
       </div>
-
-      <CashFlowChart outcomes={output.outcomes} />
 
       {showDetails && <ScenarioDetails outcomes={output.outcomes} />}
     </section>

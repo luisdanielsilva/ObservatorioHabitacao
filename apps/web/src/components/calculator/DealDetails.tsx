@@ -20,7 +20,7 @@ import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import { AssumptionsSection } from "./AssumptionsSection";
 import type { Update } from "./Calculator";
-import { SCENARIO_COLORS } from "./CashFlowChart";
+import { SCENARIO_COLORS } from "./colors";
 import {
   focusFirstInvalid,
   MissingAlert,

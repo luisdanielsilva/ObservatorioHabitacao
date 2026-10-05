@@ -170,31 +170,6 @@
     ],
     "contactsLink": "Contactos"
   },
-  "sensitivity": {
-    "title": "Análise de sensibilidade",
-    "intro": "Veja como os resultados mudam se o preço, a renda, a ocupação ou a taxa de juro forem diferentes do previsto. Todos os cenários são recalculados.",
-    "variable": "Variável",
-    "variables": {
-      "price": "Preço",
-      "rent": "Renda",
-      "occupancy": "Ocupação",
-      "interest": "Juro"
-    },
-    "variableLong": {
-      "price": "Variação do preço de compra",
-      "rent": "Variação da renda e do preço por noite",
-      "occupancy": "Variação da ocupação (pontos percentuais)",
-      "interest": "Variação da taxa de juro (pontos percentuais)"
-    },
-    "metric": "Indicador",
-    "scenario": "Cenário",
-    "base": "Atual",
-    "change": "Diferença",
-    "tableCaption": "Indicador escolhido em cada cenário, atual e com a variação",
-    "chartTitle": "Indicador escolhido ao longo de toda a variação",
-    "noResults": "Introduza os valores de mercado para ver a análise de sensibilidade.",
-    "premium": "A análise de sensibilidade está incluída no plano Premium."
-  },
   "metrics": {
     "totalInvestment": "Investimento total",
     "totalInvestmentHelp": "Preço de compra mais custos de aquisição, obras, mobiliário e licenças.",
@@ -398,12 +373,8 @@
       "cessao": "preço no CPCV, sinal e preço da cessão"
     },
     "notViable": "Não viável",
-    "chartTitle": "Saldo acumulado ao longo do tempo",
-    "chartHelp": "Quanto dinheiro tem investido (abaixo de zero) ou já recuperou (acima de zero), mês a mês.",
-    "chartMonth": "Mês {month}",
     "details": "Detalhes",
     "warningsTitle": "Alertas",
-    "saveSoon": "Guarde o cenário para o exportar em PDF, enviar por email ou partilhar.",
     "parameters": "Parâmetros fiscais de {year} (por verificar por um contabilista).",
     "noParameters": "Não existem parâmetros fiscais ativos. O cálculo não está disponível.",
     "metric": "Indicador",
@@ -877,5 +848,42 @@
       "ownRole": "Não pode retirar a sua própria função de administrador.",
       "noUsers": "Nenhum utilizador encontrado."
     }
+  },
+  "shareMock": {
+    "title": "Partilhar resultados",
+    "soon": "Em breve",
+    "intro": "Envie os resultados por email, WhatsApp ou Facebook Messenger, ou gere um PDF para ver ou receber no email da sua conta. Ainda não está disponível.",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "messenger": "Facebook Messenger",
+    "pdf": "Relatório em PDF",
+    "viewPdf": "Ver PDF",
+    "sendPdf": "Enviar para o email da conta"
+  },
+  "sale": {
+    "title": "Preço de venda e lucro",
+    "help": {
+      "flip": "O preço de venda mais baixo sem prejuízo, depois de todos os custos de compra, obras, encargos durante a detenção, comissão de venda e impostos. Acima desse preço, o gráfico mostra quanto ganha.",
+      "shortTermRental": "O preço mais baixo a que pode vender o imóvel no fim do período de alojamento local sem prejuízo, contando com o que o AL rendeu. Acima desse preço, o gráfico mostra quanto ganha.",
+      "longTermRental": "O arrendamento é permanente; aqui supõe-se uma venda ao fim de {years} anos. Mostra o preço mais baixo sem prejuízo, contando com as rendas recebidas, e quanto ganha acima dele.",
+      "contractAssignment": "O preço da cessão mais baixo sem prejuízo, depois do sinal, da comissão, de outros custos e dos impostos. Acima desse preço, o gráfico mostra quanto ganha."
+    },
+    "breakEven": {
+      "flip": "Preço mínimo de venda sem prejuízo",
+      "shortTermRental": "Preço mínimo de venda no fim do AL",
+      "longTermRental": "Preço mínimo de venda sem prejuízo",
+      "contractAssignment": "Preço mínimo da cessão sem prejuízo"
+    },
+    "noBreakEven": "Sem prejuízo a qualquer preço",
+    "atExpected": "Lucro ao preço que indicou ({price})",
+    "priceLabel": {
+      "flip": "Preço de venda",
+      "shortTermRental": "Preço de venda",
+      "longTermRental": "Preço de venda",
+      "contractAssignment": "Preço da cessão"
+    },
+    "profit": "lucro",
+    "chartCaption": "Lucro líquido em função do preço de venda, a partir do preço mínimo sem prejuízo.",
+    "chartAlt": "Lucro líquido entre {profitFrom} e {profitTo} para preços de venda de {from} a {to}."
   }
 }

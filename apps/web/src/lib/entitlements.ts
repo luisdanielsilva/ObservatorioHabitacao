@@ -7,16 +7,16 @@ export type Plan = "free" | "premium";
 export interface Entitlements {
   maxSavedScenarios: number;
   pdfReports: boolean;
-  sensitivityAnalysis: boolean;
+  saleAnalysis: boolean;
   yieldAlerts: boolean;
 }
 
 const PLANS: Record<Plan, Entitlements> = {
-  free: { maxSavedScenarios: 3, pdfReports: false, sensitivityAnalysis: false, yieldAlerts: false },
+  free: { maxSavedScenarios: 3, pdfReports: false, saleAnalysis: false, yieldAlerts: false },
   premium: {
     maxSavedScenarios: Number.POSITIVE_INFINITY,
     pdfReports: true,
-    sensitivityAnalysis: true,
+    saleAnalysis: true,
     yieldAlerts: true,
   },
 };

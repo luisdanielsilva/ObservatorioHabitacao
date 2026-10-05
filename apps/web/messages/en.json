@@ -170,31 +170,6 @@
     ],
     "contactsLink": "Contacts"
   },
-  "sensitivity": {
-    "title": "Sensitivity analysis",
-    "intro": "See how results change if the price, rent, occupancy or interest rate turn out different from what you expect. Every scenario is recalculated.",
-    "variable": "Variable",
-    "variables": {
-      "price": "Price",
-      "rent": "Rent",
-      "occupancy": "Occupancy",
-      "interest": "Interest"
-    },
-    "variableLong": {
-      "price": "Change in purchase price",
-      "rent": "Change in rent and nightly rate",
-      "occupancy": "Change in occupancy (percentage points)",
-      "interest": "Change in interest rate (percentage points)"
-    },
-    "metric": "Metric",
-    "scenario": "Scenario",
-    "base": "Current",
-    "change": "Difference",
-    "tableCaption": "Chosen metric for each scenario, current and with the change",
-    "chartTitle": "Chosen metric across the whole range",
-    "noResults": "Enter the market values to see the sensitivity analysis.",
-    "premium": "Sensitivity analysis is included in the Premium plan."
-  },
   "metrics": {
     "totalInvestment": "Total investment",
     "totalInvestmentHelp": "Purchase price plus acquisition costs, renovation, furnishing and licences.",
@@ -398,12 +373,8 @@
       "cessao": "CPCV price, deposit and assignment price"
     },
     "notViable": "Not viable",
-    "chartTitle": "Cumulative balance over time",
-    "chartHelp": "How much money you have in (below zero) or have recovered (above zero), month by month.",
-    "chartMonth": "Month {month}",
     "details": "Details",
     "warningsTitle": "Warnings",
-    "saveSoon": "Save the scenario to export it to PDF, email it or share it.",
     "parameters": "{year} tax parameters (pending review by an accountant).",
     "noParameters": "No active tax parameters. Calculations are unavailable.",
     "metric": "Metric",
@@ -877,5 +848,42 @@
       "ownRole": "You cannot remove your own admin role.",
       "noUsers": "No users found."
     }
+  },
+  "shareMock": {
+    "title": "Share the results",
+    "soon": "Coming soon",
+    "intro": "Send the results by email, WhatsApp or Facebook Messenger, or create a PDF to view or receive at your account's email. Not available yet.",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "messenger": "Facebook Messenger",
+    "pdf": "PDF report",
+    "viewPdf": "View PDF",
+    "sendPdf": "Send to my account email"
+  },
+  "sale": {
+    "title": "Sale price and profit",
+    "help": {
+      "flip": "The lowest sale price without a loss, after all purchase costs, works, holding costs, selling commission and taxes. Above it, the chart shows how much you earn.",
+      "shortTermRental": "The lowest price you can sell for at the end of the short-term rental period without a loss, counting what the rental earned. Above it, the chart shows how much you earn.",
+      "longTermRental": "The rental is kept for good; here a sale after {years} years is assumed. It shows the lowest price without a loss, counting the rent received, and how much you earn above it.",
+      "contractAssignment": "The lowest assignment price without a loss, after the deposit, commission, other costs and taxes. Above it, the chart shows how much you earn."
+    },
+    "breakEven": {
+      "flip": "Lowest sale price without a loss",
+      "shortTermRental": "Lowest sale price at the end of the rental",
+      "longTermRental": "Lowest sale price without a loss",
+      "contractAssignment": "Lowest assignment price without a loss"
+    },
+    "noBreakEven": "No loss at any price",
+    "atExpected": "Profit at the price you entered ({price})",
+    "priceLabel": {
+      "flip": "Sale price",
+      "shortTermRental": "Sale price",
+      "longTermRental": "Sale price",
+      "contractAssignment": "Assignment price"
+    },
+    "profit": "profit",
+    "chartCaption": "Net profit by sale price, from the lowest price without a loss.",
+    "chartAlt": "Net profit from {profitFrom} to {profitTo} for sale prices from {from} to {to}."
   }
 }

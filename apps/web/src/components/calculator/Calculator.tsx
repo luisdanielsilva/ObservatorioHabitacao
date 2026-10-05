@@ -224,19 +224,6 @@ export function Calculator({
       >
         {deals.length > 0 && (
           <>
-            <SaveBar
-              state={state}
-              savedId={initial?.savedId ?? null}
-              defaultName={
-                initial?.name ??
-                defaultScenarioName(
-                  state,
-                  tree,
-                  (key, values) => te(key, values),
-                  (type) => te(`types.${type}`),
-                )
-              }
-            />
             <DealResults
               deals={deals}
               output={output}
@@ -244,6 +231,21 @@ export function Calculator({
               params={params}
               startMonth={startMonth}
               onAddDeal={addDeal}
+              saveBar={
+                <SaveBar
+                  state={state}
+                  savedId={initial?.savedId ?? null}
+                  defaultName={
+                    initial?.name ??
+                    defaultScenarioName(
+                      state,
+                      tree,
+                      (key, values) => te(key, values),
+                      (type) => te(`types.${type}`),
+                    )
+                  }
+                />
+              }
             />
           </>
         )}

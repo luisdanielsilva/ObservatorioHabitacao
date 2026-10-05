@@ -60,6 +60,16 @@ export function effectiveLoanAmount(
 
 const isSet = (v: number | null): v is number => v !== null && Number.isFinite(v) && v > 0;
 
+export interface RunOptions {
+  /** Run only this deal. */
+  only?: ScenarioKind;
+  /**
+   * Sell at this price instead of the expected one: the resale price, the short-term rental's
+   * exit, the assignment price, or a sale of the long-term rental at the end of its horizon.
+   */
+  salePrice?: number;
+}
+
 /**
  * Runs the four scenarios from the calculator state. A scenario whose required market
  * values are missing is reported with the missing fields instead of a result.
@@ -70,7 +80,10 @@ export function runCalculator(
   state: CalculatorState,
   params: ParameterSet,
   startMonth: number,
+  options: RunOptions = {},
 ): CalculatorOutput {
+  const want = (kind: ScenarioKind) => !options.only || options.only === kind;
+  const salePrice = options.salePrice;
   const purchasePrice = isSet(state.purchasePrice)
     ? state.purchasePrice
     : isSet(state.askingPrice)
@@ -122,11 +135,9 @@ export function runCalculator(
     fields.filter((f): f is MissingField => f !== false);
 
   // Fix & flip
-  {
-    const m = missing(
-      !purchasePrice && "purchasePrice",
-      !isSet(state.resaleValue) && "resaleValue",
-    );
+  if (want("flip")) {
+    const resale = salePrice ?? state.resaleValue;
+    const m = missing(!purchasePrice && "purchasePrice", !isSet(resale) && "resaleValue");
     outcomes.push(
       m.length
         ? { kind: "flip", missing: m }
@@ -134,7 +145,7 @@ export function runCalculator(
             kind: "flip",
             result: runFlip(
               {
-                ...property(state.flipMonths, state.resaleValue!, {
+                ...property(state.flipMonths, resale!, {
                   condominiumMonthly: state.condominiumMonthly,
                   insuranceAnnual: state.insuranceAnnual,
                 }),
@@ -148,7 +159,7 @@ export function runCalculator(
   }
 
   // Long-term rental
-  {
+  if (want("longTermRental")) {
     const m = missing(
       !purchasePrice && "purchasePrice",
       !isSet(state.monthlyRent) && "monthlyRent",
@@ -160,8 +171,9 @@ export function runCalculator(
             kind: "longTermRental",
             result: runLongTermRental(
               {
-                // Let for good: no sale, measured over PERMANENT_RENTAL_YEARS.
-                ...property(permanentRentalYears(state) * 12, null, {
+                // Let for good: no sale, measured over PERMANENT_RENTAL_YEARS (or a sale at its
+                // end, when a sale price is asked for).
+                ...property(permanentRentalYears(state) * 12, salePrice ?? null, {
                   condominiumMonthly: state.rentalCondominiumMonthly,
                   insuranceAnnual: state.rentalInsuranceMonthly * 12,
                 }),
@@ -184,19 +196,20 @@ export function runCalculator(
   }
 
   // Short-term rental
-  {
+  if (want("shortTermRental")) {
+    const exit = salePrice ?? rentalExit;
     const seasons = [state.nightlyRate, state.occupancy].flatMap((s) => [s.high, s.mid, s.low]);
     const m = missing(
       !purchasePrice && "purchasePrice",
       !seasons.every((v) => v !== null && v >= 0) && "nightly",
-      !isSet(rentalBase) && "marketValue",
+      salePrice === undefined && !isSet(rentalBase) && "marketValue",
     );
     if (m.length) {
       outcomes.push({ kind: "shortTermRental", missing: m });
     } else {
       const result = runShortTermRental(
         {
-          ...property(rentalHoldingMonths, rentalExit, {
+          ...property(rentalHoldingMonths, exit, {
             condominiumMonthly: state.alCondominiumMonthly,
             insuranceAnnual: state.alInsuranceAnnual,
           }),
@@ -225,10 +238,11 @@ export function runCalculator(
   }
 
   // Contract assignment
-  {
+  if (want("contractAssignment")) {
     const cpcvPrice = isSet(state.cpcvPrice) ? state.cpcvPrice : purchasePrice;
+    const assignmentPrice = salePrice ?? state.assignmentPrice;
     const m = missing(
-      !(cpcvPrice && isSet(state.deposit) && isSet(state.assignmentPrice)) && "cessao",
+      !(cpcvPrice && isSet(state.deposit) && isSet(assignmentPrice)) && "cessao",
       !isSet(state.marketValue) && "marketValue",
     );
     outcomes.push(
@@ -241,7 +255,7 @@ export function runCalculator(
                 cpcvPrice: cpcvPrice!,
                 deposit: state.deposit!,
                 assignmentMonth: state.assignmentMonths,
-                assignmentPrice: state.assignmentPrice!,
+                assignmentPrice: assignmentPrice!,
                 // Today's value: no appreciation is assumed.
                 marketValueAtAssignment: state.marketValue!,
                 commissionRate: state.assignmentCommissionRate,
