@@ -6,11 +6,20 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 193 unit tests (56 engine, 91 db, 46 web) and 30 end-to-end tests (Playwright, Chromium;
+Tests: 197 unit tests (56 engine, 91 db, 50 web) and 31 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-06)
+
+**Property photos: choose before sending (2026-10-06)**
+
+- "Adicionar fotografias" works before the evaluation is saved. Picked photos are reduced in
+  the browser (at most 1600 px, WebP) and shown for review: preview, size before and after,
+  and a tick to keep or leave out each one; the panel shows what is left of the scenario's
+  30 photos / 5 MB and blocks a selection that does not fit.
+- Sending saves the evaluation first, as on screen (signing in if needed; after signing in the
+  photos have to be chosen again).
 
 **Sharing the results (2026-10-06)**
 
@@ -141,7 +150,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 8.6         | Analytics dashboard        | 🟡     | `logEvent` is never called: event counts stay empty                                          |
 | 9           | Content, SEO               | 🟡     | `/metodologia`; no analytics or conversion tracking                                          |
 | 10.2        | Cookie consent             | 🟡 👤  | `/cookies` page; no banner (only essential cookies and browser storage for the draft so far) |
-| 11.5        | End-to-end tests           | ✅     | 30 tests                                                                                     |
+| 11.5        | End-to-end tests           | ✅     | 31 tests                                                                                     |
 
 ## Known gaps
 

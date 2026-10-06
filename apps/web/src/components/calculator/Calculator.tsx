@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCcw } from "lucide-react";
+import { saveScenario, type SaveResult } from "@/app/[locale]/avaliar/actions";
 import { Button } from "@/components/ui/button";
 import { writeDraft } from "@/lib/calculator/draft";
 import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
@@ -125,6 +126,16 @@ export function Calculator({
     // The address opens this scenario again, without reloading the page.
     window.history.replaceState(null, "", `?cenario=${next.id}`);
   }, []);
+  // Saves the evaluation as on screen, unless it already is (before sharing or adding photos).
+  const ensureSaved = async (): Promise<SaveResult> => {
+    if (saved && saved.key === currentKey) return { status: "saved", id: saved.id };
+    const key = currentKey;
+    const r = await saveScenario({ id: savedId, name: shownName, state });
+    if (r.status === "saved") {
+      onSaved({ id: r.id, key, token: r.id === saved?.id ? saved.token : null });
+    }
+    return r;
+  };
 
   // Keep the evaluation in this browser as the user works, so it is still here after moving
   // around the site or signing in to save it.
@@ -300,7 +311,7 @@ export function Calculator({
               params={params}
               startMonth={startMonth}
               onAddDeal={addDeal}
-              photos={<PhotosSection scenarioId={savedId} />}
+              photos={<PhotosSection scenarioId={savedId} ensureSaved={ensureSaved} />}
               saveBar={
                 <SaveBar
                   autoSave={autoSave}
@@ -319,6 +330,7 @@ export function Calculator({
                   saved={saved}
                   currentKey={currentKey}
                   onSaved={onSaved}
+                  ensureSaved={ensureSaved}
                 />
               }
             />

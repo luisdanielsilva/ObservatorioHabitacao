@@ -15,8 +15,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
 import {
   emailScenarioLink,
-  saveScenario,
   shareScenario,
+  type SaveResult,
   type ShareResult,
 } from "@/app/[locale]/avaliar/actions";
 import { setSharing } from "@/components/share/actions";
@@ -46,6 +46,7 @@ export function ShareSection({
   saved,
   currentKey,
   onSaved,
+  ensureSaved,
 }: {
   state: CalculatorState;
   name: string;
@@ -53,6 +54,8 @@ export function ShareSection({
   /** The current name and inputs, recorded as saved after a save. */
   currentKey: string;
   onSaved: (saved: SavedScenario) => void;
+  /** Saves the evaluation as on screen, unless it already is. */
+  ensureSaved: () => Promise<SaveResult>;
 }) {
   const t = useTranslations("shareResults");
   const locale = useLocale();
@@ -113,9 +116,8 @@ export function ShareSection({
       const key = currentKey;
       const input = { id: saved?.id ?? null, name, state };
       if (action === "pdf") {
-        const r = await saveScenario(input);
+        const r = await ensureSaved();
         if (r.status !== "saved") return setMessage(failure(r.status));
-        onSaved({ id: r.id, key, token: r.id === saved?.id ? saved.token : null });
         window.location.assign(pdfUrl(r.id));
         return;
       }

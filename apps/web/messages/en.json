@@ -906,7 +906,7 @@
   "photos": {
     "title": "Property photos",
     "intro": "Up to 30 photos or 5 MB per scenario, whichever comes first.",
-    "saveFirst": "Save the scenario to add photos of the property.",
+    "saveFirst": "Choose photos of the property; sending them saves the scenario to your account.",
     "signin": "Sign in to see and add this scenario's photos.",
     "usage": "{count} of {maxCount} photos · {size} of {maxSize} MB",
     "add": "Add photos",
@@ -922,6 +922,21 @@
     "loadError": "The photos could not be loaded.",
     "deleteError": "The photo could not be deleted.",
     "alt": "Property photo {n}",
-    "delete": "Delete photo {n}"
+    "delete": "Delete photo {n}",
+    "addMore": "Choose more",
+    "preparing": "Preparing {done} of {total}…",
+    "reviewTitle": "Photos to send",
+    "reviewHelp": "Large photos were reduced to at most {max} px. Untick the ones you do not want to send.",
+    "noPreview": "No preview",
+    "select": "Send {name}",
+    "reduced": "Reduced: {from} → {to}",
+    "tooLargeFile": "Too large (20 MB maximum)",
+    "summary": "{count, plural, =0 {None selected} one {1 selected} other {# selected}} ({size}).",
+    "room": "{count} more photos and {size} fit in this scenario.",
+    "overLimit": "The selection does not fit in the scenario's limit: untick some photos.",
+    "upload": "{count, plural, =0 {Send} one {Send 1 photo} other {Send # photos}}",
+    "cancel": "Cancel",
+    "signinToUpload": "Sign in to save the scenario and send the photos. Then choose them again.",
+    "signinLink": "Sign in"
   }
 }

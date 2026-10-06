@@ -35,20 +35,28 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
   await field(page, "Preço de venda após obras").fill("480000");
   await showResults(page);
 
-  // Before saving, photos cannot be added yet.
+  // Before saving, photos can be chosen; sending them will save the scenario.
   const photos = step(page, "Resultados").getByRole("region", { name: "Fotografias do imóvel" });
-  await expect(photos.getByText(/Guarde o cenário para adicionar/)).toBeVisible();
+  await expect(photos.getByText(/ao enviá-las, o cenário é guardado/)).toBeVisible();
+  await expect(photos.getByRole("button", { name: "Adicionar fotografias" })).toBeEnabled();
 
   await saveSignedIn(page, `e2e+photos${Date.now()}@example.pt`, LOG!);
   const scenarioId = /cenario=(\d+)/.exec(page.url())![1]!;
   await expect(photos.getByText(/^0 de 30 fotografias · 0 de 5 MB$/)).toBeVisible();
 
-  // Two photos and one file that is not an image.
+  // Two photos and one file that is not an image: reviewed before they are sent.
   await photos.locator('input[type="file"]').setInputFiles([
     { name: "sala.jpg", mimeType: "image/jpeg", buffer: await jpeg("#4a8") },
     { name: "cozinha.jpg", mimeType: "image/jpeg", buffer: await jpeg("#a84") },
     { name: "notas.jpg", mimeType: "image/jpeg", buffer: Buffer.from("not an image") },
   ]);
+  const review = photos.getByRole("group", { name: "Fotografias a enviar" });
+  await expect(review.getByRole("checkbox")).toHaveCount(3);
+  await expect(review.getByText(/^Reduzida: .+ → .+\skB$/)).toHaveCount(2);
+  await expect(review.getByText("Sem pré-visualização")).toBeVisible();
+  await expect(review.getByText(/^3 selecionadas/)).toBeVisible();
+  await review.getByRole("button", { name: "Enviar 3 fotografias" }).click();
+  await expect(review).toHaveCount(0);
   await expect(
     photos.getByText(/2 fotografias adicionadas; 1 ficheiro não é uma imagem válida/),
   ).toBeVisible();
@@ -63,6 +71,17 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
   expect(Math.max(stored.width!, stored.height!)).toBeLessThanOrEqual(1600);
   expect(stored.exif).toBeUndefined();
 
+  // Choosing more, and leaving one out.
+  await photos.locator('input[type="file"]').setInputFiles([
+    { name: "quarto.jpg", mimeType: "image/jpeg", buffer: await jpeg("#48a") },
+    { name: "wc.jpg", mimeType: "image/jpeg", buffer: await jpeg("#888") },
+  ]);
+  await review.getByRole("checkbox", { name: "Enviar wc.jpg" }).click();
+  await expect(review.getByText(/^1 selecionada/)).toBeVisible();
+  await review.getByRole("button", { name: "Enviar 1 fotografia" }).click();
+  await expect(photos.getByText("1 fotografia adicionada.")).toBeVisible();
+  await expect(photos.getByRole("img")).toHaveCount(3);
+
   // Only the owner can see them.
   const src = await photos.getByRole("img").first().getAttribute("src");
   const stranger = await browser.newPage();
@@ -74,7 +93,7 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
     "latin1",
   );
   expect(pdf.startsWith("%PDF")).toBe(true);
-  expect(pdf.match(/\/Subtype \/Image/g)).toHaveLength(2);
+  expect(pdf.match(/\/Subtype \/Image/g)).toHaveLength(3);
   const popup = page.waitForEvent("popup");
   await page.context().route("https://wa.me/**", (r) => r.fulfill({ body: "WhatsApp" }));
   await step(page, "Resultados").getByRole("button", { name: "WhatsApp" }).click();
@@ -89,13 +108,13 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
 
   // Delete one; it stays deleted after a reload.
   await photos.getByRole("button", { name: "Apagar fotografia 1" }).click();
-  await expect(photos.getByRole("img")).toHaveCount(1);
+  await expect(photos.getByRole("img")).toHaveCount(2);
   await page.reload();
   await expect(
     step(page, "Resultados")
       .getByRole("region", { name: "Fotografias do imóvel" })
       .getByRole("img"),
-  ).toHaveCount(1);
+  ).toHaveCount(2);
 
   // The saved scenario can be opened from the account, and deleting it removes its photos.
   await page.getByRole("link", { name: "Os meus cenários" }).click();
@@ -106,4 +125,40 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
     .first()
     .click();
   await expect.poll(() => existsSync(path.join(PHOTOS_DIR, scenarioId))).toBe(false);
+});
+
+test("photos chosen before saving: signed out asks to sign in, signed in saves first", async ({
+  page,
+}) => {
+  const results = async () => {
+    await fillPropertyByHand(page);
+    await chooseDeals(page, "Compra e revenda");
+    await nextPanel(page);
+    await field(page, "Preço de venda após obras").fill("480000");
+    await showResults(page);
+    return step(page, "Resultados").getByRole("region", { name: "Fotografias do imóvel" });
+  };
+  const choose = (photos: Awaited<ReturnType<typeof results>>, buffer: Buffer) =>
+    photos
+      .locator('input[type="file"]')
+      .setInputFiles([{ name: "sala.jpg", mimeType: "image/jpeg", buffer }]);
+
+  await page.goto("/avaliar");
+  let photos = await results();
+  await choose(photos, await jpeg("#4a8"));
+  await photos.getByRole("button", { name: "Enviar 1 fotografia" }).click();
+  await expect(photos.getByText(/Entre na sua conta para guardar o cenário/)).toBeVisible();
+
+  // Signed in, a new evaluation: sending the photo saves it as a new scenario.
+  await saveSignedIn(page, `e2e+photos-unsaved${Date.now()}@example.pt`, LOG!);
+  const first = /cenario=(\d+)/.exec(page.url())![1]!;
+  await page.getByRole("button", { name: "Nova avaliação" }).click();
+  photos = await results();
+  await choose(photos, await jpeg("#a84"));
+  await photos.getByRole("button", { name: "Enviar 1 fotografia" }).click();
+  await expect(photos.getByText("1 fotografia adicionada.")).toBeVisible();
+  await expect(page).toHaveURL(/cenario=\d+/);
+  expect(/cenario=(\d+)/.exec(page.url())![1]).not.toBe(first);
+  await expect(photos.getByRole("img")).toHaveCount(1);
+  await expect(photos.getByText(/^1 de 30 fotografias/)).toBeVisible();
 });

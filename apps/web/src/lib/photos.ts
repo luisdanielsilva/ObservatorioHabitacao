@@ -3,6 +3,9 @@ import { randomUUID } from "node:crypto";
 import { mkdir, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { MAX_SIDE, MAX_UPLOAD_BYTES } from "@/lib/photoPrepare";
+
+export { MAX_UPLOAD_BYTES };
 
 /**
  * Property photos of saved scenarios, as files on the server's disk:
@@ -17,10 +20,7 @@ export function photosDir(): string {
 
 const scenarioDir = (scenarioId: number) => path.join(photosDir(), String(scenarioId));
 
-/** Largest file accepted before processing; the stored image is much smaller. */
-export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 const MAX_INPUT_PIXELS = 50_000_000;
-const MAX_SIDE = 1600;
 const ACCEPTED_FORMATS = new Set(["jpeg", "png", "webp", "avif", "heif"]);
 
 export class InvalidImageError extends Error {}

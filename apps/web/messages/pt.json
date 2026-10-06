@@ -906,7 +906,7 @@
   "photos": {
     "title": "Fotografias do imóvel",
     "intro": "Até 30 fotografias ou 5 MB por cenário, o que for atingido primeiro.",
-    "saveFirst": "Guarde o cenário para adicionar fotografias do imóvel.",
+    "saveFirst": "Escolha as fotografias do imóvel; ao enviá-las, o cenário é guardado na sua conta.",
     "signin": "Entre na sua conta para ver e adicionar as fotografias deste cenário.",
     "usage": "{count} de {maxCount} fotografias · {size} de {maxSize} MB",
     "add": "Adicionar fotografias",
@@ -922,6 +922,21 @@
     "loadError": "Não foi possível carregar as fotografias.",
     "deleteError": "Não foi possível apagar a fotografia.",
     "alt": "Fotografia {n} do imóvel",
-    "delete": "Apagar fotografia {n}"
+    "delete": "Apagar fotografia {n}",
+    "addMore": "Escolher mais",
+    "preparing": "A preparar {done} de {total}…",
+    "reviewTitle": "Fotografias a enviar",
+    "reviewHelp": "As fotografias grandes foram reduzidas para no máximo {max} px. Desmarque as que não quer enviar.",
+    "noPreview": "Sem pré-visualização",
+    "select": "Enviar {name}",
+    "reduced": "Reduzida: {from} → {to}",
+    "tooLargeFile": "Demasiado grande (máximo 20 MB)",
+    "summary": "{count, plural, =0 {Nenhuma selecionada} one {1 selecionada} other {# selecionadas}} ({size}).",
+    "room": "Ainda cabem {count} fotografias e {size} neste cenário.",
+    "overLimit": "A seleção não cabe no limite do cenário: desmarque algumas fotografias.",
+    "upload": "{count, plural, =0 {Enviar} one {Enviar 1 fotografia} other {Enviar # fotografias}}",
+    "cancel": "Cancelar",
+    "signinToUpload": "Entre na sua conta para guardar o cenário e enviar as fotografias. Depois, escolha-as de novo.",
+    "signinLink": "Entrar"
   }
 }
