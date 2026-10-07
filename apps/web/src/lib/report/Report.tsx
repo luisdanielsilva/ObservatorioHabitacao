@@ -1,18 +1,8 @@
 import { chosenOutcomes } from "@/lib/calculator/run";
 import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
-import {
-  Circle,
-  Document,
-  Image,
-  Line,
-  Page,
-  Polyline,
-  StyleSheet,
-  Svg,
-  Text,
-  View,
-} from "@react-pdf/renderer";
-import type { SaleAnalysis } from "@/lib/calculator/sale";
+import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { COST_ITEMS, ownershipCosts, type CostItem } from "@/lib/calculator/costs";
+import { nearStep, type SaleAnalysis } from "@/lib/calculator/sale";
 import type { Formatter } from "@/lib/format";
 import { BREAKDOWN_ROWS, cashBreakdown, type BreakdownRow } from "./breakdown";
 import type { ReportData } from "./data";
@@ -42,18 +32,24 @@ export interface ReportLabels {
   metric: { key: MetricKey; label: string }[];
   metricHeader: string;
   acquisition: { label: string; items: [keyof AcquisitionItems, string][]; total: string };
-  annualCosts: { label: string; items: [keyof AnnualCosts, string][]; total: string };
+  annualCosts: {
+    label: string;
+    items: Record<CostItem, string>;
+    total: string;
+    /** "12 meses" under a resale's column: its costs cover the months until the sale. */
+    months: (months: number) => string;
+    holdingNote: string;
+  };
   sale: {
     title: string;
     breakEven: (kind: ScenarioKind) => string;
     noBreakEven: string;
     atExpected: (price: number) => string;
     help: (kind: ScenarioKind, years: number) => string;
-    caption: string;
+    caption: (from: "breakEven" | "expected") => string;
     priceLabel: (kind: ScenarioKind) => string;
-    profit: string;
+    nearExpected: string;
   };
-  photos: string;
   breakdown: {
     title: string;
     help: string;
@@ -69,7 +65,6 @@ export interface ReportLabels {
 }
 
 type AcquisitionItems = NonNullable<ScenarioResult["acquisition"]>;
-type AnnualCosts = NonNullable<ScenarioResult["annualFixedCosts"]>;
 
 /** One deal's sale-price analysis (lib/calculator/sale), as on the results page. */
 export interface ReportSale {
@@ -182,9 +177,17 @@ const s = StyleSheet.create({
   saleFigures: { flexDirection: "row", gap: 16, marginBottom: 4 },
   saleFigure: { flex: 1, padding: 6, borderWidth: 0.5, borderColor: C.line },
   saleValue: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 2 },
-  axis: { fontSize: 7, color: C.muted },
-  photoGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 6 },
-  photo: { width: "48.5%", objectFit: "cover" },
+  stepRow: { flexDirection: "row", alignItems: "center", paddingVertical: 1.5 },
+  stepChange: { width: 30 },
+  stepPrice: { width: 175 },
+  stepNear: { fontSize: 7, fontFamily: "Helvetica", color: C.muted },
+  stepTrack: { flex: 1, height: 8, marginRight: 8 },
+  stepBar: { height: 8, backgroundColor: C.brand, minWidth: 1 },
+  stepProfit: { width: 70, textAlign: "right" },
+  photos: { marginTop: 10 },
+  mainPhoto: { width: "100%", height: 230, objectFit: "cover" },
+  thumbs: { flexDirection: "row", gap: 6, marginTop: 6 },
+  thumb: { width: 100, height: 70, objectFit: "cover" },
   disclaimer: {
     marginTop: 14,
     padding: 8,
@@ -237,7 +240,10 @@ export function ScenarioReport({
           : labels.years(Math.round(v * 10) / 10);
   const withResults = output.outcomes.filter((o) => o.result);
   const acquisition = withResults.find((o) => o.result?.acquisition)?.result?.acquisition;
-  const annual = withResults.filter((o) => o.result!.annualFixedCosts);
+  const annual = withResults.flatMap((o) => {
+    const costs = ownershipCosts(o.kind, o.result!);
+    return costs ? [{ kind: o.kind, costs }] : [];
+  });
   const warnings = [
     ...new Set(
       withResults.flatMap((o) =>
@@ -262,6 +268,22 @@ export function ScenarioReport({
 
         <Text style={s.h1}>{pdfSafe(data.name)}</Text>
         <Text style={s.muted}>{pdfSafe(labels.title)}</Text>
+
+        {photos.length > 0 && (
+          <View style={s.photos} wrap={false}>
+            {/* The main photo, then up to five more, smaller. Alt text does not apply here. */}
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image src={{ data: photos[0]!.data, format: "jpg" }} style={s.mainPhoto} />
+            {photos.length > 1 && (
+              <View style={s.thumbs}>
+                {photos.slice(1, 6).map((p, i) => (
+                  // eslint-disable-next-line jsx-a11y/alt-text
+                  <Image key={i} src={{ data: p.data, format: "jpg" }} style={s.thumb} />
+                ))}
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={s.twoCols}>
           <View style={s.col}>
@@ -303,44 +325,47 @@ export function ScenarioReport({
         <Text style={s.h2}>{pdfSafe(labels.purchase)}</Text>
         <KeyValues rows={labels.rows.purchase} />
 
-        <Text style={s.h2}>{pdfSafe(labels.results)}</Text>
-        <View style={s.table} wrap={false}>
-          <View style={s.tr}>
-            <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.metricHeader)}</Text>
-            {output.outcomes.map((o) => (
-              <Text key={o.kind} style={[s.th, s.valueCell]}>
-                {pdfSafe(labels.scenario(o.kind))}
-              </Text>
-            ))}
-          </View>
-          {output.outcomes.some((o) => o.missing) && (
+        {/* The heading stays with its table. */}
+        <View wrap={false}>
+          <Text style={s.h2}>{pdfSafe(labels.results)}</Text>
+          <View style={s.table}>
             <View style={s.tr}>
-              <Text style={[s.td, s.metricCell, s.muted]}> </Text>
+              <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.metricHeader)}</Text>
               {output.outcomes.map((o) => (
-                <Text key={o.kind} style={[s.td, s.valueCell, s.muted]}>
-                  {o.missing ? pdfSafe(labels.missing) : " "}
+                <Text key={o.kind} style={[s.th, s.valueCell]}>
+                  {pdfSafe(labels.scenario(o.kind))}
                 </Text>
               ))}
             </View>
-          )}
-          {metrics.map(({ key, format: kind }) => (
-            <View key={key} style={s.tr}>
-              <Text style={[s.td, s.metricCell]}>
-                {pdfSafe(labels.metric.find((m) => m.key === key)?.label ?? key)}
-              </Text>
-              {output.outcomes.map((o) => {
-                const v = o.result ? o.result[key] : null;
-                return (
-                  <Text
-                    key={o.kind}
-                    style={[s.td, s.valueCell, v !== null && v < 0 ? s.negative : {}]}
-                  >
-                    {o.result ? pdfSafe(format(v, kind)) : ""}
+            {output.outcomes.some((o) => o.missing) && (
+              <View style={s.tr}>
+                <Text style={[s.td, s.metricCell, s.muted]}> </Text>
+                {output.outcomes.map((o) => (
+                  <Text key={o.kind} style={[s.td, s.valueCell, s.muted]}>
+                    {o.missing ? pdfSafe(labels.missing) : " "}
                   </Text>
-                );
-              })}
-            </View>
-          ))}
+                ))}
+              </View>
+            )}
+            {metrics.map(({ key, format: kind }) => (
+              <View key={key} style={s.tr}>
+                <Text style={[s.td, s.metricCell]}>
+                  {pdfSafe(labels.metric.find((m) => m.key === key)?.label ?? key)}
+                </Text>
+                {output.outcomes.map((o) => {
+                  const v = o.result ? o.result[key] : null;
+                  return (
+                    <Text
+                      key={o.kind}
+                      style={[s.td, s.valueCell, v !== null && v < 0 ? s.negative : {}]}
+                    >
+                      {o.result ? pdfSafe(format(v, kind)) : ""}
+                    </Text>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
         </View>
 
         {acquisition && (
@@ -363,31 +388,41 @@ export function ScenarioReport({
             <View style={s.table}>
               <View style={s.tr}>
                 <Text style={[s.th, s.metricCell]}> </Text>
-                {annual.map((o) => (
-                  <Text key={o.kind} style={[s.th, s.valueCell]}>
-                    {pdfSafe(labels.scenario(o.kind))}
+                {annual.map(({ kind, costs }) => (
+                  <Text key={kind} style={[s.th, s.valueCell]}>
+                    {pdfSafe(labels.scenario(kind))}
+                    {costs.months !== null && (
+                      <Text style={s.muted}>
+                        {pdfSafe(`\n${labels.annualCosts.months(costs.months)}`)}
+                      </Text>
+                    )}
                   </Text>
                 ))}
               </View>
-              {[...labels.annualCosts.items, ["total", labels.annualCosts.total] as const].map(
-                ([k, label]) => (
-                  <View key={k} style={s.tr}>
-                    <Text style={[s.td, s.metricCell, k === "total" ? s.th : {}]}>
-                      {pdfSafe(label)}
+              {COST_ITEMS.filter((k) =>
+                annual.some(({ costs }) => costs.items[k] !== undefined),
+              ).map((k) => (
+                <View key={k} style={s.tr}>
+                  <Text style={[s.td, s.metricCell]}>{pdfSafe(labels.annualCosts.items[k])}</Text>
+                  {annual.map(({ kind, costs }) => (
+                    <Text key={kind} style={[s.td, s.valueCell]}>
+                      {pdfSafe(costs.items[k] === undefined ? "-" : f.euro(costs.items[k]!))}
                     </Text>
-                    {annual.map((o) => {
-                      const c = o.result!.annualFixedCosts!;
-                      const v = k === "total" ? c.imi + c.condominium + c.insurance : c[k];
-                      return (
-                        <Text key={o.kind} style={[s.td, s.valueCell, k === "total" ? s.th : {}]}>
-                          {pdfSafe(f.euro(v))}
-                        </Text>
-                      );
-                    })}
-                  </View>
-                ),
-              )}
+                  ))}
+                </View>
+              ))}
+              <View style={s.tr}>
+                <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.annualCosts.total)}</Text>
+                {annual.map(({ kind, costs }) => (
+                  <Text key={kind} style={[s.th, s.valueCell]}>
+                    {pdfSafe(f.euro(costs.total))}
+                  </Text>
+                ))}
+              </View>
             </View>
+            {annual.some(({ costs }) => costs.months !== null) && (
+              <Text style={s.note}>{pdfSafe(labels.annualCosts.holdingNote)}</Text>
+            )}
           </View>
         )}
 
@@ -419,23 +454,6 @@ export function ScenarioReport({
             render={({ pageNumber, totalPages }) => pdfSafe(labels.page(pageNumber, totalPages))}
           />
         </View>
-
-        {photos.length > 0 && (
-          <View break>
-            <Text style={s.h2}>{pdfSafe(labels.photos)}</Text>
-            <View style={s.photoGrid}>
-              {photos.map((p, i) => (
-                // Alt text does not apply to PDF images here.
-                // eslint-disable-next-line jsx-a11y/alt-text
-                <Image
-                  key={i}
-                  src={{ data: p.data, format: "jpg" }}
-                  style={[s.photo, { aspectRatio: p.width / p.height }]}
-                />
-              ))}
-            </View>
-          </View>
-        )}
       </Page>
     </Document>
   );
@@ -474,80 +492,55 @@ function SaleSection({
           </View>
         )}
       </View>
-      <SaleCurve analysis={analysis} />
-      <Text style={s.note}>{pdfSafe(labels.sale.caption)}</Text>
+      {analysis.stepsFrom && (
+        <>
+          <Text style={[s.note, { marginBottom: 3 }]}>
+            {pdfSafe(labels.sale.caption(analysis.stepsFrom))}
+          </Text>
+          <SaleSteps analysis={analysis} labels={labels} f={f} />
+        </>
+      )}
     </View>
   );
 }
 
-const CHART = { width: 523, height: 130, left: 40, bottom: 14, top: 6, right: 8 };
-
-/** Net profit by sale price, from the break-even price up, drawn as a line chart. */
-function SaleCurve({ analysis: { points, breakEven, expected } }: { analysis: SaleAnalysis }) {
-  const minX = points[0]!.price;
-  const maxX = points.at(-1)!.price;
-  const profits = points.map((p) => p.profit);
-  const minY = Math.min(0, ...profits);
-  const maxY = Math.max(0, ...profits) || 1;
-  const plotW = CHART.width - CHART.left - CHART.right;
-  const plotH = CHART.height - CHART.top - CHART.bottom;
-  const x = (v: number) => CHART.left + ((v - minX) / (maxX - minX || 1)) * plotW;
-  const y = (v: number) => CHART.top + (1 - (v - minY) / (maxY - minY)) * plotH;
-  const k = (v: number) => `${Math.round(v / 1000)}k`;
-  const xTicks = [0, 0.25, 0.5, 0.75, 1].map((t) => minX + (maxX - minX) * t);
-  const yTicks = [minY, (minY + maxY) / 2, maxY];
-
+/** Net profit in 5 % steps above the base price, as horizontal bars. */
+function SaleSteps({
+  analysis,
+  labels,
+  f,
+}: {
+  analysis: SaleAnalysis;
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const { steps, expected } = analysis;
+  const maxProfit = Math.max(1, ...steps.map((st) => st.profit));
+  const near = nearStep(steps, expected);
   return (
-    <Svg width={CHART.width} height={CHART.height}>
-      {yTicks.map((v) => (
-        <Line
-          key={`y${v}`}
-          x1={CHART.left}
-          x2={CHART.width - CHART.right}
-          y1={y(v)}
-          y2={y(v)}
-          stroke={C.line}
-          strokeWidth={0.5}
-        />
+    <View>
+      {steps.map((st, i) => (
+        <View key={st.change} style={s.stepRow}>
+          <Text style={[s.stepChange, s.muted]}>
+            {st.change === 0 ? "0%" : `+${Math.round(st.change * 100)}%`}
+          </Text>
+          <Text style={[s.stepPrice, i === near ? { fontFamily: "Helvetica-Bold" } : {}]}>
+            {pdfSafe(f.euro(st.price))}
+            {i === near && (
+              <Text style={s.stepNear}>{pdfSafe(`  ${labels.sale.nearExpected}`)}</Text>
+            )}
+          </Text>
+          <View style={s.stepTrack}>
+            <View
+              style={[s.stepBar, { width: `${(Math.max(0, st.profit) / maxProfit) * 100}%` }]}
+            />
+          </View>
+          <Text style={[s.stepProfit, st.profit < 0 ? s.negative : {}]}>
+            {pdfSafe(f.euro(st.profit))}
+          </Text>
+        </View>
       ))}
-      <Line
-        x1={CHART.left}
-        x2={CHART.width - CHART.right}
-        y1={y(0)}
-        y2={y(0)}
-        stroke={C.muted}
-        strokeWidth={0.75}
-        strokeDasharray="4 3"
-      />
-      {expected !== null && expected >= minX && expected <= maxX && (
-        <Line
-          x1={x(expected)}
-          x2={x(expected)}
-          y1={CHART.top}
-          y2={CHART.top + plotH}
-          stroke={C.muted}
-          strokeWidth={0.75}
-          strokeDasharray="2 3"
-        />
-      )}
-      <Polyline
-        points={points.map((p) => `${x(p.price)},${y(p.profit)}`).join(" ")}
-        stroke={C.brand}
-        strokeWidth={1.5}
-        fill="none"
-      />
-      {breakEven !== null && <Circle cx={x(breakEven)} cy={y(0)} r={3} fill={C.brand} />}
-      {yTicks.map((v) => (
-        <Text key={`yl${v}`} x={CHART.left - 4} y={y(v) + 2} style={s.axis} textAnchor="end">
-          {k(v)}
-        </Text>
-      ))}
-      {xTicks.map((v) => (
-        <Text key={`xl${v}`} x={x(v)} y={CHART.height - 2} style={s.axis} textAnchor="middle">
-          {k(v)}
-        </Text>
-      ))}
-    </Svg>
+    </View>
   );
 }
 

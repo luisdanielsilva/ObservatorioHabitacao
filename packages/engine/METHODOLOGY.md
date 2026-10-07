@@ -69,14 +69,16 @@ coefficient published in the Diário da República). The app keeps the property 
 `exitPrice` null) and measures profit and IRR over 30 years, or the loan term if longer. Yields
 and monthly cash flow use a typical year: the first year's rent spread over one lease-and-vacancy
 cycle. Costs: IMI, condominium,
-insurance, maintenance and management (shares of collected rent). Category F tax on rent
+insurance, maintenance and management (shares of collected rent; the app defaults maintenance
+to 10 %). Category F tax on rent
 minus those costs (loan interest not deductible): autonomous rate 25 %, reduced to
 15 / 10 / 5 % for contracts of 5 / 10 / 20+ years, or englobamento: the net rent is added to the
 investor's other taxable income and taxed at the IRS brackets.
 
 **Short-term rental (AL).** Per calendar month: nights = days × occupancy; stays = nights ÷
 average stay; bookings = nights × ADR + stays × cleaning fee. VAT (6 %) is removed when the
-owner is registered. Costs: platform fee (on bookings), management (on income), cleaning
+owner is registered. Costs: platform fee (on bookings), management and maintenance (on
+income; the app defaults maintenance to 20 %), cleaning
 per stay, consumables per night, utilities, IMI, condominium, insurance. Category B
 simplified regime: income × coefficient (0.35; 0.50 in containment zones) is added to the
 investor's other taxable income and taxed at the IRS brackets (the extra tax is what is charged). A warning is raised in containment zones and above the VAT exemption threshold; a

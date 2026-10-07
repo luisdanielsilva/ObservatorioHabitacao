@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { getDb } from "@/lib/db";
 import { escapeHtml, sendEmail } from "@/lib/email";
+import { rememberSignInLink } from "@/lib/devSignIn";
 
 declare module "next-auth" {
   interface Session {
@@ -33,6 +34,7 @@ const providers: NextAuthConfig["providers"] = [
     apiKey: process.env.RESEND_API_KEY ?? "development",
     from: process.env.EMAIL_FROM ?? "OlhoVivo <noreply@olhovivo.pt>",
     async sendVerificationRequest({ identifier, url }) {
+      rememberSignInLink(identifier, url);
       const host = new URL(url).host;
       await sendEmail({
         to: identifier,

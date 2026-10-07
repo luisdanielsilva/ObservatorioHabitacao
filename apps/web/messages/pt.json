@@ -119,8 +119,8 @@
     "assumptionsList": [
       "Condomínio e seguro por negócio: revenda e AL 50 €/mês e 250 €/ano; arrendamento 25 €/mês e seguro multirriscos 20 €/mês",
       "Comissão de venda 5% + IVA; sem valorização do imóvel",
-      "Arrendamento: contratos seguidos com 1 mês de vazio entre eles, aumento anual pelo último coeficiente de atualização das rendas (2,24% para 2026), manutenção 5% da renda, sem gestão",
-      "Alojamento local: comissão das plataformas 15%, gestão 20%, estadia média de 3 noites, limpeza cobrada 40 € e paga 35 €, consumíveis 4 €/noite, consumos 150 €/mês, mobiliário 10 000 €, registo 1 000 €",
+      "Arrendamento: contratos seguidos com 1 mês de vazio entre eles, aumento anual pelo último coeficiente de atualização das rendas (2,24% para 2026), manutenção 10% da renda, sem gestão",
+      "Alojamento local: comissão das plataformas 15%, gestão 20%, manutenção 20% da faturação, estadia média de 3 noites, limpeza cobrada 40 € e paga 35 €, consumíveis 4 €/noite, consumos 150 €/mês, mobiliário 10 000 €, registo 1 000 €",
       "Cessão: comissão de 5% + IVA sobre o prémio, 1 000 € de outros custos, 6 meses até à cessão",
       "Sem outros rendimentos, se não indicar o seu rendimento coletável; revenda 12 meses após a compra; AL durante 10 anos; arrendamento permanente, analisado em 30 anos",
       "Sinal de oportunidade: preço pedido mais de 5% abaixo do valor de mercado que indicou"
@@ -353,6 +353,7 @@
     "management": "Gestão (% da renda)",
     "alPlatformFee": "Comissão das plataformas",
     "alManagement": "Gestão AL (% da faturação)",
+    "alMaintenance": "Manutenção AL (% da faturação)",
     "averageStay": "Estadia média (noites)",
     "cleaningFee": "Taxa de limpeza cobrada",
     "cleaningCost": "Custo de cada limpeza",
@@ -485,11 +486,14 @@
     "valuationFee": "Avaliação do imóvel",
     "processingFee": "Abertura de processo",
     "annualCosts": "Custos anuais",
-    "annualCostsHelp": "Despesas recorrentes de ser proprietário, pagas todos os anos e já descontadas no cash flow: IMI (VPT, ou o preço se não o souber, × taxa do município), condomínio e seguro multirriscos.",
+    "annualCostsHelp": "Despesas recorrentes de ser proprietário, num ano típico, já descontadas no cash flow: IMI (VPT, ou o preço se não o souber, × taxa do município), condomínio, seguro multirriscos e manutenção (no arrendamento, 10% das rendas; no AL, 20% da faturação, por omissão).",
+    "holdingCosts": "Custos até à venda ({months, plural, one {1 mês} other {# meses}})",
+    "holdingCostsHelp": "Despesas de ser proprietário enquanto o imóvel não é vendido, contadas só pelos meses até à venda (como no cálculo): IMI, condomínio e seguro multirriscos.",
     "annualCostItems": {
       "imi": "IMI",
       "condominium": "Condomínio",
-      "insurance": "Seguro multirriscos"
+      "insurance": "Seguro multirriscos",
+      "maintenance": "Manutenção"
     },
     "newEvaluation": "Nova avaliação"
   },
@@ -698,7 +702,8 @@
         },
         "total": "Resultado no fim do período",
         "kept": "O arrendamento é permanente: o resultado não inclui a venda do imóvel."
-      }
+      },
+      "holdingNote": "Na revenda, os custos contam só os meses até à venda."
     }
   },
   "admin": {
@@ -901,10 +906,10 @@
   "sale": {
     "title": "Preço de venda e lucro",
     "help": {
-      "flip": "O preço de venda mais baixo sem prejuízo, depois de todos os custos de compra, obras, encargos durante a detenção, comissão de venda e impostos. Acima desse preço, o gráfico mostra quanto ganha.",
-      "shortTermRental": "O preço mais baixo a que pode vender o imóvel no fim do período de alojamento local sem prejuízo, contando com o que o AL rendeu. Acima desse preço, o gráfico mostra quanto ganha.",
+      "flip": "O preço de venda mais baixo sem prejuízo, depois de todos os custos de compra, obras, encargos durante a detenção, comissão de venda e impostos. Acima desse preço, mostra quanto ganha a cada subida de 5 %.",
+      "shortTermRental": "O preço mais baixo a que pode vender o imóvel no fim do período de alojamento local sem prejuízo, contando com o que o AL rendeu. Acima desse preço, mostra quanto ganha a cada subida de 5 %.",
       "longTermRental": "O arrendamento é permanente; aqui supõe-se uma venda ao fim de {years} anos. Mostra o preço mais baixo sem prejuízo, contando com as rendas recebidas, e quanto ganha acima dele.",
-      "contractAssignment": "O preço da cessão mais baixo sem prejuízo, depois do sinal, da comissão, de outros custos e dos impostos. Acima desse preço, o gráfico mostra quanto ganha."
+      "contractAssignment": "O preço da cessão mais baixo sem prejuízo, depois do sinal, da comissão, de outros custos e dos impostos. Acima desse preço, mostra quanto ganha a cada subida de 5 %."
     },
     "breakEven": {
       "flip": "Preço mínimo de venda sem prejuízo",
@@ -920,9 +925,16 @@
       "longTermRental": "Preço de venda",
       "contractAssignment": "Preço da cessão"
     },
-    "profit": "lucro",
-    "chartCaption": "Lucro líquido em função do preço de venda, a partir do preço mínimo sem prejuízo.",
-    "chartAlt": "Lucro líquido entre {profitFrom} e {profitTo} para preços de venda de {from} a {to}."
+    "stepsCaption": {
+      "breakEven": "Lucro líquido a partir do preço mínimo sem prejuízo, em subidas de 5 %.",
+      "expected": "Não há prejuízo a nenhum preço: lucro líquido a partir do preço que indicou, em subidas de 5 %."
+    },
+    "stepsChange": {
+      "breakEven": "Acima do preço mínimo",
+      "expected": "Acima do preço que indicou"
+    },
+    "netProfit": "Lucro líquido",
+    "nearExpected": "≈ o preço que indicou"
   },
   "photos": {
     "title": "Fotografias do imóvel",
@@ -958,6 +970,7 @@
     "upload": "{count, plural, =0 {Enviar} one {Enviar 1 fotografia} other {Enviar # fotografias}}",
     "cancel": "Cancelar",
     "signinToUpload": "Entre na sua conta para guardar o cenário e enviar as fotografias. Depois, escolha-as de novo.",
-    "signinLink": "Entrar"
+    "signinLink": "Entrar",
+    "fromListing": "{count, plural, one {A fotografia do anúncio é usada} other {As # fotografias do anúncio são usadas}} no relatório PDF enquanto não adicionar as suas."
   }
 }

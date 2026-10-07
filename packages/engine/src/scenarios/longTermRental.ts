@@ -88,8 +88,10 @@ export function runLongTermRental(
     typicalYear,
   });
 
-  return summarise("longTermRental", sim, input.loan?.amount ?? 0, {
+  const result = summarise("longTermRental", sim, input.loan?.amount ?? 0, {
     grossAnnualIncome: input.monthlyRent * 12,
     acquisitionCost: input.purchasePrice + sim.acquisition.total,
   });
+  result.annualMaintenance = averageRent * 12 * input.maintenanceRate;
+  return result;
 }

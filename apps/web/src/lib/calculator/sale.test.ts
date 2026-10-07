@@ -1,7 +1,7 @@
 import type { ParameterSet } from "@olhovivo/engine";
 import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";
-import { profitAtSale, saleAnalysis } from "./sale";
+import { nearStep, profitAtSale, saleAnalysis } from "./sale";
 import { initialState } from "./state";
 
 const params: ParameterSet = params2025;
@@ -26,13 +26,27 @@ describe("saleAnalysis", () => {
     expect(sale.expected).toBe(260_000);
   });
 
-  it("charts profit from the break-even price upwards, past the expected price", () => {
+  it("steps up from the break-even price in 5 % steps, to +40 %", () => {
     const sale = saleAnalysis(state, params, 1, "flip")!;
-    expect(sale.points[0]!.price).toBe(sale.breakEven);
-    expect(sale.points[0]!.profit).toBeCloseTo(0, -2);
-    expect(sale.points.at(-1)!.price).toBeGreaterThan(260_000);
-    const profits = sale.points.map((p) => p.profit);
+    expect(sale.stepsFrom).toBe("breakEven");
+    expect(sale.steps.map((s) => s.change)).toEqual([
+      0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4,
+    ]);
+    expect(sale.steps[0]!.price).toBe(sale.breakEven);
+    expect(sale.steps[0]!.profit).toBeCloseTo(0, -2);
+    expect(sale.steps[2]!.price).toBe(Math.round(sale.breakEven! * 1.1));
+    const profits = sale.steps.map((s) => s.profit);
     expect(profits).toEqual([...profits].sort((a, b) => a - b));
+    expect(profits.at(-1)!).toBeGreaterThan(0);
+  });
+
+  it("steps from the expected price when there is a profit at any price", () => {
+    // Rents that pay off the property: no sale price makes a loss.
+    const rich = initialState({ askingPrice: 100_000, monthlyRent: 3_000, marketValue: 150_000 });
+    const sale = saleAnalysis(rich, params, 1, "longTermRental")!;
+    expect(sale.breakEven).toBe(1);
+    expect(sale.stepsFrom).toBe("expected");
+    expect(sale.steps[0]!.price).toBe(150_000);
   });
 
   it("sells the long-term rental at the end of its horizon", () => {
@@ -50,5 +64,19 @@ describe("saleAnalysis", () => {
 
   it("is null when the deal cannot be calculated", () => {
     expect(saleAnalysis(initialState(), params, 1, "flip")).toBeNull();
+  });
+
+  it("marks the step at the price entered, but not a price below the steps", () => {
+    const steps = [0, 0.05, 0.1].map((change) => ({
+      change,
+      price: Math.round(400_000 * (1 + change)),
+      profit: 0,
+    }));
+    expect(nearStep(steps, 421_000)).toBe(1);
+    expect(nearStep(steps, 400_000)).toBe(0);
+    // Below the lowest price without a loss: not "near" the first step.
+    expect(nearStep(steps, 395_000)).toBe(-1);
+    expect(nearStep(steps, 470_000)).toBe(-1); // above the last step
+    expect(nearStep(steps, null)).toBe(-1);
   });
 });

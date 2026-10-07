@@ -4,19 +4,35 @@ import type { CalculatorState } from "./state";
 
 /**
  * What the sale must bring in (WBS 5.3.7, replacing the sensitivity sliders): the lowest sale
- * price without a loss, and the net profit at prices above it. For the long-term rental, which
- * is kept, it is a sale at the end of its horizon; for the contract assignment, the assignment
- * price.
+ * price without a loss, and the net profit in 5 % steps above it. For the long-term rental,
+ * which is kept, it is a sale at the end of its horizon; for the contract assignment, the
+ * assignment price.
  */
 export interface SaleAnalysis {
   /** Lowest sale price with a net profit ≥ 0; null when no price up to the search limit is. */
   breakEven: number | null;
   /** The price the user expects (resale price, market value, assignment price), if any. */
   expected: number | null;
-  points: { price: number; profit: number }[];
+  /**
+   * Net profit at the base price and 5 % steps above it, up to +40 %. The base is the
+   * break-even price; when there is a profit at any price, the expected price. Empty when
+   * there is no break-even price.
+   */
+  steps: SaleStep[];
+  /** What the steps start from. */
+  stepsFrom: "breakEven" | "expected" | null;
   /** Long-term rental: the sale is assumed after this many years. */
   years: number | null;
 }
+
+export interface SaleStep {
+  /** 0, 0.05 … 0.4 above the base price. */
+  change: number;
+  price: number;
+  profit: number;
+}
+
+export const SALE_STEPS = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4];
 
 export function profitAtSale(
   state: CalculatorState,
@@ -44,8 +60,6 @@ function expectedPrice(state: CalculatorState, deal: ScenarioKind): number | nul
       return state.assignmentPrice;
   }
 }
-
-const POINTS = 31;
 
 export function saleAnalysis(
   state: CalculatorState,
@@ -82,18 +96,33 @@ export function saleAnalysis(
     }
   }
 
-  // From the break-even point up: far enough to show the expected price and a margin above it.
-  const from = breakEven ?? scale * 0.5;
-  const to = Math.max(from * 1.5, (expected ?? 0) * 1.25, from + 10_000);
-  const points = Array.from({ length: POINTS }, (_, i) => {
-    const price = Math.round(from + ((to - from) * i) / (POINTS - 1));
-    return { price, profit: profit(price) ?? 0 };
-  });
+  // Profitable at any price (a break-even of 1 €): steps from the price the user expects.
+  const stepsFrom =
+    breakEven === null ? null : breakEven > 1 ? "breakEven" : expected ? "expected" : null;
+  const base = stepsFrom === "breakEven" ? breakEven! : stepsFrom === "expected" ? expected! : 0;
+  const steps = stepsFrom
+    ? SALE_STEPS.map((change) => {
+        const price = Math.round(base * (1 + change));
+        return { change, price, profit: profit(price) ?? 0 };
+      })
+    : [];
 
   return {
     breakEven,
     expected,
-    points,
+    steps,
+    stepsFrom,
     years: deal === "longTermRental" ? permanentRentalYears(state) : null,
   };
+}
+
+/**
+ * The step at the price the user entered (within half a step of it), or -1. A price below the
+ * first step, where the sale makes a loss, is not one of the steps.
+ */
+export function nearStep(steps: SaleStep[], expected: number | null): number {
+  if (expected === null || steps.length === 0) return -1;
+  const halfStep = steps[0]!.price * 0.025;
+  if (expected < steps[0]!.price) return -1;
+  return steps.findIndex((s) => Math.abs(s.price - expected) <= halfStep);
 }

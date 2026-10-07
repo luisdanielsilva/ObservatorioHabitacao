@@ -6,11 +6,39 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 199 unit tests (56 engine, 91 db, 52 web) and 31 end-to-end tests (Playwright, Chromium;
+Tests: 208 unit tests (58 engine, 91 db, 59 web) and 33 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-07)
+
+**Listing photos and data from the link (2026-10-07)**
+
+- The link reader also reads the listing JSON Imovirtual embeds in its page: area, condition,
+  extras, parish (by name and coordinates) and up to 12 photos. The photos' addresses are kept
+  with the evaluation (only https on the listing's image server, `olxcdn.com`).
+- The owner's PDF uses the uploaded photos or, when there are none, the listing's photos,
+  downloaded when the PDF is made (time and size limits); the photos section says so.
+- The development example is now a real listing (a new T1 in Braga) with its photos.
+
+**Costs, maintenance, photos in the PDF, sign-in link in development (2026-10-07)**
+
+- Resale: IMI, condominium and insurance are shown for the months until the sale ("Custos até à
+  venda (6 meses)"), as the calculation already counted them; rentals show a typical year.
+- Maintenance in operating costs: 10 % of the rent (long-term rental, was 5 %) and 20 % of the
+  revenue (AL, new); both editable in the assumptions and shown in the yearly costs. Saved
+  scenarios keep their long-term rate; saved AL scenarios now include the 20 %.
+- PDF: the main photo (the first uploaded) large on page 1, with up to five more, smaller.
+- Development without an email provider: the "check your email" page shows the sign-in link.
+
+**Sale price in 5 % steps; example for development (2026-10-07)**
+
+- "Preço de venda e lucro" shows the net profit in 5 % steps from the lowest price without a
+  loss, up to +40 %, as bars (on the results, the read-only page and in the PDF), instead of
+  the line chart. When no price makes a loss, the steps start from the price entered. The step
+  at the price entered is marked.
+- Development only: "Preencher exemplo (dev)" and `/avaliar?exemplo=1` load a complete
+  evaluation (all four deals, loan, works) and open the results; not in the production build.
 
 **PDF report opens in a new tab (2026-10-07)**
 
@@ -147,7 +175,7 @@ VPS (system libraries need sudo), so Safari is untested.
 
 | WBS         | Item                       | Status | Notes                                                                                        |
 | ----------- | -------------------------- | ------ | -------------------------------------------------------------------------------------------- |
-| 5.3.7       | Sale-price analysis        | ✅     | Replaced the sensitivity sliders: break-even sale price and profit above it                  |
+| 5.3.7       | Sale-price analysis        | ✅     | Replaced the sensitivity sliders: break-even sale price and profit in 5 % steps above it     |
 | 6.3.1       | Favourites, saved searches | ⬜     | Tables only (Phase 3 with Comprar)                                                           |
 | 6.3.2       | Saved scenarios            | ✅     | Save, duplicate, open and delete (`/conta`); photos; draft kept in the browser               |
 | 6.3.3       | PDF report                 | ✅     | Opens in a new tab; calculation summary, yearly costs, sale charts, photos (owner only)      |
@@ -159,7 +187,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 8.6         | Analytics dashboard        | 🟡     | `logEvent` is never called: event counts stay empty                                          |
 | 9           | Content, SEO               | 🟡     | `/metodologia`; no analytics or conversion tracking                                          |
 | 10.2        | Cookie consent             | 🟡 👤  | `/cookies` page; no banner (only essential cookies and browser storage for the draft so far) |
-| 11.5        | End-to-end tests           | ✅     | 31 tests                                                                                     |
+| 11.5        | End-to-end tests           | ✅     | 33 tests                                                                                     |
 
 ## Known gaps
 
@@ -167,7 +195,10 @@ VPS (system libraries need sudo), so Safari is untested.
   bot protection) and is not on the allow-list; its links get "fill in by hand". Kept on the
   home page by the owner's decision.
 - **Link reader without AI:** no `ANTHROPIC_API_KEY` yet, so only the page's structured data is
-  used (Imovirtual: price, type, typology, location; often no area).
+  used. For Imovirtual this includes the listing JSON the page embeds: price, area, type,
+  typology, condition, extras, parish and photos.
+- **Listing photos are not shown on the site** (only counted): the site's content security
+  policy does not load images from other servers. They are used in the owner's PDF.
 - **Photos are not on the read-only page** nor in its PDF (private by default).
 - **Messenger on a computer** cannot be pre-filled without a Facebook app id: the link is copied
   and messenger.com opened for the user to paste it.
@@ -187,7 +218,7 @@ VPS (system libraries need sudo), so Safari is untested.
 1. Accountant review: formulas, 2025/2026 tax parameters, IRS brackets, IMI rates, TAEG and
    purchase-cost assumptions; then activate the 2026 set.
 2. Legal: terms, privacy, cookies (is a banner needed?), reading listing sites (Imovirtual terms;
-   Idealista), AMI licence if commissions are taken.
+   Idealista), using listing photos in the owner's PDF, AMI licence if commissions are taken.
 3. Brand and domain (olhovivo.pt), trademark.
 4. `ANTHROPIC_API_KEY` for the AI link reader.
 5. GitHub remote (enables CI); sudo for the deployment (systemd, Nginx, backups, timers).

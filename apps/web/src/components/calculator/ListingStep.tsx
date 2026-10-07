@@ -79,6 +79,8 @@ export function ListingStep({
         ...(p.askingPrice !== undefined && { askingPrice: p.askingPrice }),
         ...(p.address && { address: p.address }),
         ...(body.areaId && { areaId: body.areaId }),
+        // The photos belong to this listing: a new link replaces them.
+        listingPhotos: p.photos ?? [],
         extras: {
           garage: p.hasGarage ?? state.extras.garage,
           elevator: p.hasElevator ?? state.extras.elevator,

@@ -51,3 +51,14 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   await expect(page).not.toHaveURL(/conta/);
   expect((await page.request.get("/api/account/export")).status()).toBe(401);
 });
+
+test("development: the sign-in link is shown on screen when no email is sent", async ({ page }) => {
+  // An address with "+", which must survive the round trip through the page.
+  await page.goto("/entrar");
+  await page.getByLabel("Email").fill(`e2e+devlink${Date.now()}@example.pt`);
+  await page.getByRole("button", { name: "Enviar link de acesso" }).click();
+  await expect(page).toHaveURL(/\/entrar\/verificar/);
+  await page.getByRole("link", { name: "Entrar com o link (dev)" }).click();
+  await expect(page).toHaveURL(/\/conta/);
+  await expect(page.getByRole("heading", { name: "Cenários guardados" })).toBeVisible();
+});

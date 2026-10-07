@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
+import { FlaskConical, RotateCcw } from "lucide-react";
 import { saveScenario, type SaveResult } from "@/app/[locale]/avaliar/actions";
 import { Button } from "@/components/ui/button";
 import { writeDraft } from "@/lib/calculator/draft";
@@ -58,6 +58,8 @@ export interface CalculatorProps {
   onReset?: () => void;
   /** Save straight away (back from signing in to save). */
   autoSave?: boolean;
+  /** Development only: shows "Preencher exemplo". */
+  devTools?: boolean;
 }
 
 export function Calculator({
@@ -71,6 +73,7 @@ export function Calculator({
   startManual,
   onReset,
   autoSave,
+  devTools,
 }: CalculatorProps) {
   const locale = useLocale();
   const te = useTranslations("evaluate");
@@ -218,12 +221,23 @@ export function Calculator({
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      {onReset && started && (
-        <div className="flex justify-end">
-          <Button variant="ghost" size="sm" onClick={onReset}>
-            <RotateCcw />
-            {te("newEvaluation")}
-          </Button>
+      {((onReset && started) || devTools) && (
+        <div className="flex justify-end gap-2">
+          {devTools && (
+            <Button asChild variant="ghost" size="sm">
+              {/* A full page load, so the example replaces the evaluation in progress. */}
+              <a href={`${locale === "pt" ? "" : `/${locale}`}/avaliar?exemplo=1`}>
+                <FlaskConical />
+                Preencher exemplo (dev)
+              </a>
+            </Button>
+          )}
+          {onReset && started && (
+            <Button variant="ghost" size="sm" onClick={onReset}>
+              <RotateCcw />
+              {te("newEvaluation")}
+            </Button>
+          )}
         </div>
       )}
       <StepCard
@@ -311,7 +325,13 @@ export function Calculator({
               params={params}
               startMonth={startMonth}
               onAddDeal={addDeal}
-              photos={<PhotosSection scenarioId={savedId} ensureSaved={ensureSaved} />}
+              photos={
+                <PhotosSection
+                  scenarioId={savedId}
+                  ensureSaved={ensureSaved}
+                  listingPhotoCount={state.listingPhotos.length}
+                />
+              }
               saveBar={
                 <SaveBar
                   autoSave={autoSave}

@@ -7,6 +7,7 @@ import {
 } from "@olhovivo/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { exampleAreaId, exampleState } from "@/lib/calculator/example";
 import { normaliseState } from "@/lib/calculator/state";
 import { requireUser } from "@/lib/session";
 import { CalculatorRoot } from "./CalculatorRoot";
@@ -30,7 +31,7 @@ export default async function EvaluatePage({
 }: PageProps<"/[locale]/avaliar">) {
   const locale = await initPageLocale(params);
   const t = await getTranslations("evaluate");
-  const { area, cenario, rascunho, link, manual } = await searchParams;
+  const { area, cenario, rascunho, link, manual, exemplo } = await searchParams;
 
   const db = getDb();
   const tree = getAreaTree(db);
@@ -57,11 +58,17 @@ export default async function EvaluatePage({
     }
   }
 
+  // Development only: a complete example, to check the layout without typing it all in.
+  const devTools = process.env.NODE_ENV === "development";
+  if (devTools && !initial && exemplo !== undefined) {
+    initial = { state: exampleState(exampleAreaId(tree)), savedId: null, name: null };
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <PageHeader title={t("title")} intro={t("intro")} />
       <CalculatorRoot
-        key={initial?.savedId ?? "new"}
+        key={initial?.savedId ?? (exemplo !== undefined ? "example" : "new")}
         initial={initial}
         // The evaluation in progress comes back, except for a saved scenario or a new link.
         restoreDraft={!initial && !requestedLink}
@@ -73,6 +80,7 @@ export default async function EvaluatePage({
         initialAreaId={Number.isInteger(requestedArea) && requestedArea > 0 ? requestedArea : null}
         initialLink={initial ? null : requestedLink}
         startManual={manual !== undefined}
+        devTools={devTools}
       />
     </div>
   );

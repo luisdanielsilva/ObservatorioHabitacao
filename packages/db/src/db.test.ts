@@ -186,6 +186,7 @@ describe("engine with database data", () => {
         cleaningCostPerStay: 35,
         platformFeeRate: 0.15,
         managementRate: 0.2,
+        maintenanceRate: 0.2,
         utilitiesMonthly: 120,
         consumablesPerNight: 4,
         furnishingCost: 15_000,

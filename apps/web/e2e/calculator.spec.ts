@@ -180,7 +180,9 @@ test("contract position sale on its own", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("sale chart: lowest price without a loss, and profit above it", async ({ page }) => {
+test("sale price: lowest price without a loss, and profit in 5 % steps above it", async ({
+  page,
+}) => {
   await page.goto("/avaliar");
   await fillPropertyByHand(page);
   await chooseDeals(page, "Compra e revenda");
@@ -196,8 +198,12 @@ test("sale chart: lowest price without a loss, and profit above it", async ({ pa
   const breakEven = sale.getByText("Preço mínimo de venda sem prejuízo").locator("+ dd");
   await expect(breakEven).toHaveText(/^4\d\d\s\d{3}\s€$/);
 
-  // The profit at the price entered; no slider.
+  // The profit at the price entered, and in 5 % steps above the lowest price: 0 % to +40 %.
   await expect(sale.getByText("Lucro ao preço que indicou (480 000 €)")).toBeVisible();
+  const steps = sale.getByRole("list", { name: /em subidas de 5 %/ }).getByRole("listitem");
+  await expect(steps).toHaveCount(9);
+  await expect(steps.first()).toContainText(/^0%4\d\d\s\d{3}\s€/);
+  await expect(steps.last()).toContainText(/^\+40%/);
   await expect(sale.getByRole("slider")).toHaveCount(0);
 
   // Sharing comes after the scenario's name and save; signed out, it asks to sign in first.
@@ -391,4 +397,20 @@ test("the evaluation is kept while moving around the site, until a new one", asy
   await page.reload();
   await expect(page.getByRole("button", { name: "Preencher manualmente" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Nova avaliação" })).toHaveCount(0);
+});
+
+test("development: a complete example opens at the results", async ({ page }) => {
+  await page.goto("/avaliar");
+  await page.getByRole("link", { name: "Preencher exemplo (dev)" }).click();
+  await expect(page).toHaveURL(/exemplo=1/);
+  const results = step(page, "Resultados");
+  // All four deals, each with its tab.
+  await expect(results.getByRole("tab")).toHaveCount(4);
+  // The example is a real listing: its photos are used in the PDF until the user adds some.
+  await expect(
+    results
+      .getByRole("region", { name: "Fotografias do imóvel" })
+      .getByText("As 12 fotografias do anúncio são usadas no relatório PDF"),
+  ).toBeVisible();
+  await expect(results.getByRole("region", { name: "Preço de venda e lucro" })).toBeVisible();
 });

@@ -222,6 +222,7 @@ export function runCalculator(
           cleaningCostPerStay: state.cleaningCostPerStay,
           platformFeeRate: state.alPlatformFeeRate,
           managementRate: state.alManagementRate,
+          maintenanceRate: state.alMaintenanceRate,
           utilitiesMonthly: state.alUtilitiesMonthly,
           consumablesPerNight: state.consumablesPerNight,
           furnishingCost: state.furnishingCost,

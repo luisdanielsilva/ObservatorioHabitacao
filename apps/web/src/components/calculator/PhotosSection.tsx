@@ -44,8 +44,11 @@ type Status =
 export function PhotosSection({
   scenarioId,
   ensureSaved,
+  listingPhotoCount = 0,
 }: {
   scenarioId: number | null;
+  /** Photos of the listing read from the link, used in the PDF when none are uploaded. */
+  listingPhotoCount?: number;
   /** Saves the evaluation as on screen, unless it already is. */
   ensureSaved: () => Promise<SaveResult>;
 }) {
@@ -242,6 +245,11 @@ export function PhotosSection({
 
       {!scenarioId && picks.length === 0 && (
         <p className="text-sm text-muted-foreground">{t("saveFirst")}</p>
+      )}
+      {photos.length === 0 && listingPhotoCount > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {t("fromListing", { count: listingPhotoCount })}
+        </p>
       )}
       {status.kind === "signin" && <p className="text-sm text-muted-foreground">{t("signin")}</p>}
 

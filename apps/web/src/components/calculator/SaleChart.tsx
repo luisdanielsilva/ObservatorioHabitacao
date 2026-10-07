@@ -3,27 +3,16 @@
 import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
 import { useTranslations } from "next-intl";
 import { useDeferredValue, useId, useMemo } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceDot,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { HelpTip } from "@/components/shared/HelpTip";
-import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
+import { nearStep, profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import type { CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import { SCENARIO_COLORS } from "./colors";
 
 /**
- * The lowest sale price without a loss, and how much a higher price earns: a profit curve from
- * the break-even price upwards (hovering over it shows the profit at each price).
+ * The lowest sale price without a loss, and how much a higher price earns: the net profit in
+ * 5 % steps above that price, as bars.
  */
 export function SaleChart({
   deal,
@@ -45,13 +34,12 @@ export function SaleChart({
     [deferred, params, startMonth, deal],
   );
 
-  if (!analysis || analysis.points.length === 0) return null;
-  const { breakEven, expected, points, years } = analysis;
-  const min = points[0]!.price;
-  const max = points.at(-1)!.price;
+  if (!analysis) return null;
+  const { breakEven, expected, steps, stepsFrom, years } = analysis;
   const expectedProfit =
     params && expected !== null ? profitAtSale(deferred, params, startMonth, deal, expected) : null;
-  const priceLabel = t(`priceLabel.${deal}`);
+  const maxProfit = Math.max(1, ...steps.map((s) => s.profit));
+  const near = nearStep(steps, expected);
 
   return (
     <section aria-labelledby={`${id}-title`} className="space-y-4 rounded-lg border p-4">
@@ -86,75 +74,55 @@ export function SaleChart({
         )}
       </dl>
 
-      <figure className="space-y-2">
-        <figcaption className="text-xs text-muted-foreground">{t("chartCaption")}</figcaption>
-        <div
-          className="h-56"
-          role="img"
-          aria-label={t("chartAlt", {
-            from: f.euro(min),
-            to: f.euro(max),
-            profitFrom: f.euro(points[0]!.profit),
-            profitTo: f.euro(points.at(-1)!.profit),
-          })}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={points} margin={{ top: 8, right: 12, bottom: 0, left: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis
-                dataKey="price"
-                type="number"
-                domain={[min, max]}
-                tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
-                stroke="var(--muted-foreground)"
-                fontSize={11}
-              />
-              <YAxis
-                tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
-                stroke="var(--muted-foreground)"
-                fontSize={11}
-                width={44}
-              />
-              <Tooltip
-                formatter={(v) => [f.euro(Number(v)), t("profit")]}
-                labelFormatter={(v) => `${priceLabel}: ${f.euro(Number(v))}`}
-                contentStyle={{
-                  background: "var(--popover)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  color: "var(--popover-foreground)",
-                  fontSize: 12,
-                }}
-              />
-              <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="4 4" />
-              {expected !== null && expected >= min && expected <= max && (
-                <ReferenceLine
-                  x={expected}
-                  stroke="var(--muted-foreground)"
-                  strokeDasharray="2 4"
-                />
-              )}
-              <Line
-                type="monotone"
-                dataKey="profit"
-                stroke={SCENARIO_COLORS[deal]}
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-              {breakEven !== null && (
-                <ReferenceDot
-                  x={breakEven}
-                  y={0}
-                  r={5}
-                  fill={SCENARIO_COLORS[deal]}
-                  stroke="none"
-                />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
+      {stepsFrom && (
+        <div className="space-y-2">
+          <p id={`${id}-steps`} className="text-xs text-muted-foreground">
+            {t(`stepsCaption.${stepsFrom}`)}
+          </p>
+          <ol aria-labelledby={`${id}-steps`} className="space-y-1.5 text-sm">
+            {steps.map((step, i) => (
+              <li
+                key={step.change}
+                // Phones: change, price and profit on a line, the bar under them.
+                className={cn(
+                  "grid grid-cols-[3rem_1fr_auto] items-center gap-x-2 gap-y-1 sm:grid-cols-[3rem_9rem_1fr_7rem]",
+                  i === near && "font-semibold",
+                )}
+              >
+                <span className="text-xs font-normal text-muted-foreground tabular-nums">
+                  {step.change === 0 ? "0%" : `+${f.number(step.change * 100)}%`}
+                </span>
+                <span className="tabular-nums">
+                  {f.euro(step.price)}
+                  {i === near && (
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                      {t("nearExpected")}
+                    </span>
+                  )}
+                </span>
+                <span
+                  aria-hidden
+                  className="order-last col-span-3 h-2 sm:order-none sm:col-span-1 sm:h-4"
+                >
+                  <span
+                    className="block h-full min-w-0.5 rounded-sm"
+                    style={{
+                      width: `${(Math.max(0, step.profit) / maxProfit) * 100}%`,
+                      background: SCENARIO_COLORS[deal],
+                    }}
+                  />
+                </span>
+                <span
+                  className={cn("text-right tabular-nums", step.profit < 0 && "text-destructive")}
+                >
+                  <span className="sr-only">{t("netProfit")}: </span>
+                  {f.euro(step.profit)}
+                </span>
+              </li>
+            ))}
+          </ol>
         </div>
-      </figure>
+      )}
     </section>
   );
 }

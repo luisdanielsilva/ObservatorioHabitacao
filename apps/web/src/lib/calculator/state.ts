@@ -1,4 +1,5 @@
 import type { ScenarioKind, Seasonal } from "@olhovivo/engine";
+import { listingPhotos } from "../listingPhotos";
 
 export const PROPERTY_TYPES = [
   "apartamento",
@@ -21,6 +22,8 @@ export interface CalculatorState {
 
   // 1. Property
   url: string;
+  /** Photos of the listing read from `url` (addresses on its image server), main first. */
+  listingPhotos: string[];
   areaId: number | null;
   address: string;
   propertyType: PropertyType;
@@ -82,10 +85,13 @@ export interface CalculatorState {
   vacancyMonths: number;
   /** Yearly increase of the nightly rate (short-term rental). */
   nightlyGrowthRate: number;
+  /** Long-term rental: maintenance as a share of the rent. */
   maintenanceRate: number;
   managementRate: number;
   alPlatformFeeRate: number;
   alManagementRate: number;
+  /** Short-term rental: maintenance as a share of the income (more wear). */
+  alMaintenanceRate: number;
   alUtilitiesMonthly: number;
   averageStayNights: number;
   cleaningFeePerStay: number;
@@ -119,6 +125,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
   return {
     deals: [],
     url: "",
+    listingPhotos: [],
     areaId: null,
     address: "",
     propertyType: "apartamento",
@@ -169,10 +176,11 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     rentGrowthRate: FALLBACK_RENT_UPDATE,
     vacancyMonths: 1,
     nightlyGrowthRate: 0.02,
-    maintenanceRate: 0.05,
+    maintenanceRate: 0.1,
     managementRate: 0,
     alPlatformFeeRate: 0.15,
     alManagementRate: 0.2,
+    alMaintenanceRate: 0.2,
     alUtilitiesMonthly: 150,
     averageStayNights: 3,
     cleaningFeePerStay: 40,
@@ -250,6 +258,7 @@ export function normaliseState(raw: unknown): CalculatorState {
   // Scenarios saved before several deals could be chosen have a single `deal`.
   state.deals = normaliseDeals(source.deals ?? (source.deal ? [source.deal] : []));
   state.url = state.url.slice(0, 2000);
+  state.listingPhotos = listingPhotos(source.listingPhotos);
   state.address = state.address.slice(0, 300);
   return state;
 }

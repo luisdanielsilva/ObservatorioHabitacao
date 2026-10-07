@@ -99,6 +99,10 @@ describe("runLongTermRental", () => {
     expect(rental.paybackYears).toBeCloseTo(BOUGHT / (10_260 - tax), 6);
   });
 
+  it("shows the yearly maintenance", () => {
+    expect(rental.annualMaintenance).toBeCloseTo(12 * 50, 6);
+  });
+
   it("pays income tax once a year and sells at the end", () => {
     expect(rental.months[12]!.incomeTax).toBeCloseTo(2_565, 6);
     expect(rental.months[11]!.incomeTax).toBe(0);
@@ -229,6 +233,7 @@ describe("runShortTermRental", () => {
     cleaningCostPerStay: 30,
     platformFeeRate: 0.15,
     managementRate: 0,
+    maintenanceRate: 0,
     utilitiesMonthly: 100,
     consumablesPerNight: 0,
     furnishingCost: 10_000,
@@ -244,6 +249,14 @@ describe("runShortTermRental", () => {
     expect(al.netYield).toBeCloseTo((20_075 - 7_176.25 - tax) / (BOUGHT + 10_000), 8);
     expect(al.totalInvestment).toBeCloseTo(BOUGHT + 10_000, 2);
     expect(al.months[12]!.incomeTax).toBeCloseTo(tax, 6);
+  });
+
+  it("counts maintenance as a share of the income", () => {
+    const kept = runShortTermRental({ ...input, maintenanceRate: 0.2 }, params);
+    expect(kept.annualMaintenance).toBeCloseTo(20_075 * 0.2, 6);
+    expect(al.annualMaintenance).toBe(0);
+    // Deducted from the yearly cash flow; the AL tax is on income, so it does not change.
+    expect(al.annualCashFlow! - kept.annualCashFlow!).toBeCloseTo(20_075 * 0.2, 6);
   });
 
   it("follows seasonality", () => {

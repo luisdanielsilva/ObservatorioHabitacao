@@ -84,6 +84,67 @@ describe("extractProperty", () => {
   });
 });
 
+describe("extractProperty with embedded listing data (Imovirtual)", () => {
+  // Trimmed from a real Imovirtual listing page (T1 in Braga).
+  const ad = {
+    title: "T1 Novos com Varanda em Braga perto da CP com boas áreas",
+    target: {
+      Area: "70",
+      Price: 260000,
+      ProperType: "apartamento",
+      MarketType: "primary",
+      Rooms_num: ["2"],
+      Extras_types: ["balcony", "lift", "air_conditioning"],
+    },
+    location: {
+      coordinates: { latitude: 41.54579, longitude: -8.432778 },
+      reverseGeocoding: {
+        locations: [
+          { locationLevel: "district", name: "Braga" },
+          { locationLevel: "council", name: "Braga" },
+          { locationLevel: "parish", name: "Braga (Maximinos, Sé e Cividade)" },
+        ],
+      },
+    },
+    images: [
+      {
+        medium: "https://ireland.apollo.olxcdn.com/v1/files/a/image;s=655x491",
+        large: "https://ireland.apollo.olxcdn.com/v1/files/a/image;s=2048x1536",
+      },
+      { large: "https://ireland.apollo.olxcdn.com/v1/files/b/image;s=2048x1536" },
+      { large: "https://evil.example.com/c.jpg" },
+      { large: "http://ireland.apollo.olxcdn.com/v1/files/d/image" },
+    ],
+  };
+  const html = `<html><head><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({ props: { pageProps: { ad } } })}</script></head></html>`;
+
+  it("reads price, area, type, typology, condition, extras and location", () => {
+    const p = extractProperty(html);
+    expect(p).toMatchObject({
+      askingPrice: 260_000,
+      areaM2: 70,
+      propertyType: "apartamento",
+      // From the title: Rooms_num counts the living room too.
+      bedrooms: 1,
+      condition: "novo",
+      hasElevator: true,
+      hasBalcony: true,
+      lat: 41.54579,
+      lng: -8.432778,
+      district: "Braga",
+      municipality: "Braga",
+      parish: "Braga (Maximinos, Sé e Cividade)",
+    });
+  });
+
+  it("keeps the photos on the listing's image server only, large size, main first", () => {
+    expect(extractProperty(html).photos).toEqual([
+      "https://ireland.apollo.olxcdn.com/v1/files/a/image;s=2048x1536",
+      "https://ireland.apollo.olxcdn.com/v1/files/b/image;s=2048x1536",
+    ]);
+  });
+});
+
 describe("toNumber", () => {
   it("handles Portuguese and English number formats", () => {
     expect(toNumber("250 000 €")).toBe(250_000);

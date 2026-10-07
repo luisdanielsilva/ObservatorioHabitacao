@@ -121,6 +121,7 @@ export function AssumptionsSection({
         field("nightlyGrowthRate", t("nightlyGrowth"), "percent"),
         field("alPlatformFeeRate", t("alPlatformFee"), "percent"),
         field("alManagementRate", t("alManagement"), "percent"),
+        field("alMaintenanceRate", t("alMaintenance"), "percent"),
         field("averageStayNights", t("averageStay"), "number"),
         field("cleaningFeePerStay", t("cleaningFee"), "money"),
         field("cleaningCostPerStay", t("cleaningCost"), "money"),

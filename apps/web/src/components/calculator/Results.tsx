@@ -11,6 +11,7 @@ import type { CalculatorOutput, ScenarioOutcome } from "@/lib/calculator/run";
 import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
+import { COST_ITEMS, ownershipCosts } from "@/lib/calculator/costs";
 import { SCENARIO_COLORS } from "./colors";
 
 export type MetricKey =
@@ -224,88 +225,90 @@ export function ScenarioDetails({
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-semibold">{t("details")}</h3>
-      {withResults.map(({ kind, result }) => (
-        <details
-          key={kind}
-          open={defaultOpen || undefined}
-          className="group rounded-lg border px-4 py-2 open:pb-4"
-        >
-          <summary className="flex cursor-pointer items-center gap-2 py-1 text-sm font-medium">
-            <span
-              aria-hidden
-              className="size-2.5 rounded-full"
-              style={{ background: SCENARIO_COLORS[kind] }}
-            />
-            {ts(kind as ScenarioKind)}
-            {result.warnings.length > 0 && (
-              <span className="ml-auto flex items-center gap-1 text-xs text-warning">
-                <AlertTriangle className="size-3.5" aria-hidden /> {result.warnings.length}
-              </span>
+      {withResults.map(({ kind, result }) => {
+        const costs = ownershipCosts(kind, result);
+        return (
+          <details
+            key={kind}
+            open={defaultOpen || undefined}
+            className="group rounded-lg border px-4 py-2 open:pb-4"
+          >
+            <summary className="flex cursor-pointer items-center gap-2 py-1 text-sm font-medium">
+              <span
+                aria-hidden
+                className="size-2.5 rounded-full"
+                style={{ background: SCENARIO_COLORS[kind] }}
+              />
+              {ts(kind as ScenarioKind)}
+              {result.warnings.length > 0 && (
+                <span className="ml-auto flex items-center gap-1 text-xs text-warning">
+                  <AlertTriangle className="size-3.5" aria-hidden /> {result.warnings.length}
+                </span>
+              )}
+            </summary>
+            {result.acquisition && (
+              <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+                <dt className="col-span-2 flex items-center gap-1 font-medium">
+                  {tm("acquisitionCosts")}
+                  <HelpTip label={tm("acquisitionCosts")} text={tm("acquisitionCostsHelp")} />
+                </dt>
+                {(
+                  [
+                    "imt",
+                    "stampDutyPurchase",
+                    "stampDutyLoan",
+                    "deedAndRegistry",
+                    "valuationFee",
+                    "processingFee",
+                  ] as const
+                )
+                  .filter((k) => result.acquisition![k] > 0)
+                  .map((k) => (
+                    <div key={k} className="contents">
+                      <dt className="text-muted-foreground">{ta(k)}</dt>
+                      <dd className="text-right tabular-nums">{f.euro(result.acquisition![k])}</dd>
+                    </div>
+                  ))}
+                <dt className="font-medium">{ta("total")}</dt>
+                <dd className="text-right font-medium tabular-nums">
+                  {f.euro(result.acquisition.total)}
+                </dd>
+              </dl>
             )}
-          </summary>
-          {result.acquisition && (
-            <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
-              <dt className="col-span-2 flex items-center gap-1 font-medium">
-                {tm("acquisitionCosts")}
-                <HelpTip label={tm("acquisitionCosts")} text={tm("acquisitionCostsHelp")} />
-              </dt>
-              {(
-                [
-                  "imt",
-                  "stampDutyPurchase",
-                  "stampDutyLoan",
-                  "deedAndRegistry",
-                  "valuationFee",
-                  "processingFee",
-                ] as const
-              )
-                .filter((k) => result.acquisition![k] > 0)
-                .map((k) => (
+            {costs && (
+              <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+                <dt className="col-span-2 flex items-center gap-1 font-medium">
+                  {costs.months === null
+                    ? t("annualCosts")
+                    : t("holdingCosts", { months: costs.months })}
+                  <HelpTip
+                    label={t("annualCosts")}
+                    text={costs.months === null ? t("annualCostsHelp") : t("holdingCostsHelp")}
+                  />
+                </dt>
+                {COST_ITEMS.filter((k) => costs.items[k] !== undefined).map((k) => (
                   <div key={k} className="contents">
-                    <dt className="text-muted-foreground">{ta(k)}</dt>
-                    <dd className="text-right tabular-nums">{f.euro(result.acquisition![k])}</dd>
+                    <dt className="text-muted-foreground">{t(`annualCostItems.${k}`)}</dt>
+                    <dd className="text-right tabular-nums">{f.euro(costs.items[k]!)}</dd>
                   </div>
                 ))}
-              <dt className="font-medium">{ta("total")}</dt>
-              <dd className="text-right font-medium tabular-nums">
-                {f.euro(result.acquisition.total)}
-              </dd>
-            </dl>
-          )}
-          {result.annualFixedCosts && (
-            <dl className="mt-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
-              <dt className="col-span-2 flex items-center gap-1 font-medium">
-                {t("annualCosts")}
-                <HelpTip label={t("annualCosts")} text={t("annualCostsHelp")} />
-              </dt>
-              {(["imi", "condominium", "insurance"] as const).map((k) => (
-                <div key={k} className="contents">
-                  <dt className="text-muted-foreground">{t(`annualCostItems.${k}`)}</dt>
-                  <dd className="text-right tabular-nums">{f.euro(result.annualFixedCosts![k])}</dd>
-                </div>
-              ))}
-              <dt className="font-medium">{ta("total")}</dt>
-              <dd className="text-right font-medium tabular-nums">
-                {f.euro(
-                  result.annualFixedCosts.imi +
-                    result.annualFixedCosts.condominium +
-                    result.annualFixedCosts.insurance,
-                )}
-              </dd>
-            </dl>
-          )}
-          {result.warnings.length > 0 && (
-            <div className="mt-3 space-y-1">
-              <p className="text-sm font-medium">{t("warningsTitle")}</p>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                {result.warnings.map((w) => (
-                  <li key={w}>{tw(w)}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </details>
-      ))}
+                <dt className="font-medium">{ta("total")}</dt>
+                <dd className="text-right font-medium tabular-nums">{f.euro(costs.total)}</dd>
+              </dl>
+            )}
+            {result.warnings.length > 0 && (
+              <div className="mt-3 space-y-1">
+                <p className="text-sm font-medium">{t("warningsTitle")}</p>
+                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  {result.warnings.map((w) => (
+                    <li key={w}>{tw(w)}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </details>
+        );
+      })}
     </div>
   );
 }

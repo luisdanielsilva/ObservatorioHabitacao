@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
   const db = getDb();
   try {
-    const key = `listing:v3:${url.href}`;
+    const key = `listing:v4:${url.href}`;
     let property = cacheGet<ExtractedProperty>(db, key);
     if (!property) {
       property = await readListing(url.href);
@@ -97,9 +97,14 @@ async function readListing(href: string): Promise<ExtractedProperty> {
   const html = await fetchListing(href);
   if (!aiReaderEnabled()) return extractProperty(html);
   try {
-    // Coordinates from structured data, when present, locate the property more precisely.
-    const { lat, lng } = extractProperty(html);
-    return { ...(await aiExtractProperty(html, href)), ...(lat !== undefined && { lat, lng }) };
+    // Coordinates from structured data, when present, locate the property more precisely; the
+    // photos only come from structured data.
+    const { lat, lng, photos } = extractProperty(html);
+    return {
+      ...(await aiExtractProperty(html, href)),
+      ...(lat !== undefined && { lat, lng }),
+      ...(photos && { photos }),
+    };
   } catch (error) {
     if (error instanceof NotAListingError) throw error;
     console.error("AI listing reader failed; using structured data", error);

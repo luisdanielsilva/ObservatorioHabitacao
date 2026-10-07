@@ -37,6 +37,8 @@ export interface ShortTermRentalInputs extends PropertyInputs {
   platformFeeRate: number;
   /** Management fee on income. */
   managementRate: number;
+  /** Maintenance and repairs as a share of income (more wear than a long-term let). */
+  maintenanceRate: number;
   utilitiesMonthly: number;
   /** Linen, toiletries, welcome items. */
   consumablesPerNight: number;
@@ -83,7 +85,7 @@ export function runShortTermRental(
         fixed +
         input.utilitiesMonthly +
         bookings * input.platformFeeRate +
-        income * input.managementRate +
+        income * (input.managementRate + input.maintenanceRate) +
         stays * input.cleaningCostPerStay +
         nights * input.consumablesPerNight,
     };
@@ -107,6 +109,7 @@ export function runShortTermRental(
     acquisitionCost: input.purchasePrice + sim.acquisition.total,
   });
 
+  result.annualMaintenance = sim.stabilisedYear.income * input.maintenanceRate;
   if (input.alStatus === "containment") result.warnings.push("al_containment_zone");
   if (input.alStatus === "unknown") result.warnings.push("al_status_unknown");
   if (input.alStatus === "suspended") {

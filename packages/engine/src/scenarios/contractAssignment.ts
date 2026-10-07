@@ -112,6 +112,7 @@ export function runContractAssignment(
     paybackYears: null,
     returnOnDeposit: input.deposit > 0 ? netProfit / input.deposit : null,
     annualFixedCosts: null,
+    annualMaintenance: null,
     months,
   };
 }

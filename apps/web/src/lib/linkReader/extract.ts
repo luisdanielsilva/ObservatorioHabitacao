@@ -1,18 +1,21 @@
 import type { PropertyData } from "@olhovivo/db";
 import type { Condition, PropertyType } from "@/lib/calculator/state";
+import { listingPhotos } from "../listingPhotos";
 
 /**
- * Extracts property data from a listing page's HTML, using only structured metadata
- * (schema.org JSON-LD and Open Graph tags). Site-specific scrapers are deliberately not used:
- * the link reader only runs for sites that allow it and publish structured data.
+ * Extracts property data from a listing page's HTML, using only structured data: schema.org
+ * JSON-LD, Open Graph tags, and the listing JSON that Next.js sites such as Imovirtual embed for
+ * their own page. The visible page is not scraped; the link reader only runs for allowed sites.
  */
 export interface ExtractedProperty extends Omit<PropertyData, "propertyType" | "condition"> {
   propertyType?: PropertyType;
   condition?: Condition;
-  /** Location names as written on the page (AI reader), used when there are no coordinates. */
+  /** Location names as written on the page, used when there are no coordinates. */
   district?: string;
   municipality?: string;
   parish?: string;
+  /** The listing's photos (addresses on its image server), main photo first. */
+  photos?: string[];
 }
 
 type Json = Record<string, unknown>;
@@ -56,6 +59,7 @@ export function extractProperty(html: string): ExtractedProperty {
     result.title ??= typeof node.name === "string" ? node.name : undefined;
   }
 
+  readNextDataAd(html, result);
   result.title ??= metaContent(html, "og:title");
   // Portuguese titles state the typology ("T2, apartamento para comprar …").
   const typology = result.title?.match(/\bT(\d)\b/);
@@ -74,6 +78,61 @@ export function extractProperty(html: string): ExtractedProperty {
 
   // Drop undefined keys so callers can spread the result.
   return Object.fromEntries(Object.entries(result).filter(([, v]) => v !== undefined));
+}
+
+/**
+ * Imovirtual (and other sites built the same way) embed the listing as JSON for their own page
+ * (`__NEXT_DATA__` → props.pageProps.ad): area, condition, location and photos that the
+ * schema.org data lacks. Only fills what is still missing.
+ */
+function readNextDataAd(html: string, result: ExtractedProperty) {
+  const match = html.match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (!match) return;
+  let ad: Json | undefined;
+  try {
+    const data = JSON.parse(match[1]!) as Json;
+    ad = ((data.props as Json | undefined)?.pageProps as Json | undefined)?.ad as Json | undefined;
+  } catch {
+    return;
+  }
+  if (!ad || typeof ad !== "object") return;
+  const target = (ad.target ?? {}) as Json;
+
+  result.title ??= typeof ad.title === "string" ? ad.title : undefined;
+  result.askingPrice ??= toNumber(target.Price);
+  result.areaM2 ??= toNumber(target.Area);
+  result.propertyType ??= propertyTypeFrom([String(target.ProperType ?? "")]);
+  if (target.MarketType === "primary") result.condition ??= "novo";
+  const extras = asArray(target.Extras_types).map(String);
+  if (extras.length) {
+    result.hasElevator ??= extras.includes("lift") || undefined;
+    result.hasBalcony ??= extras.includes("balcony") || undefined;
+    result.hasGarage ??= extras.some((e) => /garage|parking/.test(e)) || undefined;
+    result.hasPool ??= extras.includes("pool") || undefined;
+  }
+
+  const location = (ad.location ?? {}) as Json;
+  const coordinates = location.coordinates as Json | undefined;
+  const lat = toNumber(coordinates?.latitude);
+  const lng = toNumber(coordinates?.longitude);
+  if (result.lat === undefined && lat !== undefined && lng !== undefined) {
+    Object.assign(result, { lat, lng });
+  }
+  const levels = asArray((location.reverseGeocoding as Json | undefined)?.locations) as Json[];
+  const named = (level: string) => {
+    const name = levels.find((l) => l.locationLevel === level)?.name;
+    return typeof name === "string" ? name : undefined;
+  };
+  result.district ??= named("district");
+  result.municipality ??= named("council");
+  result.parish ??= named("parish");
+
+  if (!result.photos) {
+    const photos = listingPhotos(
+      asArray(ad.images).map((img) => (img as Json).large ?? (img as Json).medium),
+    );
+    if (photos.length) result.photos = photos;
+  }
 }
 
 function jsonLdNodes(html: string): Json[] {

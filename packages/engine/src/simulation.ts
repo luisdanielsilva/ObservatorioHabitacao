@@ -136,6 +136,8 @@ export interface ScenarioResult {
   returnOnDeposit: number | null;
   /** Recurring yearly costs of owning the property; null when it is not bought. */
   annualFixedCosts: AnnualFixedCosts | null;
+  /** Rentals: maintenance in a typical year (a share of the income); null otherwise. */
+  annualMaintenance: number | null;
 
   months: MonthLine[];
 }
@@ -402,6 +404,7 @@ export function summarise(
     paybackYears,
     returnOnDeposit: null,
     annualFixedCosts: sim.annualFixedCosts,
+    annualMaintenance: null,
     months: sim.months,
   };
 }

@@ -3,12 +3,15 @@ import { listPhotos, type ScenarioRow } from "@olhovivo/db";
 import type { ScenarioKind } from "@olhovivo/engine";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTranslations } from "next-intl/server";
+import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 import type { AppLocale } from "@/i18n/routing";
 import { chosenOutcomes } from "@/lib/calculator/run";
 import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import { getDb } from "@/lib/db";
+import { normaliseState } from "@/lib/calculator/state";
 import { createFormatter } from "@/lib/format";
+import { isListingPhotoUrl } from "@/lib/listingPhotos";
 import { photoFilePath } from "@/lib/photos";
 import { BREAKDOWN_ROWS, type BreakdownRow } from "./breakdown";
 import { buildReportData, type ReportData } from "./data";
@@ -31,7 +34,6 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   const tw = await getTranslations({ locale, namespace: "warnings" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const tsale = await getTranslations({ locale, namespace: "sale" });
-  const tp = await getTranslations({ locale, namespace: "photos" });
   const f = createFormatter(locale);
   const { state, output } = data;
   const dateFormat = new Intl.DateTimeFormat(locale === "en" ? "en-IE" : "pt-PT", {
@@ -82,12 +84,15 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
     },
     annualCosts: {
       label: te("annualCosts"),
-      items: [
-        ["imi", te("annualCostItems.imi")],
-        ["condominium", te("annualCostItems.condominium")],
-        ["insurance", te("annualCostItems.insurance")],
-      ],
+      items: {
+        imi: te("annualCostItems.imi"),
+        condominium: te("annualCostItems.condominium"),
+        insurance: te("annualCostItems.insurance"),
+        maintenance: te("annualCostItems.maintenance"),
+      },
       total: ta("total"),
+      months: (months) => t("breakdown.months", { months }),
+      holdingNote: t("holdingNote"),
     },
     sale: {
       title: tsale("title"),
@@ -95,11 +100,10 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       noBreakEven: tsale("noBreakEven"),
       atExpected: (price) => tsale("atExpected", { price: f.euro(price) }),
       help: (kind, years) => tsale(`help.${kind}`, { years }),
-      caption: tsale("chartCaption"),
+      caption: (from) => tsale(`stepsCaption.${from}`),
       priceLabel: (kind) => tsale(`priceLabel.${kind}`),
-      profit: tsale("profit"),
+      nearExpected: tsale("nearExpected"),
     },
-    photos: tp("title"),
     breakdown: {
       title: t("breakdown.title"),
       help: t("breakdown.help"),
@@ -197,7 +201,7 @@ function reportSales(data: ReportData): ReportSale[] {
   return chosenOutcomes(data.output, state.deals).flatMap((o) => {
     if (!o.result) return [];
     const analysis = saleAnalysis(state, parameters, startMonth, o.kind);
-    if (!analysis || analysis.points.length === 0) return [];
+    if (!analysis) return [];
     const expectedProfit =
       analysis.expected !== null
         ? profitAtSale(state, parameters, startMonth, o.kind, analysis.expected)
@@ -206,24 +210,67 @@ function reportSales(data: ReportData): ReportSale[] {
   });
 }
 
-/** The scenario's photos as JPEG (the PDF format has no WebP), small enough for a report. */
+/** A main photo and up to five more, smaller. */
+const REPORT_PHOTOS = 6;
+
+/**
+ * The photos for the report, as JPEG (the PDF format has no WebP), small enough for it: the
+ * photos the owner uploaded, or else the listing's own photos. The first is the main photo.
+ */
 async function reportPhotos(scenario: ScenarioRow): Promise<ReportPhoto[]> {
-  const rows = listPhotos(getDb(), scenario.id, scenario.userId) ?? [];
+  const rows = (listPhotos(getDb(), scenario.id, scenario.userId) ?? []).slice(0, REPORT_PHOTOS);
+  const sources: (() => Promise<Buffer | null>)[] = rows.length
+    ? rows.map((row) => async () => readFile(photoFilePath(scenario.id, row.fileName)))
+    : normaliseState(scenario.inputs)
+        .listingPhotos.slice(0, REPORT_PHOTOS)
+        .map((url) => () => downloadListingPhoto(url));
   const photos = await Promise.all(
-    rows.map(async (row): Promise<ReportPhoto | null> => {
+    sources.map(async (source): Promise<ReportPhoto | null> => {
       try {
-        const { data, info } = await sharp(photoFilePath(scenario.id, row.fileName))
+        const input = await source();
+        if (!input) return null;
+        const { data, info } = await sharp(input, { limitInputPixels: 50_000_000 })
+          .rotate()
           .resize({ width: 1000, height: 1000, fit: "inside", withoutEnlargement: true })
           .jpeg({ quality: 75 })
           .toBuffer({ resolveWithObject: true });
         return { data, width: info.width, height: info.height };
       } catch (error) {
-        console.error("report photo failed", row.id, error);
+        console.error("report photo failed", error);
         return null;
       }
     }),
   );
   return photos.filter((p): p is ReportPhoto => p !== null);
+}
+
+const LISTING_PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Downloads one listing photo from the listing site's image server (and nowhere else: the
+ * address comes from the user's saved inputs), with a time and size limit.
+ */
+async function downloadListingPhoto(url: string): Promise<Buffer | null> {
+  if (!isListingPhotoUrl(url)) return null;
+  const res = await fetch(url, {
+    redirect: "error",
+    signal: AbortSignal.timeout(10_000),
+    headers: { Accept: "image/jpeg,image/png,image/webp,image/*" },
+  });
+  if (!res.ok || !res.body) return null;
+  if (Number(res.headers.get("content-length") ?? 0) > LISTING_PHOTO_MAX_BYTES) return null;
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (let part = await reader.read(); !part.done; part = await reader.read()) {
+    size += part.value.byteLength;
+    if (size > LISTING_PHOTO_MAX_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(part.value);
+  }
+  return Buffer.concat(chunks);
 }
 
 export function pdfResponse(pdf: Buffer, filename: string, disposition: "inline" | "attachment") {
