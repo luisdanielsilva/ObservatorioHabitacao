@@ -1,6 +1,6 @@
 # OlhoVivo — Status
 
-Updated 2026-10-07, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-08, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
@@ -10,7 +10,15 @@ Tests: 208 unit tests (58 engine, 91 db, 59 web) and 33 end-to-end tests (Playwr
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-07)
+## Latest changes (2026-10-04 – 2026-10-08)
+
+**PDF layout and sale steps (2026-10-08)**
+
+- PDF: page 1 the property; page 2 the whole summary (results side by side, purchase and yearly
+  costs, calculation summary, tax note, disclaimer); then one section per deal (sale price
+  steps and its alerts, in small type), two deals per page. Checked with four deals and a loan.
+- Sale price steps only up to +20 % (0, 5, 10, 15, 20 %), on the site and in the PDF.
+- Alerts in smaller type on the site too.
 
 **Listing photos and data from the link (2026-10-07)**
 

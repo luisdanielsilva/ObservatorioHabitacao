@@ -26,12 +26,10 @@ describe("saleAnalysis", () => {
     expect(sale.expected).toBe(260_000);
   });
 
-  it("steps up from the break-even price in 5 % steps, to +40 %", () => {
+  it("steps up from the break-even price in 5 % steps, to +20 %", () => {
     const sale = saleAnalysis(state, params, 1, "flip")!;
     expect(sale.stepsFrom).toBe("breakEven");
-    expect(sale.steps.map((s) => s.change)).toEqual([
-      0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4,
-    ]);
+    expect(sale.steps.map((s) => s.change)).toEqual([0, 0.05, 0.1, 0.15, 0.2]);
     expect(sale.steps[0]!.price).toBe(sale.breakEven);
     expect(sale.steps[0]!.profit).toBeCloseTo(0, -2);
     expect(sale.steps[2]!.price).toBe(Math.round(sale.breakEven! * 1.1));

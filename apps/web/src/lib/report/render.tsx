@@ -68,6 +68,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
     disclaimer: tc("disclaimer"),
     page: (page, total) => t("page", { page, total }),
     scenario: (kind: ScenarioKind) => ts(`${kind}Short`),
+    scenarioName: (kind: ScenarioKind) => ts(kind),
     metricHeader: te("metric"),
     metric: REPORT_METRICS.map(({ key }) => ({ key, label: tm(key) })),
     acquisition: {

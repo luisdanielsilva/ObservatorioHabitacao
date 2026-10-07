@@ -299,7 +299,7 @@ export function ScenarioDetails({
             {result.warnings.length > 0 && (
               <div className="mt-3 space-y-1">
                 <p className="text-sm font-medium">{t("warningsTitle")}</p>
-                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
                   {result.warnings.map((w) => (
                     <li key={w}>{tw(w)}</li>
                   ))}

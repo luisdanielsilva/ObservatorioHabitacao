@@ -14,7 +14,7 @@ export interface SaleAnalysis {
   /** The price the user expects (resale price, market value, assignment price), if any. */
   expected: number | null;
   /**
-   * Net profit at the base price and 5 % steps above it, up to +40 %. The base is the
+   * Net profit at the base price and 5 % steps above it, up to +20 %. The base is the
    * break-even price; when there is a profit at any price, the expected price. Empty when
    * there is no break-even price.
    */
@@ -26,13 +26,14 @@ export interface SaleAnalysis {
 }
 
 export interface SaleStep {
-  /** 0, 0.05 … 0.4 above the base price. */
+  /** 0, 0.05 … 0.2 above the base price. */
   change: number;
   price: number;
   profit: number;
 }
 
-export const SALE_STEPS = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4];
+/** Up to +20 %: selling for more than that above the lowest price is rare. */
+export const SALE_STEPS = [0, 0.05, 0.1, 0.15, 0.2];
 
 export function profitAtSale(
   state: CalculatorState,

@@ -29,6 +29,8 @@ export interface ReportLabels {
   disclaimer: string;
   page: (page: number, total: number) => string;
   scenario: (kind: ScenarioKind) => string;
+  /** The deal's full name, as a section title. */
+  scenarioName: (kind: ScenarioKind) => string;
   metric: { key: MetricKey; label: string }[];
   metricHeader: string;
   acquisition: { label: string; items: [keyof AcquisitionItems, string][]; total: string };
@@ -173,7 +175,10 @@ const s = StyleSheet.create({
     fontSize: 7,
     color: C.muted,
   },
-  saleBox: { marginTop: 4, marginBottom: 6 },
+  h3: { fontSize: 9.5, fontFamily: "Helvetica-Bold", marginBottom: 3 },
+  deal: { marginBottom: 18, paddingBottom: 12, borderBottomWidth: 0.5, borderBottomColor: C.line },
+  alert: { fontSize: 7.5, color: C.muted, marginBottom: 1.5 },
+  costLabel: { width: "34%" },
   saleFigures: { flexDirection: "row", gap: 16, marginBottom: 4 },
   saleFigure: { flex: 1, padding: 6, borderWidth: 0.5, borderColor: C.line },
   saleValue: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 2 },
@@ -244,13 +249,6 @@ export function ScenarioReport({
     const costs = ownershipCosts(o.kind, o.result!);
     return costs ? [{ kind: o.kind, costs }] : [];
   });
-  const warnings = [
-    ...new Set(
-      withResults.flatMap((o) =>
-        o.result!.warnings.map((w) => `${labels.scenario(o.kind)}: ${labels.warning(w)}`),
-      ),
-    ),
-  ];
 
   return (
     <Document
@@ -325,9 +323,9 @@ export function ScenarioReport({
         <Text style={s.h2}>{pdfSafe(labels.purchase)}</Text>
         <KeyValues rows={labels.rows.purchase} />
 
-        {/* The heading stays with its table. */}
-        <View wrap={false}>
-          <Text style={s.h2}>{pdfSafe(labels.results)}</Text>
+        {/* Page 2: the summary. The heading stays with its table. */}
+        <View wrap={false} break>
+          <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.results)}</Text>
           <View style={s.table}>
             <View style={s.tr}>
               <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.metricHeader)}</Text>
@@ -368,84 +366,99 @@ export function ScenarioReport({
           </View>
         </View>
 
-        {acquisition && (
-          <View wrap={false}>
-            <Text style={s.h2}>{pdfSafe(labels.acquisition.label)}</Text>
-            <KeyValues
-              rows={[
-                ...labels.acquisition.items
-                  .filter(([k]) => acquisition[k] > 0)
-                  .map(([k, label]) => [label, f.euro(acquisition[k])] as [string, string]),
-                [labels.acquisition.total, f.euro(acquisition.total)],
-              ]}
-            />
-          </View>
-        )}
-
-        {annual.length > 0 && (
-          <View wrap={false}>
-            <Text style={s.h2}>{pdfSafe(labels.annualCosts.label)}</Text>
-            <View style={s.table}>
-              <View style={s.tr}>
-                <Text style={[s.th, s.metricCell]}> </Text>
-                {annual.map(({ kind, costs }) => (
-                  <Text key={kind} style={[s.th, s.valueCell]}>
-                    {pdfSafe(labels.scenario(kind))}
-                    {costs.months !== null && (
-                      <Text style={s.muted}>
-                        {pdfSafe(`\n${labels.annualCosts.months(costs.months)}`)}
-                      </Text>
-                    )}
-                  </Text>
-                ))}
+        <View style={s.twoCols} wrap={false}>
+          <View style={s.col}>
+            {acquisition && (
+              <View>
+                <Text style={s.h2}>{pdfSafe(labels.acquisition.label)}</Text>
+                <KeyValues
+                  rows={[
+                    ...labels.acquisition.items
+                      .filter(([k]) => acquisition[k] > 0)
+                      .map(([k, label]) => [label, f.euro(acquisition[k])] as [string, string]),
+                    [labels.acquisition.total, f.euro(acquisition.total)],
+                  ]}
+                />
               </View>
-              {COST_ITEMS.filter((k) =>
-                annual.some(({ costs }) => costs.items[k] !== undefined),
-              ).map((k) => (
-                <View key={k} style={s.tr}>
-                  <Text style={[s.td, s.metricCell]}>{pdfSafe(labels.annualCosts.items[k])}</Text>
-                  {annual.map(({ kind, costs }) => (
-                    <Text key={kind} style={[s.td, s.valueCell]}>
-                      {pdfSafe(costs.items[k] === undefined ? "-" : f.euro(costs.items[k]!))}
-                    </Text>
-                  ))}
-                </View>
-              ))}
-              <View style={s.tr}>
-                <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.annualCosts.total)}</Text>
-                {annual.map(({ kind, costs }) => (
-                  <Text key={kind} style={[s.th, s.valueCell]}>
-                    {pdfSafe(f.euro(costs.total))}
-                  </Text>
-                ))}
-              </View>
-            </View>
-            {annual.some(({ costs }) => costs.months !== null) && (
-              <Text style={s.note}>{pdfSafe(labels.annualCosts.holdingNote)}</Text>
             )}
           </View>
-        )}
+          <View style={s.col}>
+            {annual.length > 0 && (
+              <View>
+                <Text style={s.h2}>{pdfSafe(labels.annualCosts.label)}</Text>
+                <View style={s.table}>
+                  <View style={s.tr}>
+                    <Text style={[s.th, s.costLabel]}> </Text>
+                    {annual.map(({ kind, costs }) => (
+                      <Text
+                        key={kind}
+                        style={[s.th, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                      >
+                        {pdfSafe(labels.scenario(kind))}
+                        {costs.months !== null && (
+                          <Text style={s.muted}>
+                            {pdfSafe(`\n${labels.annualCosts.months(costs.months)}`)}
+                          </Text>
+                        )}
+                      </Text>
+                    ))}
+                  </View>
+                  {COST_ITEMS.filter((k) =>
+                    annual.some(({ costs }) => costs.items[k] !== undefined),
+                  ).map((k) => (
+                    <View key={k} style={s.tr}>
+                      <Text style={[s.td, s.costLabel]}>
+                        {pdfSafe(labels.annualCosts.items[k])}
+                      </Text>
+                      {annual.map(({ kind, costs }) => (
+                        <Text
+                          key={kind}
+                          style={[s.td, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                        >
+                          {pdfSafe(costs.items[k] === undefined ? "-" : f.euro(costs.items[k]!))}
+                        </Text>
+                      ))}
+                    </View>
+                  ))}
+                  <View style={s.tr}>
+                    <Text style={[s.th, s.costLabel]}>{pdfSafe(labels.annualCosts.total)}</Text>
+                    {annual.map(({ kind, costs }) => (
+                      <Text
+                        key={kind}
+                        style={[s.th, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                      >
+                        {pdfSafe(f.euro(costs.total))}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+                {annual.some(({ costs }) => costs.months !== null) && (
+                  <Text style={s.note}>{pdfSafe(labels.annualCosts.holdingNote)}</Text>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
 
         <Breakdown outcomes={withResults} labels={labels} f={f} />
-
-        {sales.map((sale) => (
-          <SaleSection key={sale.kind} sale={sale} labels={labels} f={f} />
-        ))}
-
-        {warnings.length > 0 && (
-          <View>
-            <Text style={s.h2}>{pdfSafe(labels.warnings)}</Text>
-            {warnings.map((w) => (
-              <Text key={w} style={{ marginBottom: 2 }}>
-                • {pdfSafe(w)}
-              </Text>
-            ))}
-          </View>
-        )}
 
         <Text style={s.note}>{pdfSafe(labels.parameters)}</Text>
         <View style={s.disclaimer} wrap={false}>
           <Text>{pdfSafe(labels.disclaimer)}</Text>
+        </View>
+
+        {/* The following pages: each deal's sale price and alerts. */}
+        <View break>
+          {withResults.map((o) => (
+            <DealSection
+              key={o.kind}
+              kind={o.kind}
+              sale={sales.find((sale) => sale.kind === o.kind)}
+              warnings={o.result!.warnings.map(labels.warning)}
+              labels={labels}
+              f={f}
+            />
+          ))}
         </View>
 
         <View style={s.footer} fixed>
@@ -459,7 +472,39 @@ export function ScenarioReport({
   );
 }
 
-/** What a deal's sale must bring in: break-even price, profit at the expected price, chart. */
+/** One deal's page section: what its sale must bring in, and its alerts (in small type). */
+function DealSection({
+  kind,
+  sale,
+  warnings,
+  labels,
+  f,
+}: {
+  kind: ScenarioKind;
+  sale: ReportSale | undefined;
+  warnings: string[];
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  return (
+    <View wrap={false} style={s.deal}>
+      <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.scenarioName(kind))}</Text>
+      {sale && <SaleSection sale={sale} labels={labels} f={f} />}
+      {warnings.length > 0 && (
+        <View style={{ marginTop: 6 }}>
+          <Text style={s.h3}>{pdfSafe(labels.warnings)}</Text>
+          {warnings.map((w) => (
+            <Text key={w} style={s.alert}>
+              • {pdfSafe(w)}
+            </Text>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** What a deal's sale must bring in: break-even price, and profit in 5 % steps above it. */
 function SaleSection({
   sale: { kind, analysis, expectedProfit },
   labels,
@@ -471,8 +516,8 @@ function SaleSection({
 }) {
   const { breakEven, expected, years } = analysis;
   return (
-    <View wrap={false} style={s.saleBox}>
-      <Text style={s.h2}>{pdfSafe(`${labels.sale.title}: ${labels.scenario(kind)}`)}</Text>
+    <View>
+      <Text style={s.h3}>{pdfSafe(labels.sale.title)}</Text>
       <Text style={[s.muted, { marginBottom: 4 }]}>
         {pdfSafe(labels.sale.help(kind, years ?? 0))}
       </Text>
