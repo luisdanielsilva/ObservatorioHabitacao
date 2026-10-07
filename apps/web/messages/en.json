@@ -677,7 +677,28 @@
       "best": "Best option for the goal “{goal}”: {scenario}",
       "missing": "Missing data",
       "parameters": "{year} tax parameters{verified, select, true {} other { (not yet reviewed by an accountant)}}. Calculated on {date}.",
-      "page": "Page {page} of {total}"
+      "page": "Page {page} of {total}",
+      "listing": "Listing",
+      "askingVsMarket": "Asking price vs. market",
+      "breakdown": {
+        "title": "Calculation summary",
+        "help": "Money in (+) and out (−) over each deal's period, after financing and taxes.",
+        "period": "Period",
+        "months": "{months, plural, one {1 month} other {# months}}",
+        "rows": {
+          "initial": "Initial payment (own capital)",
+          "income": "Rents and revenue",
+          "operatingCosts": "Operating costs",
+          "renovation": "Works",
+          "debtService": "Loan payments",
+          "incomeTax": "Income tax (IRS)",
+          "saleProceeds": "Sale or assignment, net of commissions",
+          "loanPayoff": "Loan repayment",
+          "capitalGainsTax": "Capital gains tax (IRS)"
+        },
+        "total": "Result at the end of the period",
+        "kept": "The rental is permanent: the result does not include selling the property."
+      }
     }
   },
   "admin": {

@@ -10,6 +10,7 @@ import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import { getDb } from "@/lib/db";
 import { createFormatter } from "@/lib/format";
 import { photoFilePath } from "@/lib/photos";
+import { BREAKDOWN_ROWS, type BreakdownRow } from "./breakdown";
 import { buildReportData, type ReportData } from "./data";
 import {
   REPORT_METRICS,
@@ -99,6 +100,17 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       profit: tsale("profit"),
     },
     photos: tp("title"),
+    breakdown: {
+      title: t("breakdown.title"),
+      help: t("breakdown.help"),
+      period: t("breakdown.period"),
+      months: (months) => t("breakdown.months", { months }),
+      rows: Object.fromEntries(
+        BREAKDOWN_ROWS.map((row) => [row, t(`breakdown.rows.${row}`)]),
+      ) as Record<BreakdownRow, string>,
+      total: t("breakdown.total"),
+      kept: t("breakdown.kept"),
+    },
     warning: (code) => (tw.has(code as never) ? tw(code as never) : code),
     years: (n) => tm("years", { value: n }),
     rows: {
@@ -111,6 +123,15 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
         [te("condition"), te(`conditions.${state.condition}`)],
         [t("location"), data.breadcrumb.join(" › ") || state.address || "—"],
         [te("askingPrice"), money(state.askingPrice)],
+        ...(output.opportunity
+          ? [
+              [
+                t("askingVsMarket"),
+                `${te(`opportunity.${output.opportunity.signal}`)} (${f.signedPercent(output.opportunity.difference)})`,
+              ] as [string, string],
+            ]
+          : []),
+        ...(state.url.trim() ? [[t("listing"), state.url.trim()] as [string, string]] : []),
       ],
       market: [
         [te("marketValue"), money(state.marketValue)],

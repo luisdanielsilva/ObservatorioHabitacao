@@ -1,16 +1,25 @@
 # OlhoVivo — Status
 
-Updated 2026-10-06, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-07, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 197 unit tests (56 engine, 91 db, 50 web) and 31 end-to-end tests (Playwright, Chromium;
+Tests: 199 unit tests (56 engine, 91 db, 52 web) and 31 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-06)
+## Latest changes (2026-10-04 – 2026-10-07)
+
+**PDF report opens in a new tab (2026-10-07)**
+
+- "Ver PDF" opens the report in a new browser tab (saving the evaluation first if needed);
+  the download on `/conta` still saves the file.
+- Property summary adds the listing link and the asking price against the market value.
+- New "Resumo do cálculo": per deal, every flow of money over its period (initial payment,
+  rents, operating costs, works, loan payments, IRS, sale or assignment, loan repayment, IRS on
+  the gain) adding up to the result. Long values wrap in their column.
 
 **Property photos: choose before sending (2026-10-06)**
 
@@ -141,7 +150,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 5.3.7       | Sale-price analysis        | ✅     | Replaced the sensitivity sliders: break-even sale price and profit above it                  |
 | 6.3.1       | Favourites, saved searches | ⬜     | Tables only (Phase 3 with Comprar)                                                           |
 | 6.3.2       | Saved scenarios            | ✅     | Save, duplicate, open and delete (`/conta`); photos; draft kept in the browser               |
-| 6.3.3       | PDF report                 | ✅     | Yearly costs, sale chart per deal and photos (owner only); from results and `/conta`         |
+| 6.3.3       | PDF report                 | ✅     | Opens in a new tab; calculation summary, yearly costs, sale charts, photos (owner only)      |
 | 6.3.4       | Sharing                    | ✅     | Read-only link by email, WhatsApp, Messenger, account email; Ver PDF; also on `/conta`       |
 | 6.3.5       | Alerts engine              | ⬜     | Not started                                                                                  |
 | 6.4.1–6.4.2 | Leads, team notifications  | ✅     |                                                                                              |

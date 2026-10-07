@@ -14,6 +14,7 @@ import {
 } from "@react-pdf/renderer";
 import type { SaleAnalysis } from "@/lib/calculator/sale";
 import type { Formatter } from "@/lib/format";
+import { BREAKDOWN_ROWS, cashBreakdown, type BreakdownRow } from "./breakdown";
 import type { ReportData } from "./data";
 import { pdfSafe } from "./text";
 
@@ -53,6 +54,15 @@ export interface ReportLabels {
     profit: string;
   };
   photos: string;
+  breakdown: {
+    title: string;
+    help: string;
+    period: string;
+    months: (months: number) => string;
+    rows: Record<BreakdownRow, string>;
+    total: string;
+    kept: string;
+  };
   warning: (code: string) => string;
   years: (n: number) => string;
   rows: { property: [string, string][]; market: [string, string][]; purchase: [string, string][] };
@@ -147,6 +157,9 @@ const s = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: C.line,
   },
+  // Long values (a listing link, seasonal rates) wrap under their own column.
+  kvLabel: { maxWidth: "50%", paddingRight: 8 },
+  kvValue: { flex: 1, textAlign: "right" },
   table: { borderTopWidth: 0.5, borderTopColor: C.line },
   tr: { flexDirection: "row", borderBottomWidth: 0.5, borderBottomColor: C.line },
   th: { fontFamily: "Helvetica-Bold", paddingVertical: 4, paddingHorizontal: 3 },
@@ -187,8 +200,8 @@ function KeyValues({ rows }: { rows: [string, string][] }) {
     <View>
       {rows.map(([k, v]) => (
         <View key={k} style={s.kv}>
-          <Text style={s.muted}>{pdfSafe(k)}</Text>
-          <Text>{pdfSafe(v)}</Text>
+          <Text style={[s.muted, s.kvLabel]}>{pdfSafe(k)}</Text>
+          <Text style={s.kvValue}>{pdfSafe(v)}</Text>
         </View>
       ))}
     </View>
@@ -378,6 +391,8 @@ export function ScenarioReport({
           </View>
         )}
 
+        <Breakdown outcomes={withResults} labels={labels} f={f} />
+
         {sales.map((sale) => (
           <SaleSection key={sale.kind} sale={sale} labels={labels} f={f} />
         ))}
@@ -533,5 +548,72 @@ function SaleCurve({ analysis: { points, breakEven, expected } }: { analysis: Sa
         </Text>
       ))}
     </Svg>
+  );
+}
+
+/** Every flow of money per deal over its period, adding up to the result. */
+function Breakdown({
+  outcomes,
+  labels,
+  f,
+}: {
+  outcomes: { kind: ScenarioKind; result?: ScenarioResult | null }[];
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const deals = outcomes.flatMap((o) =>
+    o.result ? [{ kind: o.kind, b: cashBreakdown(o.result) }] : [],
+  );
+  if (deals.length === 0) return null;
+  // Only the kinds of money that some deal has.
+  const rows = BREAKDOWN_ROWS.filter((row) => deals.some((d) => Math.abs(d.b.rows[row]) >= 0.5));
+  const money = (v: number) => pdfSafe(Math.abs(v) < 0.5 ? "-" : f.euro(v));
+  return (
+    <View wrap={false}>
+      <Text style={s.h2}>{pdfSafe(labels.breakdown.title)}</Text>
+      <Text style={[s.muted, { marginBottom: 4 }]}>{pdfSafe(labels.breakdown.help)}</Text>
+      <View style={s.table}>
+        <View style={s.tr}>
+          <Text style={[s.th, s.metricCell]}> </Text>
+          {deals.map((d) => (
+            <Text key={d.kind} style={[s.th, s.valueCell]}>
+              {pdfSafe(labels.scenario(d.kind))}
+            </Text>
+          ))}
+        </View>
+        <View style={s.tr}>
+          <Text style={[s.td, s.metricCell, s.muted]}>{pdfSafe(labels.breakdown.period)}</Text>
+          {deals.map((d) => (
+            <Text key={d.kind} style={[s.td, s.valueCell, s.muted]}>
+              {pdfSafe(labels.breakdown.months(d.b.months))}
+            </Text>
+          ))}
+        </View>
+        {rows.map((row) => (
+          <View key={row} style={s.tr}>
+            <Text style={[s.td, s.metricCell]}>{pdfSafe(labels.breakdown.rows[row])}</Text>
+            {deals.map((d) => (
+              <Text
+                key={d.kind}
+                style={[s.td, s.valueCell, d.b.rows[row] < -0.5 ? s.negative : {}]}
+              >
+                {money(d.b.rows[row])}
+              </Text>
+            ))}
+          </View>
+        ))}
+        <View style={s.tr}>
+          <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.breakdown.total)}</Text>
+          {deals.map((d) => (
+            <Text key={d.kind} style={[s.th, s.valueCell, d.b.total < -0.5 ? s.negative : {}]}>
+              {money(d.b.total)}
+            </Text>
+          ))}
+        </View>
+      </View>
+      {deals.some((d) => d.kind === "longTermRental") && (
+        <Text style={s.note}>{pdfSafe(labels.breakdown.kept)}</Text>
+      )}
+    </View>
   );
 }

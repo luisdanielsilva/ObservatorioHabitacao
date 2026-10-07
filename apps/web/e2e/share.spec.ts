@@ -63,16 +63,16 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
     .toBe(true);
   expect(readFileSync(LOG!, "utf8")).toContain(`/partilha/${link.split("/partilha/")[1]}`);
 
-  // Ver PDF downloads the full report.
-  const download = page.waitForEvent("download");
-  await share.getByRole("link", { name: "Ver PDF" }).click();
-  const file = await download;
-  expect(file.suggestedFilename()).toMatch(/^olhovivo-.*\.pdf$/);
-  expect(
-    readFileSync((await file.path())!)
-      .subarray(0, 4)
-      .toString(),
-  ).toBe("%PDF");
+  // Ver PDF opens the full report in a new tab, shown by the browser (not downloaded).
+  const pdfLink = share.getByRole("link", { name: "Ver PDF" });
+  await expect(pdfLink).toHaveAttribute("target", "_blank");
+  const pdfTab = page.waitForEvent("popup");
+  await pdfLink.click();
+  await (await pdfTab).close();
+  const pdf = await page.request.get((await pdfLink.getAttribute("href"))!);
+  expect(pdf.headers()["content-type"]).toBe("application/pdf");
+  expect(pdf.headers()["content-disposition"]).toMatch(/^inline; filename="olhovivo-.*\.pdf"$/);
+  expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
 
   // Anyone with the link sees the results, read-only, with the sale chart.
   const visitor = await browser.newPage();
@@ -82,12 +82,20 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await expect(visitor.getByRole("textbox")).toHaveCount(0);
   await expect(visitor.getByRole("button", { name: "Guardar", exact: true })).toHaveCount(0);
 
-  // A change on screen: the link shows the saved version until it is shared again.
+  // A change on screen: the link shows the saved version until it is saved again.
   await results.getByLabel("Nome do cenário").fill("Revenda Cascais");
   await expect(share.getByText(/Tem alterações por guardar/)).toBeVisible();
-  const again = page.waitForEvent("popup");
-  await share.getByRole("button", { name: "WhatsApp" }).click();
-  await (await again).close();
+  // Ver PDF saves the changes first, then shows the report in the new tab.
+  // (Headless Chromium has no PDF viewer, so the tab's request is checked, not its address.)
+  const changedPdf = page.waitForEvent("popup");
+  const pdfRequest = page
+    .context()
+    .waitForEvent("request", (r) => /\/api\/scenarios\/\d+\/pdf/.test(r.url()));
+  await share.getByRole("button", { name: "Ver PDF" }).click();
+  const changedTab = await changedPdf;
+  expect((await pdfRequest).frame().page()).toBe(changedTab);
+  await changedTab.close();
+  await expect(share.getByRole("link", { name: "Ver PDF" })).toBeVisible();
   await expect(share.getByText(/Tem alterações por guardar/)).toHaveCount(0);
   await expect(share.getByLabel("Link só de leitura")).toHaveValue(link);
   await visitor.reload();

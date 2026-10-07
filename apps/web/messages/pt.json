@@ -677,7 +677,28 @@
       "best": "Melhor opção para o objetivo «{goal}»: {scenario}",
       "missing": "Faltam dados",
       "parameters": "Parâmetros fiscais de {year}{verified, select, true {} other { (ainda não verificados por um contabilista)}}. Cálculo de {date}.",
-      "page": "Página {page} de {total}"
+      "page": "Página {page} de {total}",
+      "listing": "Anúncio",
+      "askingVsMarket": "Preço pedido vs. mercado",
+      "breakdown": {
+        "title": "Resumo do cálculo",
+        "help": "Dinheiro que entra (+) e sai (−) ao longo do período de cada negócio, depois do financiamento e dos impostos.",
+        "period": "Período",
+        "months": "{months, plural, one {1 mês} other {# meses}}",
+        "rows": {
+          "initial": "Pagamento inicial (capital próprio)",
+          "income": "Rendas e receitas",
+          "operatingCosts": "Custos de exploração",
+          "renovation": "Obras",
+          "debtService": "Prestações do empréstimo",
+          "incomeTax": "IRS sobre os rendimentos",
+          "saleProceeds": "Venda ou cessão, líquida de comissões",
+          "loanPayoff": "Liquidação do empréstimo",
+          "capitalGainsTax": "IRS sobre a mais-valia"
+        },
+        "total": "Resultado no fim do período",
+        "kept": "O arrendamento é permanente: o resultado não inclui a venda do imóvel."
+      }
     }
   },
   "admin": {

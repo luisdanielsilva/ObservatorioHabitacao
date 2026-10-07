@@ -37,7 +37,7 @@ type Message =
 
 /**
  * Sharing the results (WBS 6.3.4): every channel sends a read-only link to this evaluation on
- * OlhoVivo; "Ver PDF" downloads the full report instead. The evaluation is saved first, as on
+ * OlhoVivo; "Ver PDF" opens the full report in a new tab instead. The evaluation is saved first, as on
  * screen, so what is shared is always what the user sees (signing in if needed).
  */
 export function ShareSection({
@@ -110,15 +110,21 @@ export function ShareSection({
   /** Saves (and shares) first, then does what the user asked. */
   const run = (action: Action) => {
     setMessage(null);
-    // Opened now, while the click still allows it; pointed at the link once it exists.
-    const tab = action === "whatsapp" ? window.open("", "_blank") : null;
+    // Opened now, while the click still allows it; pointed at the link or PDF once it exists.
+    const tab = action === "whatsapp" || action === "pdf" ? window.open("", "_blank") : null;
     start(async () => {
       const key = currentKey;
       const input = { id: saved?.id ?? null, name, state };
       if (action === "pdf") {
         const r = await ensureSaved();
-        if (r.status !== "saved") return setMessage(failure(r.status));
-        window.location.assign(pdfUrl(r.id));
+        if (r.status !== "saved") {
+          tab?.close();
+          return setMessage(failure(r.status));
+        }
+        if (tab) {
+          tab.opener = null;
+          tab.location.href = pdfUrl(r.id);
+        } else window.open(pdfUrl(r.id), "_blank", "noopener");
         return;
       }
       if (action === "account") {
@@ -211,7 +217,7 @@ export function ShareSection({
         </p>
         {inSync ? (
           <Button asChild variant="outline">
-            <a href={pdfUrl(saved.id)} download>
+            <a href={pdfUrl(saved.id)} target="_blank" rel="noopener">
               <Eye />
               {t("viewPdf")}
             </a>

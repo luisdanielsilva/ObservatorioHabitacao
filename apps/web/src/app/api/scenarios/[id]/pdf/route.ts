@@ -19,5 +19,6 @@ export async function GET(request: Request, { params }: RouteContext<"/api/scena
 
   const pdf = await renderScenarioPdf(scenario, reportLocale(request), { photos: true });
   if (!pdf) return NextResponse.json({ error: "cannot calculate" }, { status: 500 });
-  return pdfResponse(pdf, reportFilename(scenario.name), "attachment");
+  // Shown in the browser (Ver PDF opens it in a new tab); links with "download" still save it.
+  return pdfResponse(pdf, reportFilename(scenario.name), "inline");
 }
