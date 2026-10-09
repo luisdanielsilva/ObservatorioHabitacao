@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 import type { AppLocale } from "@/i18n/routing";
-import { chosenOutcomes } from "@/lib/calculator/run";
+import { chosenOutcomes, runCalculator } from "@/lib/calculator/run";
 import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import { getDb } from "@/lib/db";
 import { normaliseState } from "@/lib/calculator/state";
@@ -107,13 +107,16 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       help: (kind, years) => tsale(`help.${kind}`, { years }),
       caption: (from) => tsale(`stepsCaption.${from}`),
       priceLabel: (kind) => tsale(`priceLabel.${kind}`),
-      nearExpected: tsale("nearExpected"),
     },
     breakdown: {
       short: Object.fromEntries(
-        [...BREAKDOWN_ROWS, "total" as const].map((row) => [row, t(`breakdown.short.${row}`)]),
-      ) as Record<BreakdownRow | "total", string>,
+        [...BREAKDOWN_ROWS, "total" as const, "steps" as const].map((row) => [
+          row,
+          t(`breakdown.short.${row}`),
+        ]),
+      ) as Record<BreakdownRow | "total" | "steps", string>,
       waterfall: t("breakdown.waterfall"),
+      waterfallAt: (from, price) => t(`breakdown.waterfallAt.${from}`, { price }),
       title: t("breakdown.title"),
       help: t("breakdown.help"),
       period: t("breakdown.period"),
@@ -228,7 +231,15 @@ function reportSales(data: ReportData): ReportSale[] {
       analysis.expected !== null
         ? profitAtSale(state, parameters, startMonth, o.kind, analysis.expected)
         : null;
-    return [{ kind: o.kind, analysis, expectedProfit }];
+    // The deal with the sale at the price the steps start from (the lowest price without a
+    // loss, or the price entered when no price makes a loss): what the waterfall shows.
+    const basePrice = analysis.steps[0]?.price ?? null;
+    const baseResult =
+      basePrice !== null
+        ? (runCalculator(state, parameters, startMonth, { only: o.kind, salePrice: basePrice })
+            .outcomes[0]?.result ?? null)
+        : null;
+    return [{ kind: o.kind, analysis, expectedProfit, basePrice, baseResult }];
   });
 }
 

@@ -712,7 +712,12 @@
           "saleProceeds": "Venda",
           "loanPayoff": "Empréstimo",
           "capitalGainsTax": "Mais-valia",
-          "total": "Resultado"
+          "total": "Resultado",
+          "steps": "Lucro +5 a +20%"
+        },
+        "waterfallAt": {
+          "breakEven": "Do pagamento inicial a zero, com a venda ao preço mínimo sem prejuízo ({price})",
+          "expected": "Do pagamento inicial ao resultado, com a venda ao preço que indicou ({price})"
         }
       },
       "holdingNote": "Na revenda, os custos contam só os meses até à venda.",

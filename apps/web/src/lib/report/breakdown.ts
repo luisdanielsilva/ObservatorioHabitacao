@@ -72,3 +72,16 @@ export function waterfallBars(b: CashBreakdown): WaterfallBar[] {
   if (bars.length) bars.push({ key: "total", from: 0, to: b.total, value: b.total });
   return bars;
 }
+
+/**
+ * Where the step labels go beside the result column: at their block, but at least a line apart
+ * (small steps next to large flows would otherwise print on top of each other). `ys` runs from
+ * the lowest price up, so each label is moved up from the one before when needed.
+ */
+export function stepLabels(ys: number[], gap = 8): number[] {
+  const out: number[] = [];
+  for (const y of ys) out.push(out.length ? Math.min(y, out.at(-1)! - gap) : y);
+  // Kept inside the chart: if the top one went off it, the whole set moves down.
+  const shift = Math.max(0, gap - (out.at(-1) ?? gap));
+  return out.map((y) => y + shift);
+}

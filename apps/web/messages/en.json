@@ -712,7 +712,12 @@
           "saleProceeds": "Sale",
           "loanPayoff": "Loan payoff",
           "capitalGainsTax": "Gains tax",
-          "total": "Result"
+          "total": "Result",
+          "steps": "Profit +5 to +20%"
+        },
+        "waterfallAt": {
+          "breakEven": "From the initial payment to zero, selling at the lowest price without a loss ({price})",
+          "expected": "From the initial payment to the result, selling at the price you entered ({price})"
         }
       },
       "holdingNote": "For the resale, costs cover only the months until the sale.",

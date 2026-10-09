@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";
 import { runCalculator } from "../calculator/run";
 import { initialState } from "../calculator/state";
-import { cashBreakdown, waterfallBars } from "./breakdown";
+import { cashBreakdown, stepLabels, waterfallBars } from "./breakdown";
 
 const params: ParameterSet = params2025;
 const result = (kind: string, overrides: Parameters<typeof initialState>[0]) =>
@@ -42,5 +42,14 @@ describe("cashBreakdown", () => {
     expect(bars[0]!.from).toBe(0);
     expect(bars.at(-2)!.to).toBeCloseTo(b.total, 6);
     expect(bars.at(-1)).toEqual({ key: "total", from: 0, to: b.total, value: b.total });
+  });
+
+  it("spaces the step labels at least a line apart, inside the chart", () => {
+    // Far apart: unchanged.
+    expect(stepLabels([100, 80, 60])).toEqual([100, 80, 60]);
+    // Close together (small steps): each at least 8 above the one below.
+    expect(stepLabels([100, 99, 98, 97])).toEqual([100, 92, 84, 76]);
+    // Pushed off the top: the whole set moves down.
+    expect(stepLabels([12, 11, 10])).toEqual([20, 12, 4].map((y) => y + 4));
   });
 });

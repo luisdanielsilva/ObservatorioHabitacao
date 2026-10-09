@@ -15,9 +15,16 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { COST_ITEMS, ownershipCosts, type CostItem } from "@/lib/calculator/costs";
-import { nearStep, type SaleAnalysis } from "@/lib/calculator/sale";
+import type { SaleAnalysis, SaleStep } from "@/lib/calculator/sale";
 import type { Formatter } from "@/lib/format";
-import { BREAKDOWN_ROWS, cashBreakdown, type BreakdownRow, waterfallBars } from "./breakdown";
+import {
+  BREAKDOWN_ROWS,
+  cashBreakdown,
+  stepLabels,
+  type BreakdownRow,
+  type WaterfallBar,
+  waterfallBars,
+} from "./breakdown";
 import type { ReportData } from "./data";
 import { pdfSafe } from "./text";
 
@@ -63,12 +70,13 @@ export interface ReportLabels {
     help: (kind: ScenarioKind, years: number) => string;
     caption: (from: "breakEven" | "expected") => string;
     priceLabel: (kind: ScenarioKind) => string;
-    nearExpected: string;
   };
   breakdown: {
     /** Short names under the waterfall's bars. */
-    short: Record<BreakdownRow | "total", string>;
+    short: Record<BreakdownRow | "total" | "steps", string>;
     waterfall: string;
+    /** The waterfall's title when the sale is at the steps' base price. */
+    waterfallAt: (from: "breakEven" | "expected", price: string) => string;
     title: string;
     help: string;
     period: string;
@@ -89,6 +97,9 @@ export interface ReportSale {
   kind: ScenarioKind;
   analysis: SaleAnalysis;
   expectedProfit: number | null;
+  /** The sale price the steps start from, and the deal's result with the sale at it. */
+  basePrice: number | null;
+  baseResult: ScenarioResult | null;
 }
 
 /** A property photo, already in a format the PDF can embed. */
@@ -206,16 +217,12 @@ const s = StyleSheet.create({
   costHeader: { fontSize: 8 },
   saleFigure: { flex: 1, padding: 6, borderWidth: 0.5, borderColor: C.line },
   saleValue: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 2 },
-  stepRow: { flexDirection: "row", alignItems: "center", paddingVertical: 1.5 },
-  stepChange: { width: 30 },
-  stepPrice: { width: 95 },
-  stepNear: { fontSize: 7, fontFamily: "Helvetica", color: C.muted },
   good: { color: C.good },
-  stepTrack: { flex: 1, height: 8, marginRight: 8 },
-  stepBar: { height: 8, backgroundColor: C.brand, minWidth: 1 },
-  stepProfit: { width: 62, textAlign: "right" },
-  saleCards: { width: "38%", gap: 6 },
   waterfall: { marginTop: 8 },
+  legend: { flexDirection: "row", flexWrap: "wrap", marginTop: 4, rowGap: 2 },
+  legendItem: { width: "25%", flexDirection: "row", alignItems: "center", paddingRight: 6 },
+  legendText: { fontSize: 7, color: C.muted },
+  swatch: { width: 10, height: 6, marginRight: 4 },
   wfValue: { fontSize: 7 },
   wfLabel: { fontSize: 7 },
   photos: { marginTop: 10 },
@@ -539,7 +546,7 @@ function DealSection({
     <View wrap={false} style={s.deal}>
       <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.scenarioName(kind))}</Text>
       {sale && <SaleSection sale={sale} labels={labels} f={f} />}
-      <Waterfall result={result} labels={labels} f={f} />
+      <DealCharts result={result} sale={sale} labels={labels} f={f} />
       {warnings.length > 0 && (
         <View style={{ marginTop: 6 }}>
           <Text style={s.h3}>{pdfSafe(labels.warnings)}</Text>
@@ -554,7 +561,7 @@ function DealSection({
   );
 }
 
-/** What a deal's sale must bring in: break-even price, and profit in 5 % steps above it. */
+/** What a deal's sale must bring in: the lowest price without a loss, and the profit at yours. */
 function SaleSection({
   sale: { kind, analysis, expectedProfit },
   labels,
@@ -572,28 +579,18 @@ function SaleSection({
         {pdfSafe(labels.sale.help(kind, years ?? 0))}
       </Text>
       <View style={s.twoCols}>
-        <View style={s.saleCards}>
-          <View style={s.saleFigure}>
-            <Text style={s.muted}>{pdfSafe(labels.sale.breakEven(kind))}</Text>
-            <Text style={s.saleValue}>
-              {pdfSafe(breakEven !== null ? f.euro(breakEven) : labels.sale.noBreakEven)}
-            </Text>
-          </View>
-          {expected !== null && (
-            <View style={s.saleFigure}>
-              <Text style={s.muted}>{pdfSafe(labels.sale.atExpected(expected))}</Text>
-              <Text style={[s.saleValue, (expectedProfit ?? 0) < 0 ? s.negative : {}]}>
-                {pdfSafe(expectedProfit === null ? "—" : f.euro(expectedProfit))}
-              </Text>
-            </View>
-          )}
+        <View style={[s.col, s.saleFigure]}>
+          <Text style={s.muted}>{pdfSafe(labels.sale.breakEven(kind))}</Text>
+          <Text style={s.saleValue}>
+            {pdfSafe(breakEven !== null ? f.euro(breakEven) : labels.sale.noBreakEven)}
+          </Text>
         </View>
-        {analysis.stepsFrom && (
-          <View style={s.col}>
-            <Text style={[s.note, { marginTop: 0, marginBottom: 3 }]}>
-              {pdfSafe(labels.sale.caption(analysis.stepsFrom))}
+        {expected !== null && (
+          <View style={[s.col, s.saleFigure]}>
+            <Text style={s.muted}>{pdfSafe(labels.sale.atExpected(expected))}</Text>
+            <Text style={[s.saleValue, (expectedProfit ?? 0) < 0 ? s.negative : {}]}>
+              {pdfSafe(expectedProfit === null ? "—" : f.euro(expectedProfit))}
             </Text>
-            <SaleSteps analysis={analysis} labels={labels} f={f} />
           </View>
         )}
       </View>
@@ -601,119 +598,218 @@ function SaleSection({
   );
 }
 
-const WF = { width: 523, height: 120, top: 12, bottom: 24 };
+/** The two charts of a deal, side by side: the waterfall, and the steps on their own scale. */
+const WF = { width: 523, height: 150, top: 14, bottom: 24, stepsWidth: 140, gap: 8 };
+
+/** One shade per 5 % step of the sale price, lighter to darker as the price rises. */
+const STEP_SHADES = ["#a7dcd9", "#6cc0bb", "#349f9a", "#0e7c7b"];
 
 /**
- * The calculation summary of one deal as a waterfall: each flow of money (initial payment,
- * income, costs, loan payments, taxes, the sale) moves the balance up or down, ending at the
- * result. Same figures as "Resumo do cálculo".
+ * A deal's money as two charts that read as one. On the left, the waterfall: each flow (initial
+ * payment, income, costs, loan payments, taxes, the sale) moves the balance up or down, with the
+ * sale at the lowest price without a loss, so it ends at 0. On the right, on a larger scale
+ * and on the same zero line, the profit at each 5 % step above that price, stacked.
  */
-function Waterfall({
+function DealCharts({
   result,
+  sale,
   labels,
   f,
 }: {
   result: ScenarioResult;
+  sale: ReportSale | undefined;
   labels: ReportLabels;
   f: Formatter;
 }) {
-  const bars = waterfallBars(cashBreakdown(result));
+  // At the steps' base price when there is one; otherwise the deal as calculated.
+  const atBase = sale?.baseResult ?? null;
+  const bars = waterfallBars(cashBreakdown(atBase ?? result));
   if (bars.length === 0) return null;
+  const steps = atBase && sale ? sale.analysis.steps : [];
+  const mainWidth = steps.length ? WF.width - WF.stepsWidth - WF.gap : WF.width;
+
+  // Zero sits at or below the middle, so the steps chart has room to rise from it.
   const values = bars.flatMap((bar) => [bar.from, bar.to]);
   const min = Math.min(0, ...values);
-  const max = Math.max(0, ...values);
+  const max = Math.max(0, ...values, steps.length ? -min : 0);
   const plot = WF.height - WF.top - WF.bottom;
   const y = (v: number) => WF.top + ((max - v) / (max - min || 1)) * plot;
-  const slot = WF.width / bars.length;
-  const barWidth = Math.min(36, slot * 0.6);
-  const short = (v: number) =>
-    Math.abs(v) >= 1000 ? `${f.number(v / 1000, Math.abs(v) >= 10_000 ? 0 : 1)}k` : f.number(v);
-  const colour = (bar: (typeof bars)[number]) =>
-    bar.key === "total" ? C.text : bar.value >= 0 ? C.good : C.bad;
+  const zero = y(0);
 
   return (
     <View style={s.waterfall}>
-      <Text style={s.h3}>{pdfSafe(labels.breakdown.waterfall)}</Text>
-      <Svg width={WF.width} height={WF.height}>
-        <Line x1={0} x2={WF.width} y1={y(0)} y2={y(0)} stroke={C.muted} strokeWidth={0.5} />
-        {bars.map((bar, i) => {
-          const x = slot * i + (slot - barWidth) / 2;
-          const top = y(Math.max(bar.from, bar.to));
-          const height = Math.max(0.75, Math.abs(y(bar.from) - y(bar.to)));
-          const up = bar.to >= bar.from;
-          return (
-            <G key={bar.key}>
-              <Rect x={x} y={top} width={barWidth} height={height} fill={colour(bar)} />
-              {/* A thin connector to the next bar, at the new balance. */}
-              {i < bars.length - 1 && bar.key !== "total" && (
-                <Line
-                  x1={x + barWidth}
-                  x2={x + slot}
-                  y1={y(bar.to)}
-                  y2={y(bar.to)}
-                  stroke={C.line}
-                  strokeWidth={0.75}
-                />
-              )}
-              <Text
-                x={x + barWidth / 2}
-                y={up || bar.key === "total" ? top - 3 : top + height + 8}
-                textAnchor="middle"
-                style={s.wfValue}
-                fill={colour(bar)}
-              >
-                {pdfSafe(short(bar.value))}
-              </Text>
-              <Text
-                x={slot * i + slot / 2}
-                y={WF.height - 4}
-                textAnchor="middle"
-                style={s.wfLabel}
-                fill={bar.key === "total" ? C.text : C.muted}
-              >
-                {pdfSafe(labels.breakdown.short[bar.key])}
-              </Text>
-            </G>
-          );
-        })}
-      </Svg>
+      <Text style={s.h3}>
+        {pdfSafe(
+          atBase && sale?.basePrice
+            ? labels.breakdown.waterfallAt(sale.analysis.stepsFrom!, f.euro(sale.basePrice))
+            : labels.breakdown.waterfall,
+        )}
+      </Text>
+      <View style={{ flexDirection: "row", gap: WF.gap }}>
+        <WaterfallChart bars={bars} width={mainWidth} y={y} zero={zero} labels={labels} f={f} />
+        {steps.length > 0 && <StepsChart steps={steps} zero={zero} f={f} labels={labels} />}
+      </View>
+      {steps.length > 0 && <StepsLegend sale={sale!} f={f} />}
     </View>
   );
 }
 
-/** Net profit in 5 % steps above the base price, as horizontal bars. */
-function SaleSteps({
-  analysis,
+/** Thousands as "13k" or "1,2k"; smaller amounts as they are. */
+function shortAmount(v: number, f: Formatter): string {
+  return Math.abs(v) >= 1000
+    ? `${f.number(v / 1000, Math.abs(v) >= 10_000 ? 0 : 1)}k`
+    : f.number(Math.round(v));
+}
+
+function WaterfallChart({
+  bars,
+  width,
+  y,
+  zero,
   labels,
   f,
 }: {
-  analysis: SaleAnalysis;
+  bars: WaterfallBar[];
+  width: number;
+  y: (v: number) => number;
+  zero: number;
   labels: ReportLabels;
   f: Formatter;
 }) {
-  const { steps, expected } = analysis;
-  const maxProfit = Math.max(1, ...steps.map((st) => st.profit));
-  const near = nearStep(steps, expected);
+  const slot = width / bars.length;
+  const barWidth = Math.min(34, slot * 0.6);
+  const colour = (bar: WaterfallBar) =>
+    bar.key === "total" ? C.text : bar.value >= 0 ? C.good : C.bad;
+  // The result at the lowest price without a loss is 0 (to the euro, within rounding).
+  const value = (bar: WaterfallBar) =>
+    bar.key === "total" && Math.abs(bar.value) < 100 ? "0" : shortAmount(bar.value, f);
   return (
-    <View>
-      {steps.map((st, i) => (
-        <View key={st.change} style={s.stepRow}>
-          <Text style={[s.stepChange, s.muted]}>
-            {st.change === 0 ? "0%" : `+${Math.round(st.change * 100)}%`}
-          </Text>
-          <Text style={[s.stepPrice, i === near ? { fontFamily: "Helvetica-Bold" } : {}]}>
-            {pdfSafe(f.euro(st.price))}
-            {i === near && (
-              <Text style={s.stepNear}>{pdfSafe(`  ${labels.sale.nearExpected}`)}</Text>
+    <Svg width={width} height={WF.height}>
+      <Line x1={0} x2={width} y1={zero} y2={zero} stroke={C.muted} strokeWidth={0.5} />
+      {bars.map((bar, i) => {
+        const x = slot * i + (slot - barWidth) / 2;
+        const top = y(Math.max(bar.from, bar.to));
+        const height = Math.max(0.75, Math.abs(y(bar.from) - y(bar.to)));
+        const up = bar.to >= bar.from;
+        return (
+          <G key={bar.key}>
+            <Rect x={x} y={top} width={barWidth} height={height} fill={colour(bar)} />
+            {i < bars.length - 1 && bar.key !== "total" && (
+              <Line
+                x1={x + barWidth}
+                x2={x + slot}
+                y1={y(bar.to)}
+                y2={y(bar.to)}
+                stroke={C.line}
+                strokeWidth={0.75}
+              />
             )}
-          </Text>
-          <View style={s.stepTrack}>
-            <View
-              style={[s.stepBar, { width: `${(Math.max(0, st.profit) / maxProfit) * 100}%` }]}
-            />
-          </View>
-          <Text style={[s.stepProfit, st.profit < 0 ? s.negative : {}]}>
-            {pdfSafe(f.euro(st.profit))}
+            <Text
+              x={x + barWidth / 2}
+              y={up || bar.key === "total" ? top - 3 : top + height + 8}
+              textAnchor="middle"
+              style={bar.key === "total" ? [s.wfValue, s.bold] : s.wfValue}
+              fill={colour(bar)}
+            >
+              {pdfSafe(value(bar))}
+            </Text>
+            <Text
+              x={slot * i + slot / 2}
+              y={WF.height - 4}
+              textAnchor="middle"
+              style={s.wfLabel}
+              fill={bar.key === "total" ? C.text : C.muted}
+            >
+              {pdfSafe(labels.breakdown.short[bar.key])}
+            </Text>
+          </G>
+        );
+      })}
+    </Svg>
+  );
+}
+
+/**
+ * The profit at each 5 % step above the base price, stacked from the same zero line as the
+ * waterfall but on its own, larger scale (it would be too small on the waterfall's).
+ */
+function StepsChart({
+  steps,
+  zero,
+  labels,
+  f,
+}: {
+  steps: SaleStep[];
+  zero: number;
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const base = steps[0]!.profit;
+  const top = Math.max(...steps.map((st) => st.profit));
+  const room = zero - WF.top;
+  const y = (v: number) => zero - ((v - base) / (top - base || 1)) * room;
+  const barWidth = 34;
+  const x = 18;
+  return (
+    <Svg width={WF.stepsWidth} height={WF.height}>
+      {/* A dashed divider: the scale changes here. */}
+      <Line
+        x1={0.5}
+        x2={0.5}
+        y1={WF.top - 6}
+        y2={WF.height - WF.bottom}
+        stroke={C.line}
+        strokeWidth={0.75}
+        strokeDasharray="2 2"
+      />
+      <Line x1={0} x2={WF.stepsWidth} y1={zero} y2={zero} stroke={C.muted} strokeWidth={0.5} />
+      {steps.slice(1).map((st, i) => (
+        <Rect
+          key={st.change}
+          x={x}
+          y={y(st.profit)}
+          width={barWidth}
+          height={Math.max(0.75, y(steps[i]!.profit) - y(st.profit))}
+          fill={STEP_SHADES[i] ?? C.brand}
+        />
+      ))}
+      {stepLabels(steps.slice(1).map((st) => y(st.profit) + 2.5)).map((labelY, i) => (
+        <Text
+          key={steps[i + 1]!.change}
+          x={x + barWidth + 5}
+          y={labelY}
+          style={s.wfValue}
+          fill={C.muted}
+        >
+          {pdfSafe(
+            `+${Math.round(steps[i + 1]!.change * 100)}%  ${shortAmount(steps[i + 1]!.profit, f)}`,
+          )}
+        </Text>
+      ))}
+      <Text
+        x={x + barWidth / 2}
+        y={WF.height - 4}
+        textAnchor="middle"
+        style={s.wfLabel}
+        fill={C.text}
+      >
+        {pdfSafe(labels.breakdown.short.steps)}
+      </Text>
+    </Svg>
+  );
+}
+
+/** Under the charts: each step's sale price and profit. */
+function StepsLegend({ sale, f }: { sale: ReportSale; f: Formatter }) {
+  return (
+    <View style={s.legend}>
+      {sale.analysis.steps.slice(1).map((st, i) => (
+        <View key={st.change} style={s.legendItem}>
+          <View style={[s.swatch, { backgroundColor: STEP_SHADES[i] ?? C.brand }]} />
+          <Text style={s.legendText}>
+            {pdfSafe(
+              `+${Math.round(st.change * 100)}%: ${f.euro(st.price)} -> ${f.euro(st.profit)}`,
+            )}
           </Text>
         </View>
       ))}

@@ -6,7 +6,7 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 212 unit tests (58 engine, 91 db, 63 web) and 34 end-to-end tests (Playwright, Chromium;
+Tests: 213 unit tests (58 engine, 91 db, 64 web) and 34 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
@@ -21,9 +21,13 @@ VPS (system libraries need sudo), so Safari is untested.
 - PDF made consistent: every total in bold (purchase costs too), grey labels and black values
   in lists and tables alike, tables flush with the lists on both sides, no words split with
   hyphens, and the listing link clickable ("Abrir anúncio (imovirtual.com)").
-- PDF deal sections: a waterfall per deal, "Do pagamento inicial ao resultado" (initial
-  payment, income, costs, loan payments, taxes, sale, result; same figures as "Resumo do
-  cálculo"); the sale price cards and steps side by side, so two deals still fit per page.
+- PDF deal sections: a waterfall per deal (initial payment, income, costs, loan payments,
+  taxes, sale, result), calculated with the sale at the lowest price without a loss, so it
+  ends at 0;
+  beside it, on its own larger scale and the same zero line, the profit at each 5 % step above
+  that price, stacked in shades, with a legend of each step's price and profit. The separate
+  steps list was removed from the PDF (the site keeps it). Page 2's "Resumo do cálculo" stays
+  at the price entered.
 
 **PDF layout and sale steps (2026-10-08)**
 
