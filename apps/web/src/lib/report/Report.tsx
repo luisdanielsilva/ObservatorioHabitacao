@@ -219,12 +219,9 @@ const s = StyleSheet.create({
   saleValue: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 2 },
   good: { color: C.good },
   waterfall: { marginTop: 8 },
-  legend: { flexDirection: "row", flexWrap: "wrap", marginTop: 4, rowGap: 2 },
-  legendItem: { width: "25%", flexDirection: "row", alignItems: "center", paddingRight: 6 },
-  legendText: { fontSize: 7, color: C.muted },
-  swatch: { width: 10, height: 6, marginRight: 4 },
   wfValue: { fontSize: 7 },
-  wfLabel: { fontSize: 7 },
+  wfLabel: { fontSize: 6.5 },
+  wfStep: { fontSize: 6.5 },
   photos: { marginTop: 10 },
   mainPhoto: { width: "100%", height: 230, objectFit: "cover" },
   thumbs: { flexDirection: "row", gap: 6, marginTop: 6 },
@@ -599,7 +596,7 @@ function SaleSection({
 }
 
 /** The two charts of a deal, side by side: the waterfall, and the steps on their own scale. */
-const WF = { width: 523, height: 150, top: 14, bottom: 24, stepsWidth: 140, gap: 8 };
+const WF = { width: 523, height: 150, top: 14, bottom: 24, stepsWidth: 172, gap: 8 };
 
 /** One shade per 5 % step of the sale price, lighter to darker as the price rises. */
 const STEP_SHADES = ["#a7dcd9", "#6cc0bb", "#349f9a", "#0e7c7b"];
@@ -649,7 +646,6 @@ function DealCharts({
         <WaterfallChart bars={bars} width={mainWidth} y={y} zero={zero} labels={labels} f={f} />
         {steps.length > 0 && <StepsChart steps={steps} zero={zero} f={f} labels={labels} />}
       </View>
-      {steps.length > 0 && <StepsLegend sale={sale!} f={f} />}
     </View>
   );
 }
@@ -748,8 +744,8 @@ function StepsChart({
   const top = Math.max(...steps.map((st) => st.profit));
   const room = zero - WF.top;
   const y = (v: number) => zero - ((v - base) / (top - base || 1)) * room;
-  const barWidth = 34;
-  const x = 18;
+  const barWidth = 26;
+  const x = 10;
   return (
     <Svg width={WF.stepsWidth} height={WF.height}>
       {/* A dashed divider: the scale changes here. */}
@@ -778,42 +774,18 @@ function StepsChart({
           key={steps[i + 1]!.change}
           x={x + barWidth + 5}
           y={labelY}
-          style={s.wfValue}
+          style={s.wfStep}
           fill={C.muted}
         >
           {pdfSafe(
-            `+${Math.round(steps[i + 1]!.change * 100)}%  ${shortAmount(steps[i + 1]!.profit, f)}`,
+            `+${Math.round(steps[i + 1]!.change * 100)}%: ${f.euro(steps[i + 1]!.price)} -> ${f.euro(steps[i + 1]!.profit)}`,
           )}
         </Text>
       ))}
-      <Text
-        x={x + barWidth / 2}
-        y={WF.height - 4}
-        textAnchor="middle"
-        style={s.wfLabel}
-        fill={C.text}
-      >
+      <Text x={x} y={WF.height - 4} style={s.wfLabel} fill={C.text}>
         {pdfSafe(labels.breakdown.short.steps)}
       </Text>
     </Svg>
-  );
-}
-
-/** Under the charts: each step's sale price and profit. */
-function StepsLegend({ sale, f }: { sale: ReportSale; f: Formatter }) {
-  return (
-    <View style={s.legend}>
-      {sale.analysis.steps.slice(1).map((st, i) => (
-        <View key={st.change} style={s.legendItem}>
-          <View style={[s.swatch, { backgroundColor: STEP_SHADES[i] ?? C.brand }]} />
-          <Text style={s.legendText}>
-            {pdfSafe(
-              `+${Math.round(st.change * 100)}%: ${f.euro(st.price)} -> ${f.euro(st.profit)}`,
-            )}
-          </Text>
-        </View>
-      ))}
-    </View>
   );
 }
 

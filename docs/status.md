@@ -25,7 +25,8 @@ VPS (system libraries need sudo), so Safari is untested.
   taxes, sale, result), calculated with the sale at the lowest price without a loss, so it
   ends at 0;
   beside it, on its own larger scale and the same zero line, the profit at each 5 % step above
-  that price, stacked in shades, with a legend of each step's price and profit. The separate
+  that price, stacked in shades, each labelled with its sale price and profit
+  ("+20%: 357 409 € -> 49 288 €"). The separate
   steps list was removed from the PDF (the site keeps it). Page 2's "Resumo do cálculo" stays
   at the price entered.
 
