@@ -26,6 +26,8 @@ export interface CalculatorState {
   listingPhotos: string[];
   areaId: number | null;
   address: string;
+  /** A Google Maps link to where the property is (optional; see lib/mapsLink). */
+  mapsUrl: string;
   propertyType: PropertyType;
   bedrooms: number | null;
   areaM2: number | null;
@@ -128,6 +130,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     listingPhotos: [],
     areaId: null,
     address: "",
+    mapsUrl: "",
     propertyType: "apartamento",
     bedrooms: null,
     areaM2: null,
@@ -260,5 +263,6 @@ export function normaliseState(raw: unknown): CalculatorState {
   state.url = state.url.slice(0, 2000);
   state.listingPhotos = listingPhotos(source.listingPhotos);
   state.address = state.address.slice(0, 300);
+  state.mapsUrl = state.mapsUrl.slice(0, 2000);
   return state;
 }

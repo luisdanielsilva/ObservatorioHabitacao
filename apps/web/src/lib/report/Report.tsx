@@ -1,10 +1,23 @@
 import { chosenOutcomes } from "@/lib/calculator/run";
 import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
-import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import {
+  Document,
+  Font,
+  G,
+  Image,
+  Line,
+  Link,
+  Page,
+  Rect,
+  StyleSheet,
+  Svg,
+  Text,
+  View,
+} from "@react-pdf/renderer";
 import { COST_ITEMS, ownershipCosts, type CostItem } from "@/lib/calculator/costs";
 import { nearStep, type SaleAnalysis } from "@/lib/calculator/sale";
 import type { Formatter } from "@/lib/format";
-import { BREAKDOWN_ROWS, cashBreakdown, type BreakdownRow } from "./breakdown";
+import { BREAKDOWN_ROWS, cashBreakdown, type BreakdownRow, waterfallBars } from "./breakdown";
 import type { ReportData } from "./data";
 import { pdfSafe } from "./text";
 
@@ -53,6 +66,9 @@ export interface ReportLabels {
     nearExpected: string;
   };
   breakdown: {
+    /** Short names under the waterfall's bars. */
+    short: Record<BreakdownRow | "total", string>;
+    waterfall: string;
     title: string;
     help: string;
     period: string;
@@ -63,7 +79,7 @@ export interface ReportLabels {
   };
   warning: (code: string) => string;
   years: (n: number) => string;
-  rows: { property: [string, string][]; market: [string, string][]; purchase: [string, string][] };
+  rows: { property: Row[]; market: Row[]; purchase: Row[] };
 }
 
 type AcquisitionItems = NonNullable<ScenarioResult["acquisition"]>;
@@ -115,12 +131,16 @@ export const REPORT_METRICS: { key: MetricKey; format: "euro" | "percent" | "yea
   { key: "peakCapital", format: "euro" },
 ];
 
+// Lines break between words only: no "reg-isto" or "Arrenda-mento".
+Font.registerHyphenationCallback((word) => [word]);
+
 const C = {
   text: "#111827",
   muted: "#6b7280",
   line: "#e5e7eb",
   brand: "#0e7c7b",
   bad: "#b91c1c",
+  good: "#15803d",
 };
 
 const s = StyleSheet.create({
@@ -150,19 +170,23 @@ const s = StyleSheet.create({
   kv: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderBottomWidth: 0.5,
     borderBottomColor: C.line,
   },
   // Long values (a listing link, seasonal rates) wrap under their own column.
   kvLabel: { maxWidth: "50%", paddingRight: 8 },
   kvValue: { flex: 1, textAlign: "right" },
+  link: { color: C.brand, textDecoration: "underline" },
   table: { borderTopWidth: 0.5, borderTopColor: C.line },
   tr: { flexDirection: "row", borderBottomWidth: 0.5, borderBottomColor: C.line },
-  th: { fontFamily: "Helvetica-Bold", paddingVertical: 4, paddingHorizontal: 3 },
+  bold: { fontFamily: "Helvetica-Bold", color: C.text },
+  // Table cells line up with the label/value lists: flush left and right, same row height.
+  th: { fontFamily: "Helvetica-Bold", paddingVertical: 3, paddingHorizontal: 3 },
   td: { paddingVertical: 3, paddingHorizontal: 3 },
-  metricCell: { width: "28%" },
-  valueCell: { width: "18%", textAlign: "right" },
+  metricCell: { width: "28%", paddingLeft: 0 },
+  valueCell: { width: "18%", textAlign: "right", paddingRight: 0 },
+  label: { color: C.muted },
   negative: { color: C.bad },
   note: { fontSize: 8, color: C.muted, marginTop: 3 },
   footer: {
@@ -178,17 +202,22 @@ const s = StyleSheet.create({
   h3: { fontSize: 9.5, fontFamily: "Helvetica-Bold", marginBottom: 3 },
   deal: { marginBottom: 18, paddingBottom: 12, borderBottomWidth: 0.5, borderBottomColor: C.line },
   alert: { fontSize: 7.5, color: C.muted, marginBottom: 1.5 },
-  costLabel: { width: "34%" },
-  saleFigures: { flexDirection: "row", gap: 16, marginBottom: 4 },
+  costLabel: { width: "28%", paddingLeft: 0 },
+  costHeader: { fontSize: 8 },
   saleFigure: { flex: 1, padding: 6, borderWidth: 0.5, borderColor: C.line },
   saleValue: { fontSize: 11, fontFamily: "Helvetica-Bold", marginTop: 2 },
   stepRow: { flexDirection: "row", alignItems: "center", paddingVertical: 1.5 },
   stepChange: { width: 30 },
-  stepPrice: { width: 175 },
+  stepPrice: { width: 95 },
   stepNear: { fontSize: 7, fontFamily: "Helvetica", color: C.muted },
+  good: { color: C.good },
   stepTrack: { flex: 1, height: 8, marginRight: 8 },
   stepBar: { height: 8, backgroundColor: C.brand, minWidth: 1 },
-  stepProfit: { width: 70, textAlign: "right" },
+  stepProfit: { width: 62, textAlign: "right" },
+  saleCards: { width: "38%", gap: 6 },
+  waterfall: { marginTop: 8 },
+  wfValue: { fontSize: 7 },
+  wfLabel: { fontSize: 7 },
   photos: { marginTop: 10 },
   mainPhoto: { width: "100%", height: 230, objectFit: "cover" },
   thumbs: { flexDirection: "row", gap: 6, marginTop: 6 },
@@ -203,13 +232,24 @@ const s = StyleSheet.create({
   },
 });
 
-function KeyValues({ rows }: { rows: [string, string][] }) {
+/** A label and its value; a link makes the value open it, a total is in bold like in tables. */
+export type Row = [label: string, value: string, options?: { href?: string; total?: boolean }];
+
+function KeyValues({ rows }: { rows: Row[] }) {
   return (
     <View>
-      {rows.map(([k, v]) => (
+      {rows.map(([k, v, options]) => (
         <View key={k} style={s.kv}>
-          <Text style={[s.muted, s.kvLabel]}>{pdfSafe(k)}</Text>
-          <Text style={s.kvValue}>{pdfSafe(v)}</Text>
+          <Text style={options?.total ? [s.bold, s.kvLabel] : [s.muted, s.kvLabel]}>
+            {pdfSafe(k)}
+          </Text>
+          {options?.href ? (
+            <Link src={options.href} style={[s.kvValue, s.link]}>
+              {pdfSafe(v)}
+            </Link>
+          ) : (
+            <Text style={options?.total ? [s.kvValue, s.bold] : s.kvValue}>{pdfSafe(v)}</Text>
+          )}
         </View>
       ))}
     </View>
@@ -347,7 +387,7 @@ export function ScenarioReport({
             )}
             {metrics.map(({ key, format: kind }) => (
               <View key={key} style={s.tr}>
-                <Text style={[s.td, s.metricCell]}>
+                <Text style={[s.td, s.metricCell, s.label]}>
                   {pdfSafe(labels.metric.find((m) => m.key === key)?.label ?? key)}
                 </Text>
                 {output.outcomes.map((o) => {
@@ -376,7 +416,7 @@ export function ScenarioReport({
                     ...labels.acquisition.items
                       .filter(([k]) => acquisition[k] > 0)
                       .map(([k, label]) => [label, f.euro(acquisition[k])] as [string, string]),
-                    [labels.acquisition.total, f.euro(acquisition.total)],
+                    [labels.acquisition.total, f.euro(acquisition.total), { total: true }],
                   ]}
                 />
               </View>
@@ -392,7 +432,13 @@ export function ScenarioReport({
                     {annual.map(({ kind, costs }) => (
                       <Text
                         key={kind}
-                        style={[s.th, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                        // Smaller, so "Arrendamento" fits a half-width column without breaking.
+                        style={[
+                          s.th,
+                          s.valueCell,
+                          s.costHeader,
+                          { width: `${72 / annual.length}%` },
+                        ]}
                       >
                         {pdfSafe(labels.scenario(kind))}
                         {costs.months !== null && (
@@ -407,13 +453,13 @@ export function ScenarioReport({
                     annual.some(({ costs }) => costs.items[k] !== undefined),
                   ).map((k) => (
                     <View key={k} style={s.tr}>
-                      <Text style={[s.td, s.costLabel]}>
+                      <Text style={[s.td, s.costLabel, s.label]}>
                         {pdfSafe(labels.annualCosts.items[k])}
                       </Text>
                       {annual.map(({ kind, costs }) => (
                         <Text
                           key={kind}
-                          style={[s.td, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                          style={[s.td, s.valueCell, { width: `${72 / annual.length}%` }]}
                         >
                           {pdfSafe(costs.items[k] === undefined ? "-" : f.euro(costs.items[k]!))}
                         </Text>
@@ -425,7 +471,7 @@ export function ScenarioReport({
                     {annual.map(({ kind, costs }) => (
                       <Text
                         key={kind}
-                        style={[s.th, { width: `${66 / annual.length}%`, textAlign: "right" }]}
+                        style={[s.th, s.valueCell, { width: `${72 / annual.length}%` }]}
                       >
                         {pdfSafe(f.euro(costs.total))}
                       </Text>
@@ -454,6 +500,7 @@ export function ScenarioReport({
               key={o.kind}
               kind={o.kind}
               sale={sales.find((sale) => sale.kind === o.kind)}
+              result={o.result!}
               warnings={o.result!.warnings.map(labels.warning)}
               labels={labels}
               f={f}
@@ -476,12 +523,14 @@ export function ScenarioReport({
 function DealSection({
   kind,
   sale,
+  result,
   warnings,
   labels,
   f,
 }: {
   kind: ScenarioKind;
   sale: ReportSale | undefined;
+  result: ScenarioResult;
   warnings: string[];
   labels: ReportLabels;
   f: Formatter;
@@ -490,6 +539,7 @@ function DealSection({
     <View wrap={false} style={s.deal}>
       <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.scenarioName(kind))}</Text>
       {sale && <SaleSection sale={sale} labels={labels} f={f} />}
+      <Waterfall result={result} labels={labels} f={f} />
       {warnings.length > 0 && (
         <View style={{ marginTop: 6 }}>
           <Text style={s.h3}>{pdfSafe(labels.warnings)}</Text>
@@ -518,33 +568,115 @@ function SaleSection({
   return (
     <View>
       <Text style={s.h3}>{pdfSafe(labels.sale.title)}</Text>
-      <Text style={[s.muted, { marginBottom: 4 }]}>
+      <Text style={[s.note, { marginTop: 0, marginBottom: 5 }]}>
         {pdfSafe(labels.sale.help(kind, years ?? 0))}
       </Text>
-      <View style={s.saleFigures}>
-        <View style={s.saleFigure}>
-          <Text style={s.muted}>{pdfSafe(labels.sale.breakEven(kind))}</Text>
-          <Text style={s.saleValue}>
-            {pdfSafe(breakEven !== null ? f.euro(breakEven) : labels.sale.noBreakEven)}
-          </Text>
-        </View>
-        {expected !== null && (
+      <View style={s.twoCols}>
+        <View style={s.saleCards}>
           <View style={s.saleFigure}>
-            <Text style={s.muted}>{pdfSafe(labels.sale.atExpected(expected))}</Text>
-            <Text style={[s.saleValue, (expectedProfit ?? 0) < 0 ? s.negative : {}]}>
-              {pdfSafe(expectedProfit === null ? "—" : f.euro(expectedProfit))}
+            <Text style={s.muted}>{pdfSafe(labels.sale.breakEven(kind))}</Text>
+            <Text style={s.saleValue}>
+              {pdfSafe(breakEven !== null ? f.euro(breakEven) : labels.sale.noBreakEven)}
             </Text>
+          </View>
+          {expected !== null && (
+            <View style={s.saleFigure}>
+              <Text style={s.muted}>{pdfSafe(labels.sale.atExpected(expected))}</Text>
+              <Text style={[s.saleValue, (expectedProfit ?? 0) < 0 ? s.negative : {}]}>
+                {pdfSafe(expectedProfit === null ? "—" : f.euro(expectedProfit))}
+              </Text>
+            </View>
+          )}
+        </View>
+        {analysis.stepsFrom && (
+          <View style={s.col}>
+            <Text style={[s.note, { marginTop: 0, marginBottom: 3 }]}>
+              {pdfSafe(labels.sale.caption(analysis.stepsFrom))}
+            </Text>
+            <SaleSteps analysis={analysis} labels={labels} f={f} />
           </View>
         )}
       </View>
-      {analysis.stepsFrom && (
-        <>
-          <Text style={[s.note, { marginBottom: 3 }]}>
-            {pdfSafe(labels.sale.caption(analysis.stepsFrom))}
-          </Text>
-          <SaleSteps analysis={analysis} labels={labels} f={f} />
-        </>
-      )}
+    </View>
+  );
+}
+
+const WF = { width: 523, height: 120, top: 12, bottom: 24 };
+
+/**
+ * The calculation summary of one deal as a waterfall: each flow of money (initial payment,
+ * income, costs, loan payments, taxes, the sale) moves the balance up or down, ending at the
+ * result. Same figures as "Resumo do cálculo".
+ */
+function Waterfall({
+  result,
+  labels,
+  f,
+}: {
+  result: ScenarioResult;
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const bars = waterfallBars(cashBreakdown(result));
+  if (bars.length === 0) return null;
+  const values = bars.flatMap((bar) => [bar.from, bar.to]);
+  const min = Math.min(0, ...values);
+  const max = Math.max(0, ...values);
+  const plot = WF.height - WF.top - WF.bottom;
+  const y = (v: number) => WF.top + ((max - v) / (max - min || 1)) * plot;
+  const slot = WF.width / bars.length;
+  const barWidth = Math.min(36, slot * 0.6);
+  const short = (v: number) =>
+    Math.abs(v) >= 1000 ? `${f.number(v / 1000, Math.abs(v) >= 10_000 ? 0 : 1)}k` : f.number(v);
+  const colour = (bar: (typeof bars)[number]) =>
+    bar.key === "total" ? C.text : bar.value >= 0 ? C.good : C.bad;
+
+  return (
+    <View style={s.waterfall}>
+      <Text style={s.h3}>{pdfSafe(labels.breakdown.waterfall)}</Text>
+      <Svg width={WF.width} height={WF.height}>
+        <Line x1={0} x2={WF.width} y1={y(0)} y2={y(0)} stroke={C.muted} strokeWidth={0.5} />
+        {bars.map((bar, i) => {
+          const x = slot * i + (slot - barWidth) / 2;
+          const top = y(Math.max(bar.from, bar.to));
+          const height = Math.max(0.75, Math.abs(y(bar.from) - y(bar.to)));
+          const up = bar.to >= bar.from;
+          return (
+            <G key={bar.key}>
+              <Rect x={x} y={top} width={barWidth} height={height} fill={colour(bar)} />
+              {/* A thin connector to the next bar, at the new balance. */}
+              {i < bars.length - 1 && bar.key !== "total" && (
+                <Line
+                  x1={x + barWidth}
+                  x2={x + slot}
+                  y1={y(bar.to)}
+                  y2={y(bar.to)}
+                  stroke={C.line}
+                  strokeWidth={0.75}
+                />
+              )}
+              <Text
+                x={x + barWidth / 2}
+                y={up || bar.key === "total" ? top - 3 : top + height + 8}
+                textAnchor="middle"
+                style={s.wfValue}
+                fill={colour(bar)}
+              >
+                {pdfSafe(short(bar.value))}
+              </Text>
+              <Text
+                x={slot * i + slot / 2}
+                y={WF.height - 4}
+                textAnchor="middle"
+                style={s.wfLabel}
+                fill={bar.key === "total" ? C.text : C.muted}
+              >
+                {pdfSafe(labels.breakdown.short[bar.key])}
+              </Text>
+            </G>
+          );
+        })}
+      </Svg>
     </View>
   );
 }
@@ -629,7 +761,7 @@ function Breakdown({
         </View>
         {rows.map((row) => (
           <View key={row} style={s.tr}>
-            <Text style={[s.td, s.metricCell]}>{pdfSafe(labels.breakdown.rows[row])}</Text>
+            <Text style={[s.td, s.metricCell, s.label]}>{pdfSafe(labels.breakdown.rows[row])}</Text>
             {deals.map((d) => (
               <Text
                 key={d.kind}

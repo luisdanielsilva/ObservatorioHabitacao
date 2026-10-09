@@ -1,16 +1,29 @@
 # OlhoVivo — Status
 
-Updated 2026-10-08, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-09, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 208 unit tests (58 engine, 91 db, 59 web) and 33 end-to-end tests (Playwright, Chromium;
+Tests: 212 unit tests (58 engine, 91 db, 63 web) and 34 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-08)
+## Latest changes (2026-10-04 – 2026-10-09)
+
+**Google Maps link (2026-10-09)**
+
+- Location: an optional "Link do Google Maps" field (only Google Maps addresses accepted, with
+  "Abrir no Google Maps"); reading a listing fills it from the listing's coordinates.
+- PDF: a clickable "Mapa · Abrir no Google Maps" row; the read-only page has the link too.
+- PDF: nightly price and occupancy on separate rows (they did not fit on one).
+- PDF made consistent: every total in bold (purchase costs too), grey labels and black values
+  in lists and tables alike, tables flush with the lists on both sides, no words split with
+  hyphens, and the listing link clickable ("Abrir anúncio (imovirtual.com)").
+- PDF deal sections: a waterfall per deal, "Do pagamento inicial ao resultado" (initial
+  payment, income, costs, loan payments, taxes, sale, result; same figures as "Resumo do
+  cálculo"); the sale price cards and steps side by side, so two deals still fit per page.
 
 **PDF layout and sale steps (2026-10-08)**
 
@@ -196,7 +209,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 8.6         | Analytics dashboard        | 🟡     | `logEvent` is never called: event counts stay empty                                          |
 | 9           | Content, SEO               | 🟡     | `/metodologia`; no analytics or conversion tracking                                          |
 | 10.2        | Cookie consent             | 🟡 👤  | `/cookies` page; no banner (only essential cookies and browser storage for the draft so far) |
-| 11.5        | End-to-end tests           | ✅     | 33 tests                                                                                     |
+| 11.5        | End-to-end tests           | ✅     | 34 tests                                                                                     |
 
 ## Known gaps
 

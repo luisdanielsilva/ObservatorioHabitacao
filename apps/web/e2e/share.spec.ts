@@ -12,6 +12,7 @@ import {
 
 /** Sharing needs a saved scenario, so a signed-in user (magic link from the server log). */
 const LOG = process.env.E2E_SERVER_LOG;
+const MAPS = "https://maps.app.goo.gl/e2eCascais123";
 
 test.skip(!LOG, "set E2E_SERVER_LOG to the dev server log to sign in");
 
@@ -23,7 +24,7 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await page.context().route("https://wa.me/**", (r) => r.fulfill({ body: "WhatsApp" }));
 
   await page.goto("/avaliar");
-  await fillPropertyByHand(page);
+  await fillPropertyByHand(page, "400000", MAPS);
   await chooseDeals(page, "Compra e revenda");
   await nextPanel(page);
   await field(page, "Preço de venda após obras").fill("480000");
@@ -73,12 +74,18 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
   expect(pdf.headers()["content-disposition"]).toMatch(/^inline; filename="olhovivo-.*\.pdf"$/);
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
+  // The location opens in Google Maps from the PDF.
+  expect((await pdf.body()).toString("latin1")).toContain(`/URI (${MAPS})`);
 
   // Anyone with the link sees the results, read-only, with the sale chart.
   const visitor = await browser.newPage();
   await visitor.goto(link.replace(/^https?:\/\/[^/]+/, ""));
   await expect(visitor.getByRole("heading", { name: /^Cenário partilhado: / })).toBeVisible();
   await expect(visitor.getByRole("region", { name: "Preço de venda e lucro" })).toBeVisible();
+  await expect(visitor.getByRole("link", { name: "Abrir no Google Maps" })).toHaveAttribute(
+    "href",
+    MAPS,
+  );
   await expect(visitor.getByRole("textbox")).toHaveCount(0);
   await expect(visitor.getByRole("button", { name: "Guardar", exact: true })).toHaveCount(0);
 

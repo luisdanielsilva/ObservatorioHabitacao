@@ -48,3 +48,27 @@ export function cashBreakdown(result: ScenarioResult): CashBreakdown {
     months: lines.length,
   };
 }
+
+/** One bar of a waterfall: the balance before and after a flow of money. */
+export interface WaterfallBar {
+  key: BreakdownRow | "total";
+  from: number;
+  to: number;
+  value: number;
+}
+
+/**
+ * The breakdown as a waterfall: each flow that happens moves the balance from where the
+ * previous one left it; the last bar is the result, from zero.
+ */
+export function waterfallBars(b: CashBreakdown): WaterfallBar[] {
+  const bars: WaterfallBar[] = [];
+  for (const row of BREAKDOWN_ROWS) {
+    const value = b.rows[row];
+    if (Math.abs(value) < 0.5) continue;
+    const from = bars.at(-1)?.to ?? 0;
+    bars.push({ key: row, from, to: from + value, value });
+  }
+  if (bars.length) bars.push({ key: "total", from: 0, to: b.total, value: b.total });
+  return bars;
+}

@@ -1,4 +1,5 @@
 import type { AreaTree } from "@/components/shared/AreaPicker";
+import { mapsUrlForPoint } from "../mapsLink";
 import { initialState, type CalculatorState } from "./state";
 
 /** The listing the example comes from (Imovirtual, read on 2026-10-07). */
@@ -32,6 +33,8 @@ export function exampleState(areaId: number | null): CalculatorState {
     areaId,
     url: LISTING_URL,
     listingPhotos: LISTING_PHOTOS,
+    // The listing's coordinates, as the link reader fills them in.
+    mapsUrl: mapsUrlForPoint(41.54579, -8.432778),
     propertyType: "apartamento",
     bedrooms: 1,
     areaM2: 70,

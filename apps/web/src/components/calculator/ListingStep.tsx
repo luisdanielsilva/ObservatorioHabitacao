@@ -1,6 +1,6 @@
 "use client";
 
-import { Link2, Loader2, PencilLine, Sparkles } from "lucide-react";
+import { Link2, Loader2, MapPin, PencilLine, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 import type { AnalyzeResponse } from "@/app/api/analyze/route";
@@ -14,6 +14,7 @@ import { HelpTip } from "@/components/shared/HelpTip";
 import { SyntheticBadge } from "@/components/shared/SyntheticBadge";
 import { hasTypology, type PropertyField } from "@/lib/calculator/flow";
 import { CONDITIONS, PROPERTY_TYPES, type CalculatorState } from "@/lib/calculator/state";
+import { googleMapsUrl, mapsUrlForPoint } from "@/lib/mapsLink";
 import { formatPeriod } from "@/lib/period";
 import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
@@ -78,6 +79,10 @@ export function ListingStep({
         ...(p.condition && { condition: p.condition }),
         ...(p.askingPrice !== undefined && { askingPrice: p.askingPrice }),
         ...(p.address && { address: p.address }),
+        // Where the listing places the property, unless the user already gave a map link.
+        ...(p.lat !== undefined &&
+          p.lng !== undefined &&
+          !state.mapsUrl.trim() && { mapsUrl: mapsUrlForPoint(p.lat, p.lng) }),
         ...(body.areaId && { areaId: body.areaId }),
         // The photos belong to this listing: a new link replaces them.
         listingPhotos: p.photos ?? [],
@@ -215,6 +220,7 @@ function PropertyFields({
           onChange={(areaId) => update({ areaId })}
           invalid={invalid("areaId")}
         />
+        <MapsLinkField value={state.mapsUrl} onChange={(mapsUrl) => update({ mapsUrl })} />
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -405,6 +411,45 @@ export function MarketReference({
       </dl>
       <p className="text-xs text-muted-foreground">
         {tc("source", { source: synthetic ? tc("syntheticData") : "INE" })}
+      </p>
+    </div>
+  );
+}
+
+/** Optional Google Maps link to the property, with a check and a link to open it. */
+function MapsLinkField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const t = useTranslations("evaluate");
+  const id = useId();
+  const link = googleMapsUrl(value);
+  const wrong = value.trim() !== "" && !link;
+  return (
+    <div className="space-y-1.5 pt-2">
+      <FieldLabel htmlFor={`${id}-maps`}>{t("mapsUrl")}</FieldLabel>
+      <div className="flex gap-2">
+        <Input
+          id={`${id}-maps`}
+          type="url"
+          inputMode="url"
+          placeholder="https://maps.app.goo.gl/…"
+          value={value}
+          aria-invalid={wrong || undefined}
+          aria-describedby={`${id}-maps-help`}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        {link && (
+          <Button asChild variant="outline">
+            <a href={link} target="_blank" rel="noopener noreferrer">
+              <MapPin />
+              {t("openMaps")}
+            </a>
+          </Button>
+        )}
+      </div>
+      <p
+        id={`${id}-maps-help`}
+        className={wrong ? "text-xs text-destructive" : "text-xs text-muted-foreground"}
+      >
+        {wrong ? t("mapsUrlInvalid") : t("mapsUrlHelp")}
       </p>
     </div>
   );

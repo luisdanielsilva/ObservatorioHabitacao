@@ -408,6 +408,10 @@
     "manualIntro": "Check or enter the property details.",
     "location": "Location",
     "addressOptional": "Address (optional)",
+    "mapsUrl": "Google Maps link (optional)",
+    "mapsUrlHelp": "In Google Maps, open the place, tap “Share” and paste the link here. When a listing is read, its location is used.",
+    "mapsUrlInvalid": "This is not a Google Maps link (for example, https://maps.app.goo.gl/…).",
+    "openMaps": "Open in Google Maps",
     "requiredNote": "Fields marked * are required.",
     "requiredFields": {
       "askingPrice": "asking price",
@@ -696,9 +700,24 @@
           "capitalGainsTax": "Capital gains tax (IRS)"
         },
         "total": "Result at the end of the period",
-        "kept": "The rental is permanent: the result does not include selling the property."
+        "kept": "The rental is permanent: the result does not include selling the property.",
+        "waterfall": "From the initial payment to the result (€)",
+        "short": {
+          "initial": "Initial",
+          "income": "Income",
+          "operatingCosts": "Operating",
+          "renovation": "Works",
+          "debtService": "Loan pay.",
+          "incomeTax": "Income tax",
+          "saleProceeds": "Sale",
+          "loanPayoff": "Loan payoff",
+          "capitalGainsTax": "Gains tax",
+          "total": "Result"
+        }
       },
-      "holdingNote": "For the resale, costs cover only the months until the sale."
+      "holdingNote": "For the resale, costs cover only the months until the sale.",
+      "map": "Map",
+      "openListing": "Open listing ({site})"
     }
   },
   "admin": {

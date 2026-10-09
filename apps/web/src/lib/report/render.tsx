@@ -12,6 +12,7 @@ import { getDb } from "@/lib/db";
 import { normaliseState } from "@/lib/calculator/state";
 import { createFormatter } from "@/lib/format";
 import { isListingPhotoUrl } from "@/lib/listingPhotos";
+import { googleMapsUrl } from "@/lib/mapsLink";
 import { photoFilePath } from "@/lib/photos";
 import { BREAKDOWN_ROWS, type BreakdownRow } from "./breakdown";
 import { buildReportData, type ReportData } from "./data";
@@ -21,6 +22,7 @@ import {
   type ReportLabels,
   type ReportPhoto,
   type ReportSale,
+  type Row,
 } from "./Report";
 export { reportFilename } from "./text";
 
@@ -42,10 +44,12 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   });
   const money = (v: number | null) => (v === null ? "—" : f.euro(v));
   const pct = (v: number | null) => (v === null ? "—" : f.percent(v));
-  const seasons = (["high", "mid", "low"] as const)
-    .filter((k) => state.nightlyRate[k] !== null)
-    .map((k) => `${money(state.nightlyRate[k])} / ${pct(state.occupancy[k])}`)
-    .join(" · ");
+  const mapsUrl = googleMapsUrl(state.mapsUrl);
+  const listingUrl = webUrl(state.url);
+  // High, mid and low season, each on its own short row so they fit beside their label.
+  const seasonKeys = (["high", "mid", "low"] as const).filter((k) => state.nightlyRate[k] !== null);
+  const nightly = seasonKeys.map((k) => money(state.nightlyRate[k])).join(" · ");
+  const occupancy = seasonKeys.map((k) => pct(state.occupancy[k])).join(" · ");
 
   return {
     title: t("title"),
@@ -106,6 +110,10 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       nearExpected: tsale("nearExpected"),
     },
     breakdown: {
+      short: Object.fromEntries(
+        [...BREAKDOWN_ROWS, "total" as const].map((row) => [row, t(`breakdown.short.${row}`)]),
+      ) as Record<BreakdownRow | "total", string>,
+      waterfall: t("breakdown.waterfall"),
       title: t("breakdown.title"),
       help: t("breakdown.help"),
       period: t("breakdown.period"),
@@ -136,14 +144,27 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
               ] as [string, string],
             ]
           : []),
-        ...(state.url.trim() ? [[t("listing"), state.url.trim()] as [string, string]] : []),
+        // A short label for the link: a long address cannot wrap without breaking words.
+        ...(listingUrl
+          ? [
+              [
+                t("listing"),
+                t("openListing", { site: new URL(listingUrl).hostname.replace(/^www\./, "") }),
+                { href: listingUrl },
+              ] as Row,
+            ]
+          : []),
+        ...(mapsUrl ? [[t("map"), te("openMaps"), { href: mapsUrl }] as Row] : []),
       ],
       market: [
         [te("marketValue"), money(state.marketValue)],
         [te("resaleValue"), money(state.resaleValue)],
         [te("monthlyRent"), money(state.monthlyRent)],
-        ...(seasons
-          ? [[`${te("nightlyRates")} / ${te("occupancyRates")}`, seasons] as [string, string]]
+        ...(seasonKeys.length
+          ? [
+              [te("nightlyRates"), nightly] as [string, string],
+              [te("occupancyRates"), occupancy] as [string, string],
+            ]
           : []),
         ...(state.deposit !== null
           ? [
@@ -209,6 +230,16 @@ function reportSales(data: ReportData): ReportSale[] {
         : null;
     return [{ kind: o.kind, analysis, expectedProfit }];
   });
+}
+
+/** The listing link, when it is a web address (it becomes a clickable link in the PDF). */
+function webUrl(value: string): string | null {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 /** A main photo and up to five more, smaller. */

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";
 import { runCalculator } from "../calculator/run";
 import { initialState } from "../calculator/state";
-import { cashBreakdown } from "./breakdown";
+import { cashBreakdown, waterfallBars } from "./breakdown";
 
 const params: ParameterSet = params2025;
 const result = (kind: string, overrides: Parameters<typeof initialState>[0]) =>
@@ -30,5 +30,17 @@ describe("cashBreakdown", () => {
     expect(b.total).toBeCloseTo(b.rows.initial + rental.lifetimeCashFlow!, 2);
     expect(b.total).toBeCloseTo(rental.months.at(-1)!.cumulative, 2);
     expect(b.months).toBe(rental.months.length - 1);
+  });
+
+  it("draws as a waterfall that ends at the result", () => {
+    const flip = result("flip", { askingPrice: 200_000, resaleValue: 260_000, useLoan: true });
+    const b = cashBreakdown(flip);
+    const bars = waterfallBars(b);
+    // Only the flows that happen, each starting where the last one ended.
+    expect(bars.map((bar) => bar.key)).not.toContain("income");
+    for (let i = 1; i < bars.length - 1; i++) expect(bars[i]!.from).toBe(bars[i - 1]!.to);
+    expect(bars[0]!.from).toBe(0);
+    expect(bars.at(-2)!.to).toBeCloseTo(b.total, 6);
+    expect(bars.at(-1)).toEqual({ key: "total", from: 0, to: b.total, value: b.total });
   });
 });

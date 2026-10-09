@@ -1,4 +1,4 @@
-import { ArrowRight, FileDown } from "lucide-react";
+import { ArrowRight, FileDown, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -10,6 +10,7 @@ import { SharedResults } from "@/components/share/SharedResults";
 import { Link } from "@/i18n/navigation";
 import { asLocale, initPageLocale } from "@/i18n/locale";
 import { createFormatter } from "@/lib/format";
+import { googleMapsUrl } from "@/lib/mapsLink";
 import { loadSharedScenario } from "@/lib/report/shared";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export default async function SharedScenarioPage({
   const t = await getTranslations("share");
   const te = await getTranslations("evaluate");
   const f = createFormatter(locale);
+  const mapsUrl = googleMapsUrl(state.mapsUrl);
 
   const facts: [string, string][] = [
     [
@@ -91,6 +93,14 @@ export default async function SharedScenarioPage({
               </div>
             ))}
           </dl>
+          {mapsUrl && (
+            <Button asChild variant="link" className="mt-2 h-auto px-0">
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+                <MapPin />
+                {te("openMaps")}
+              </a>
+            </Button>
+          )}
           {output.opportunity && (
             <p className="mt-4 flex flex-wrap items-center gap-2 text-sm">
               <Badge variant="secondary">{te(`opportunity.${output.opportunity.signal}`)}</Badge>

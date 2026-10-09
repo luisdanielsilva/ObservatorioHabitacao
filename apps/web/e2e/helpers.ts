@@ -19,8 +19,8 @@ export const field = (page: Page, name: string) => page.getByRole("textbox", { n
 /** A step of Avaliar anúncio, by its heading. */
 export const step = (page: Page, name: string) => page.getByRole("region", { name, exact: true });
 
-/** Step 1 by hand: a T2 of 80 m² in Cascais, asking 400 000 €. */
-export async function fillPropertyByHand(page: Page, askingPrice = "400000") {
+/** Step 1 by hand: a T2 of 80 m² in Cascais, asking 400 000 €, optionally with a map link. */
+export async function fillPropertyByHand(page: Page, askingPrice = "400000", mapsUrl?: string) {
   await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: "Preencher manualmente" }).click();
   await page.getByLabel("Distrito").selectOption({ label: "Lisboa" });
@@ -29,6 +29,7 @@ export async function fillPropertyByHand(page: Page, askingPrice = "400000") {
   await field(page, "Preço pedido").fill(askingPrice);
   await field(page, "Área útil").fill("80");
   await page.getByLabel("Tipologia").selectOption({ label: "T2" });
+  if (mapsUrl) await page.getByLabel("Link do Google Maps (opcional)").fill(mapsUrl);
   await page.getByRole("button", { name: "Continuar" }).click();
 }
 

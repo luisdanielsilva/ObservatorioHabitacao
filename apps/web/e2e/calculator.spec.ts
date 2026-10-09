@@ -414,3 +414,19 @@ test("development: a complete example opens at the results", async ({ page }) =>
   ).toBeVisible();
   await expect(results.getByRole("region", { name: "Preço de venda e lucro" })).toBeVisible();
 });
+
+test("the location can have a Google Maps link, checked as it is typed", async ({ page }) => {
+  await page.goto("/avaliar");
+  await page.waitForLoadState("networkidle");
+  await page.getByRole("button", { name: "Preencher manualmente" }).click();
+  const maps = page.getByLabel("Link do Google Maps (opcional)");
+  await maps.fill("https://www.example.com/maps");
+  await expect(page.getByText("Não é um link do Google Maps")).toBeVisible();
+  await expect(maps).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByRole("link", { name: "Abrir no Google Maps" })).toHaveCount(0);
+  await maps.fill("https://maps.app.goo.gl/AbC123");
+  await expect(page.getByText("Não é um link do Google Maps")).toHaveCount(0);
+  const open = page.getByRole("link", { name: "Abrir no Google Maps" });
+  await expect(open).toHaveAttribute("href", "https://maps.app.goo.gl/AbC123");
+  await expect(open).toHaveAttribute("target", "_blank");
+});

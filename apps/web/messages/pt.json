@@ -408,6 +408,10 @@
     "manualIntro": "Confirme ou introduza os dados do imóvel.",
     "location": "Localização",
     "addressOptional": "Morada (opcional)",
+    "mapsUrl": "Link do Google Maps (opcional)",
+    "mapsUrlHelp": "No Google Maps, abra o local, toque em «Partilhar» e cole aqui o link. Ao ler um anúncio, usamos a localização indicada no anúncio.",
+    "mapsUrlInvalid": "Não é um link do Google Maps (por exemplo, https://maps.app.goo.gl/…).",
+    "openMaps": "Abrir no Google Maps",
     "requiredNote": "Os campos com * são obrigatórios.",
     "requiredFields": {
       "askingPrice": "preço pedido",
@@ -696,9 +700,24 @@
           "capitalGainsTax": "IRS sobre a mais-valia"
         },
         "total": "Resultado no fim do período",
-        "kept": "O arrendamento é permanente: o resultado não inclui a venda do imóvel."
+        "kept": "O arrendamento é permanente: o resultado não inclui a venda do imóvel.",
+        "waterfall": "Do pagamento inicial ao resultado (€)",
+        "short": {
+          "initial": "Inicial",
+          "income": "Receitas",
+          "operatingCosts": "Exploração",
+          "renovation": "Obras",
+          "debtService": "Prestações",
+          "incomeTax": "IRS",
+          "saleProceeds": "Venda",
+          "loanPayoff": "Empréstimo",
+          "capitalGainsTax": "Mais-valia",
+          "total": "Resultado"
+        }
       },
-      "holdingNote": "Na revenda, os custos contam só os meses até à venda."
+      "holdingNote": "Na revenda, os custos contam só os meses até à venda.",
+      "map": "Mapa",
+      "openListing": "Abrir anúncio ({site})"
     }
   },
   "admin": {
