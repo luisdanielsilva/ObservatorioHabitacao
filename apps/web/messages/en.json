@@ -4,7 +4,6 @@
     "description": "See what a property is worth, how much it can earn and which strategy makes sense: resale, long-term rental, short-term rental or contract assignment."
   },
   "nav": {
-    "buy": "Buy",
     "sell": "Sell",
     "evaluate": "Evaluate a listing",
     "prices": "Prices",
@@ -554,10 +553,6 @@
     "success": "Request sent. We will be in touch soon.",
     "error": "We could not send the request. Check the fields and try again.",
     "required": "Enter your name, an email or phone number, and agree to be contacted."
-  },
-  "buy": {
-    "title": "Buy",
-    "text": "Searching properties for sale comes in a later phase. In the meantime, you can evaluate any listing you find."
   },
   "signIn": {
     "title": "Sign in",

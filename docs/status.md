@@ -19,6 +19,7 @@ VPS (system libraries need sudo), so Safari is untested.
   steps and its alerts, in small type), two deals per page. Checked with four deals and a loan.
 - Sale price steps only up to +20 % (0, 5, 10, 15, 20 %), on the site and in the PDF.
 - Alerts in smaller type on the site too.
+- "Comprar" removed from the menu, with its placeholder page (`/comprar` is now "not found").
 
 **Listing photos and data from the link (2026-10-07)**
 
@@ -259,3 +260,5 @@ VPS (system libraries need sudo), so Safari is untested.
 - **No appreciation;** sales at today's value.
 - **Sensitivity sliders replaced** by the sale-price analysis.
 - **Location by dropdowns only** in manual entry (address search removed).
+- **No "Comprar" in the menu:** property search is not planned for now; the page was removed
+  (2026-10-08).

@@ -4,7 +4,6 @@
     "description": "Veja quanto vale um imóvel, quanto pode render e que estratégia faz mais sentido: revenda, arrendamento, alojamento local ou cessão de posição contratual."
   },
   "nav": {
-    "buy": "Comprar",
     "sell": "Vender",
     "evaluate": "Avaliar anúncio",
     "prices": "Preços",
@@ -554,10 +553,6 @@
     "success": "Pedido enviado. Entraremos em contacto brevemente.",
     "error": "Não foi possível enviar o pedido. Verifique os campos e tente novamente.",
     "required": "Indique o nome, um email ou telefone, e aceite ser contactado."
-  },
-  "buy": {
-    "title": "Comprar",
-    "text": "A pesquisa de imóveis à venda chega numa próxima fase. Entretanto, pode avaliar qualquer anúncio que encontre."
   },
   "signIn": {
     "title": "Entrar",
