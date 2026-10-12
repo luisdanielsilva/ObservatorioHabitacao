@@ -36,6 +36,13 @@
       "when": 1791220305105,
       "tag": "0004_scenario_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791843882185,
+      "tag": "0005_scenario_share_photos",
+      "breakpoints": true
     }
   ]
 }

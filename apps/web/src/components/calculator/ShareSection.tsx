@@ -20,6 +20,7 @@ import {
   type ShareResult,
 } from "@/app/[locale]/avaliar/actions";
 import { setSharing } from "@/components/share/actions";
+import { SharePhotosOption } from "@/components/share/SharePhotosOption";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -256,6 +257,7 @@ export function ShareSection({
             {copied ? t("copied") : ""}
           </p>
           {!inSync && <p className="text-xs text-muted-foreground">{t("linkOutdated")}</p>}
+          <SharePhotosOption key={saved.token} scenarioId={saved.id} />
           <Button variant="ghost" size="sm" disabled={pending} onClick={disable}>
             <Link2Off />
             {t("disable")}

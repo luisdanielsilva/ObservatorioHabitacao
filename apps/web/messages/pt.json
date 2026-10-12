@@ -25,7 +25,7 @@
     "apps": "Aplicações iOS e Android brevemente",
     "rights": "© {year} OlhoVivo",
     "disclaimer": "Os resultados apresentados são estimativas e não constituem aconselhamento financeiro ou fiscal.",
-    "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI · Moradas: © colaboradores do OpenStreetMap"
+    "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI"
   },
   "common": {
     "comingSoon": "Brevemente",
@@ -111,7 +111,6 @@
     "dataCaop": "Limites administrativos: CAOP 2025 da Direção-Geral do Território (CC BY 4.0), usados para encontrar a freguesia de uma morada.",
     "dataEuribor": "Euribor: médias mensais publicadas pelo Banco Central Europeu.",
     "dataImi": "Taxas de IMI: transcrição aberta (CC BY 4.0) das taxas publicadas pela Autoridade Tributária, por confirmar na fonte oficial. Alguns concelhos fixam taxas por freguesia e não estão incluídos.",
-    "dataOsm": "Moradas: pesquisa no OpenStreetMap (Nominatim).",
     "dataTax": "Parâmetros fiscais: guardados por ano e versão, a partir dos códigos fiscais publicados no Portal das Finanças. Ainda não foram revistos por um contabilista.",
     "assumptionsTitle": "Pressupostos por omissão",
     "assumptionsText": "Pode alterar todos estes valores em «Pressupostos».",
@@ -648,6 +647,8 @@
     "link": "Link público",
     "copy": "Copiar link",
     "copied": "Link copiado.",
+    "sharePhotos": "Mostrar as fotografias do imóvel no link e no seu PDF",
+    "sharePhotosError": "Não foi possível alterar esta opção. Tente novamente.",
     "shareX": "Partilhar no X",
     "shareFacebook": "Partilhar no Facebook",
     "loading": "A carregar…",

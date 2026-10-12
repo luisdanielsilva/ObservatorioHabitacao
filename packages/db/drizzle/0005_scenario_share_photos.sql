@@ -1,0 +1,1 @@
+ALTER TABLE `scenarios` ADD `share_photos` integer DEFAULT false NOT NULL;

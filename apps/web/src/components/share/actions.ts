@@ -1,6 +1,12 @@
 "use server";
 
-import { cacheGet, cacheSet, getScenario, setScenarioSharing } from "@olhovivo/db";
+import {
+  cacheGet,
+  cacheSet,
+  getScenario,
+  setScenarioSharePhotos,
+  setScenarioSharing,
+} from "@olhovivo/db";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import type { AppLocale } from "@/i18n/routing";
@@ -10,15 +16,36 @@ import { entitlementsFor } from "@/lib/entitlements";
 import { renderScenarioPdf, reportFilename } from "@/lib/report/render";
 import { getCurrentUser } from "@/lib/session";
 
-/** The scenario's share token (null = not shared), or undefined if it is not the user's. */
-export async function getSharing(id: number): Promise<{ token: string | null } | undefined> {
+export interface Sharing {
+  /** The read-only link's token; null when the link is off. */
+  token: string | null;
+  /** Whether the link and its PDF show the property's photos. */
+  photos: boolean;
+}
+
+/** The scenario's sharing settings, or undefined if it is not the user's. */
+export async function getSharing(id: number): Promise<Sharing | undefined> {
   const user = await getCurrentUser();
   if (!user) return undefined;
   const scenario = getScenario(getDb(), id, user.id);
-  return scenario ? { token: scenario.shareToken } : undefined;
+  return scenario ? { token: scenario.shareToken, photos: scenario.sharePhotos } : undefined;
 }
 
-/** Turns the public link on or off (WBS 6.3.4). Turning it off makes the old link 404. */
+/** Shows or hides the photos on the read-only link and its PDF; undefined if not the user's. */
+export async function setSharePhotos(
+  id: number,
+  photos: boolean,
+): Promise<{ photos: boolean } | undefined> {
+  const user = await getCurrentUser();
+  if (!user) return undefined;
+  const result = setScenarioSharePhotos(getDb(), id, user.id, photos);
+  return result === undefined ? undefined : { photos: result };
+}
+
+/**
+ * Turns the public link on or off (WBS 6.3.4). Turning it off makes the old link 404 and hides
+ * the photos again.
+ */
 export async function setSharing(
   id: number,
   shared: boolean,

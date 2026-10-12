@@ -153,11 +153,9 @@ export default async function MethodologyPage({ params }: PageProps<"/[locale]/m
         <section className="space-y-3">
           <H2 id="dados">{t("dataTitle")}</H2>
           <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
-            {(["dataIne", "dataCaop", "dataEuribor", "dataImi", "dataOsm", "dataTax"] as const).map(
-              (key) => (
-                <li key={key}>{t(key)}</li>
-              ),
-            )}
+            {(["dataIne", "dataCaop", "dataEuribor", "dataImi", "dataTax"] as const).map((key) => (
+              <li key={key}>{t(key)}</li>
+            ))}
           </ul>
         </section>
 

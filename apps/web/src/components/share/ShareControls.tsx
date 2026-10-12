@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { emailReport, getSharing, setSharing, type EmailReportResult } from "./actions";
+import { SharePhotosOption } from "./SharePhotosOption";
 
 /** PDF download, public link (with X / Facebook / copy) and email for a saved scenario. */
 export function ShareControls({
@@ -101,6 +102,7 @@ export function ShareControls({
               <p className="sr-only" aria-live="polite">
                 {copied ? t("copied") : ""}
               </p>
+              <SharePhotosOption key={token} scenarioId={scenarioId} />
               <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="secondary">
                   <a

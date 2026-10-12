@@ -199,7 +199,8 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
 
 /**
  * Renders the PDF report of a saved scenario, or undefined if it cannot be calculated. The
- * property's photos are private: only in the owner's report, never in a shared one.
+ * property's photos are private: in the owner's report, and in the shared one only when the
+ * owner chose to show them.
  */
 export async function renderScenarioPdf(
   scenario: ScenarioRow,

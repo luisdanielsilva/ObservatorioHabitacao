@@ -1,16 +1,26 @@
 # OlhoVivo — Status
 
-Updated 2026-10-09, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-12, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 213 unit tests (58 engine, 91 db, 64 web) and 34 end-to-end tests (Playwright, Chromium;
+Tests: 214 unit tests (58 engine, 92 db, 64 web) and 34 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-09)
+## Latest changes (2026-10-04 – 2026-10-12)
+
+**Photos on the read-only link, by choice; address search removed (2026-10-12)**
+
+- Sharing has a new option, "Mostrar as fotografias do imóvel no link e no seu PDF" (on the
+  results and on `/conta`), off by default. When ticked, the read-only page shows the uploaded
+  photos and its PDF has them as the owner's does (or the listing's photos when none are
+  uploaded). Unticking, or turning the link off, hides them at once; a new link starts without
+  them. Migration 0005 adds `scenarios.share_photos`.
+- Removed the unused `/api/geocode` route and its OpenStreetMap (Nominatim) search, with the
+  OpenStreetMap credit in the footer and on `/metodologia`.
 
 **Google Maps link (2026-10-09)**
 
@@ -178,7 +188,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 4.2.2       | CAOP boundaries                        | ✅     | CAOP 2025                                                                                                     |
 | 4.2.3       | Tax and financing sources              | 🟡 👤  | Euribor monthly (ECB); rent update coefficients (`import:rents`); 2025 set active, 2026 draft; all unverified |
 | 4.3.1–4.3.2 | Import scripts, cleaning               | ✅     | `npm run import:all` (incl. rent updates)                                                                     |
-| 4.3.3       | Geocoding, freguesia lookup            | 🟡     | Built, but address search removed from the UI (location by dropdowns); `/api/geocode` unused                  |
+| 4.3.3       | Geocoding, freguesia lookup            | ✅     | Parish by CAOP boundary (listing coordinates) or by name; address search removed (location by dropdowns)      |
 | 4.3.4       | Link reader                            | 🟡 👤  | Claude + structured-data fallback; Imovirtual allowed; no API key yet; Idealista blocks servers               |
 | 4.3.5       | Scheduling and failure handling        | 🟡     | systemd timers prepared; not installed                                                                        |
 | 4.4.1–4.4.3 | Median prices/rents, history           | ✅     |                                                                                                               |
@@ -206,7 +216,7 @@ VPS (system libraries need sudo), so Safari is untested.
 | 6.3.1       | Favourites, saved searches | ⬜     | Tables only (Phase 3 with Comprar)                                                           |
 | 6.3.2       | Saved scenarios            | ✅     | Save, duplicate, open and delete (`/conta`); photos; draft kept in the browser               |
 | 6.3.3       | PDF report                 | ✅     | Opens in a new tab; calculation summary, yearly costs, sale charts, photos (owner only)      |
-| 6.3.4       | Sharing                    | ✅     | Read-only link by email, WhatsApp, Messenger, account email; Ver PDF; also on `/conta`       |
+| 6.3.4       | Sharing                    | ✅     | Read-only link by email, WhatsApp, Messenger, account email; photos opt-in; also on `/conta` |
 | 6.3.5       | Alerts engine              | ⬜     | Not started                                                                                  |
 | 6.4.1–6.4.2 | Leads, team notifications  | ✅     |                                                                                              |
 | 7.3         | Private area               | ✅     | `/conta`; data export includes photo details                                                 |
@@ -226,7 +236,8 @@ VPS (system libraries need sudo), so Safari is untested.
   typology, condition, extras, parish and photos.
 - **Listing photos are not shown on the site** (only counted): the site's content security
   policy does not load images from other servers. They are used in the owner's PDF.
-- **Photos are not on the read-only page** nor in its PDF (private by default).
+- **Listing photos are not on the read-only page** even when photos are shared (same content
+  security policy); only uploaded ones are. Its PDF has them.
 - **Messenger on a computer** cannot be pre-filled without a Facebook app id: the link is copied
   and messenger.com opened for the user to paste it.
 - **Default interest rate is an estimate** (Euribor + typical spread), lower than a real TAEG.
@@ -235,7 +246,6 @@ VPS (system libraries need sudo), so Safari is untested.
 - **Long-term rental horizon of 30 years** is an assumption; its sale chart assumes a sale then.
 - **Tax year:** the 2025 parameter set is active; 2026 is a draft awaiting review.
 - **Draft per browser:** an unsaved evaluation does not follow the user to another device.
-- **Unused code:** `/api/geocode` (address search removed from the UI).
 - **Untested in Safari.**
 
 ## Open points
@@ -253,12 +263,10 @@ VPS (system libraries need sudo), so Safari is untested.
 
 **Development**
 
-1. Photos on the read-only page and its PDF (opt-in by the owner).
-2. Record analytics events (`logEvent`) for searches, evaluations, saves and leads.
-3. Alerts engine (6.3.5).
-4. Remove or reuse `/api/geocode`.
-5. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
-6. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
+1. Record analytics events (`logEvent`) for searches, evaluations, saves and leads.
+2. Alerts engine (6.3.5).
+3. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
+4. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
    `packages/db/src/import/rentUpdate.ts` and run `npm run import:rents`.
 
 **On each deployment**

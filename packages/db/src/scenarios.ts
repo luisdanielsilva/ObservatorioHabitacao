@@ -100,7 +100,8 @@ export function deleteScenario(db: Db, id: number, userId: string): boolean {
 
 /**
  * Turns public sharing on (returns the token, creating one if needed) or off (returns null).
- * Turning sharing off and on again creates a new token, so old links stop working.
+ * Turning sharing off and on again creates a new token, so old links stop working, and turns
+ * the photos off: a new link never shows them until the owner chooses so again.
  */
 export function setScenarioSharing(
   db: Db,
@@ -111,8 +112,27 @@ export function setScenarioSharing(
   const scenario = getScenario(db, id, userId);
   if (!scenario) return undefined;
   const token = shared ? (scenario.shareToken ?? randomBytes(12).toString("base64url")) : null;
-  db.update(scenarios).set({ shareToken: token }).where(eq(scenarios.id, id)).run();
+  db.update(scenarios)
+    .set(token ? { shareToken: token } : { shareToken: null, sharePhotos: false })
+    .where(eq(scenarios.id, id))
+    .run();
   return token;
+}
+
+/** Whether the shared page shows the photos; returns undefined if the scenario is not theirs. */
+export function setScenarioSharePhotos(
+  db: Db,
+  id: number,
+  userId: string,
+  photos: boolean,
+): boolean | undefined {
+  const row = db
+    .update(scenarios)
+    .set({ sharePhotos: photos })
+    .where(and(eq(scenarios.id, id), eq(scenarios.userId, userId)))
+    .returning({ sharePhotos: scenarios.sharePhotos })
+    .get();
+  return row?.sharePhotos;
 }
 
 export function getSharedScenario(db: Db, token: string): ScenarioRow | undefined {

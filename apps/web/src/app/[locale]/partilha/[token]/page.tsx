@@ -1,4 +1,5 @@
 import { ArrowRight, FileDown, MapPin } from "lucide-react";
+import { listSharedPhotos } from "@olhovivo/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,6 +10,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { SharedResults } from "@/components/share/SharedResults";
 import { Link } from "@/i18n/navigation";
 import { asLocale, initPageLocale } from "@/i18n/locale";
+import { getDb } from "@/lib/db";
 import { createFormatter } from "@/lib/format";
 import { googleMapsUrl } from "@/lib/mapsLink";
 import { loadSharedScenario } from "@/lib/report/shared";
@@ -45,6 +47,9 @@ export default async function SharedScenarioPage({
   const { state, output } = data;
   const t = await getTranslations("share");
   const te = await getTranslations("evaluate");
+  const tp = await getTranslations("photos");
+  // Only when the owner chose to show them (otherwise none are returned).
+  const photos = listSharedPhotos(getDb(), token);
   const f = createFormatter(locale);
   const mapsUrl = googleMapsUrl(state.mapsUrl);
 
@@ -111,6 +116,34 @@ export default async function SharedScenarioPage({
           )}
         </CardContent>
       </Card>
+
+      {photos.length > 0 && (
+        <section aria-labelledby="fotografias" className="space-y-3">
+          <h2 id="fotografias" className="text-lg font-semibold">
+            {tp("title")}
+          </h2>
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {photos.map((photo, i) => {
+              const src = `/api/partilha/${token}/photos/${photo.id}`;
+              return (
+                <li key={photo.id} className="overflow-hidden rounded-md border">
+                  <a href={src} target="_blank" rel="noopener">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- served only while shared */}
+                    <img
+                      src={src}
+                      alt={tp("alt", { n: i + 1 })}
+                      width={photo.width}
+                      height={photo.height}
+                      loading={i < 4 ? "eager" : "lazy"}
+                      className="aspect-[4/3] w-full object-cover"
+                    />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <SharedResults
         output={output}

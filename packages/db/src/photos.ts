@@ -1,4 +1,4 @@
-import { and, asc, count, eq, sum } from "drizzle-orm";
+import { and, asc, count, eq, isNotNull, sum } from "drizzle-orm";
 import type { Db } from "./client";
 import { scenarioPhotos, scenarios } from "./schema";
 
@@ -103,4 +103,46 @@ export function scenarioIdsOfUser(db: Db, userId: string): number[] {
     .where(eq(scenarios.userId, userId))
     .all()
     .map((r) => r.id);
+}
+
+/** The scenario a share token opens, when its owner chose to show the photos. */
+const sharedWithPhotos = (db: Db, token: string) =>
+  /^[\w-]{16}$/.test(token)
+    ? db
+        .select({ id: scenarios.id })
+        .from(scenarios)
+        .where(
+          and(
+            eq(scenarios.shareToken, token),
+            isNotNull(scenarios.shareToken),
+            eq(scenarios.sharePhotos, true),
+          ),
+        )
+        .get()
+    : undefined;
+
+/**
+ * The photos of a shared scenario, oldest first, for anyone with the link; empty when the link
+ * is off or its owner has not chosen to show them.
+ */
+export function listSharedPhotos(db: Db, token: string): PhotoRow[] {
+  const scenario = sharedWithPhotos(db, token);
+  if (!scenario) return [];
+  return db
+    .select()
+    .from(scenarioPhotos)
+    .where(eq(scenarioPhotos.scenarioId, scenario.id))
+    .orderBy(asc(scenarioPhotos.id))
+    .all();
+}
+
+/** One photo of a shared scenario, under the same conditions as listSharedPhotos. */
+export function getSharedPhoto(db: Db, token: string, photoId: number): PhotoRow | undefined {
+  const scenario = sharedWithPhotos(db, token);
+  if (!scenario) return undefined;
+  return db
+    .select()
+    .from(scenarioPhotos)
+    .where(and(eq(scenarioPhotos.id, photoId), eq(scenarioPhotos.scenarioId, scenario.id)))
+    .get();
 }

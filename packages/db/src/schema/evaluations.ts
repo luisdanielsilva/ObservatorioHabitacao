@@ -69,6 +69,8 @@ export const scenarios = sqliteTable(
     analysisId: integer("analysis_id").references(() => analyses.id, { onDelete: "set null" }),
     /** Set when the user shares the scenario; gives access to its public page. */
     shareToken: text("share_token").unique(),
+    /** Whether the shared page and its PDF show the property's photos (the owner opts in). */
+    sharePhotos: integer("share_photos", { mode: "boolean" }).notNull().default(false),
     duplicatedFromId: integer("duplicated_from_id").references(
       (): AnySQLiteColumn => scenarios.id,
       { onDelete: "set null" },

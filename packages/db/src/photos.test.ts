@@ -5,12 +5,19 @@ import {
   addPhoto,
   deletePhoto,
   getPhoto,
+  getSharedPhoto,
   listPhotos,
+  listSharedPhotos,
   PHOTO_LIMITS,
   photoUsage,
   scenarioIdsOfUser,
 } from "./photos";
-import { createScenario, deleteScenario } from "./scenarios";
+import {
+  createScenario,
+  deleteScenario,
+  setScenarioSharePhotos,
+  setScenarioSharing,
+} from "./scenarios";
 import { parameterSets, scenarioPhotos, users } from "./schema";
 import { seed } from "./seed";
 
@@ -90,5 +97,40 @@ describe("scenario photos", () => {
     addPhoto(db, "ana", other, photo());
     deleteAccount(db, "ana");
     expect(db.select().from(scenarioPhotos).all()).toHaveLength(0);
+  });
+});
+
+describe("shared photos", () => {
+  it("are shown through the link only when the owner chooses so", () => {
+    const added = addPhoto(db, "ana", scenarioId, photo());
+    const id = added.status === "added" ? added.photo.id : 0;
+    const token = setScenarioSharing(db, scenarioId, "ana", true)!;
+    expect(listSharedPhotos(db, token)).toEqual([]);
+    expect(getSharedPhoto(db, token, id)).toBeUndefined();
+
+    expect(setScenarioSharePhotos(db, scenarioId, "rui", true)).toBeUndefined();
+    expect(setScenarioSharePhotos(db, scenarioId, "ana", true)).toBe(true);
+    expect(listSharedPhotos(db, token).map((p) => p.id)).toEqual([id]);
+    expect(getSharedPhoto(db, token, id)?.id).toBe(id);
+    expect(listSharedPhotos(db, "x".repeat(16))).toEqual([]);
+
+    // Another scenario's photo is not reachable through this link.
+    const other = createScenario(db, "ana", {
+      name: "T3",
+      property: {},
+      inputs: {},
+      results: null,
+      parameterSetId: db.select().from(parameterSets).get()!.id,
+    }).id;
+    const foreign = addPhoto(db, "ana", other, photo());
+    expect(getSharedPhoto(db, token, foreign.status === "added" ? foreign.photo.id : 0)).toBe(
+      undefined,
+    );
+
+    // Turning the link off hides them, and a new link starts without them.
+    setScenarioSharing(db, scenarioId, "ana", false);
+    expect(listSharedPhotos(db, token)).toEqual([]);
+    const again = setScenarioSharing(db, scenarioId, "ana", true)!;
+    expect(listSharedPhotos(db, again)).toEqual([]);
   });
 });

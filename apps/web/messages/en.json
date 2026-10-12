@@ -25,7 +25,7 @@
     "apps": "iOS and Android apps coming soon",
     "rights": "© {year} OlhoVivo",
     "disclaimer": "Results are estimates and do not constitute financial or tax advice.",
-    "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI · Addresses: © OpenStreetMap contributors"
+    "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI"
   },
   "common": {
     "comingSoon": "Coming soon",
@@ -111,7 +111,6 @@
     "dataCaop": "Administrative boundaries: CAOP 2025 from Direção-Geral do Território (CC BY 4.0), used to find the parish of an address.",
     "dataEuribor": "Euribor: monthly averages published by the European Central Bank.",
     "dataImi": "IMI rates: an open transcription (CC BY 4.0) of the rates published by the tax authority, still to be checked against the official source. Some municipalities set rates per parish and are not included.",
-    "dataOsm": "Addresses: OpenStreetMap search (Nominatim).",
     "dataTax": "Tax parameters: stored by year and version, from the tax codes published on Portal das Finanças. Not yet reviewed by an accountant.",
     "assumptionsTitle": "Default assumptions",
     "assumptionsText": "You can change all of these under “Assumptions”.",
@@ -648,6 +647,8 @@
     "link": "Public link",
     "copy": "Copy link",
     "copied": "Link copied.",
+    "sharePhotos": "Show the property photos on the link and in its PDF",
+    "sharePhotosError": "Could not change this option. Please try again.",
     "shareX": "Share on X",
     "shareFacebook": "Share on Facebook",
     "loading": "Loading…",
