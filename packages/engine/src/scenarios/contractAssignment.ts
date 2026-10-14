@@ -74,7 +74,7 @@ export function runContractAssignment(
     [
       { key: "assignmentPrice", amount: input.assignmentPrice },
       { key: "deposit", amount: -input.deposit },
-      { key: "sellingCommission", amount: -commission },
+      { key: "sellingCommission", amount: -commission, rate: input.commissionRate },
       { key: "otherCosts", amount: -input.otherCosts },
       { key: "upfrontTaxes", amount: -upfrontTaxes },
     ],

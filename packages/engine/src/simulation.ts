@@ -305,7 +305,11 @@ export function simulate(spec: SimulationSpec): Simulation {
       saleGainTax = gainTax(
         [
           { key: "salePrice", amount: exitPrice },
-          { key: "sellingCommission", amount: -sellingCosts },
+          {
+            key: "sellingCommission",
+            amount: -sellingCosts,
+            rate: input.sellingCommissionRate,
+          },
           { key: "purchasePrice", amount: -input.purchasePrice },
           { key: "acquisitionCosts", amount: -acquisition.deductibleForCapitalGains },
           { key: "renovation", amount: -input.renovationBudget },

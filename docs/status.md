@@ -12,6 +12,13 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-14)
 
+**The agency's commission, in view (2026-10-14)**
+
+- The commission on the sale (default 5 % + VAT) was only in the collapsed "Pressupostos". It is
+  now a field next to the sale price in the resale and short-term rental panels, and the
+  commission on the premium next to the assignment price, each showing what it comes to in
+  euros with VAT. The PDF lists the rates with the inputs, and the gain table names the rate.
+
 **The IRS on a sale's gain, explained (2026-10-14)**
 
 - Each deal's details (results page and PDF) have a block "IRS sobre a mais-valia" at the
@@ -280,6 +287,14 @@ VPS (system libraries need sudo), so Safari is untested.
 3. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
 4. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
    `packages/db/src/import/rentUpdate.ts` and run `npm run import:rents`.
+5. Buyers aged 35 or under: ask the buyer's age (or "35 or under") and, for an own permanent
+   home, apply the young buyers' support: no IMT and no stamp duty on the purchase up to the
+   legal price limit (partial above it), and up to 100 % financing with the State's public
+   guarantee. Limits and conditions to confirm with the accountant (open point 1 above).
+6. Comparable listings: for each listing analysed, find at least 5 other listings with the same
+   characteristics (type, bedrooms, similar area and condition, same parish or nearby) and
+   compare the asking price and €/m² with them (median, range, where this one stands). Needs a
+   source of listings (reading listing sites: see the legal open point 2 above).
 
 **On each deployment**
 

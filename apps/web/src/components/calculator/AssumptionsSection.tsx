@@ -39,7 +39,6 @@ export function AssumptionsSection({
   const t = useTranslations("evaluate");
   const f = useFormat();
   const buying = deals.some((d) => d !== "contractAssignment");
-  const selling = deals.includes("flip") || deals.includes("shortTermRental");
   const id = useId();
   const [open, setOpen] = useState(false);
 
@@ -68,7 +67,6 @@ export function AssumptionsSection({
       fields: [
         buying && field("imiRate", t("imiRate"), "percent"),
         field("vpt", t("vpt"), "money", { help: t("vptHelp"), nullable: true }),
-        selling && field("sellingCommissionRate", t("sellingCommission"), "percent"),
       ],
     });
     if (buying && state.useLoan) {
@@ -137,10 +135,7 @@ export function AssumptionsSection({
   if (scope === "contractAssignment") {
     groups.push({
       title: t("cessaoTitle"),
-      fields: [
-        field("assignmentCommissionRate", t("assignmentCommission"), "percent"),
-        field("assignmentOtherCosts", t("assignmentOtherCosts"), "money"),
-      ],
+      fields: [field("assignmentOtherCosts", t("assignmentOtherCosts"), "money")],
     });
   }
 

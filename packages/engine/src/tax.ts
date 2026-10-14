@@ -89,7 +89,8 @@ export type GainLineKey =
  * the share of it that is taxed, and how that share is taxed on top of the other income.
  */
 export interface GainTax {
-  lines: { key: GainLineKey; amount: number }[];
+  /** `rate`: the commission's rate, excluding VAT. */
+  lines: { key: GainLineKey; amount: number; rate?: number }[];
   /** The sum of the lines; when not positive, there is no tax. */
   gain: number;
   inclusionRate: number;

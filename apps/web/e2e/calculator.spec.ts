@@ -50,8 +50,15 @@ test("one deal: long-term rental, results and adding a strategy", async ({ page 
   await table.getByRole("button", { name: "Preencher dados" }).first().click();
   await expect(page.getByRole("heading", { name: "2 de 3: Compra e revenda" })).toBeVisible();
   await field(page, "Preço de venda após obras").fill("480000");
+  // The agency's commission is in view, with what it comes to at the sale price.
+  const commission = field(page, "Comissão da agência na venda (sem IVA)");
+  await expect(commission).toHaveValue("5");
+  await expect(page.getByText(/^= 29\s520\s€ com IVA, numa venda a 480\s000\s€$/)).toBeVisible();
+  await commission.fill("3");
+  await expect(page.getByText(/^= 17\s712\s€ com IVA, numa venda a 480\s000\s€$/)).toBeVisible();
   await nextPanel(page);
   await showResults(page);
+  await expect(page.getByText("Comissão da agência (3% + IVA)").first()).toBeVisible();
   await expect(step(page, "Tipo de negócio")).toContainText(
     "Compra e revenda, Arrendamento de longa duração",
   );

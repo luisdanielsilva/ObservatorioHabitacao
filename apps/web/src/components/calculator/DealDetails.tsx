@@ -390,6 +390,31 @@ function DealPanel({
       locale={locale}
     />
   );
+  // The agency's commission on the sale, shown in euros with VAT at the price entered.
+  const vat = 1 + (props.params?.vatRate ?? 0.23);
+  const commission = (
+    key: "sellingCommissionRate" | "assignmentCommissionRate",
+    base: number | null,
+  ) => (
+    <NumberField
+      label={t(key === "sellingCommissionRate" ? "sellingCommission" : "assignmentCommission")}
+      help={t(
+        key === "sellingCommissionRate" ? "sellingCommissionHelp" : "assignmentCommissionHelp",
+      )}
+      kind="percent"
+      value={state[key]}
+      onChange={(v) => update({ [key]: Math.max(0, v ?? 0) })}
+      hint={
+        base && base > 0 && state[key] > 0
+          ? t("commissionHint", {
+              amount: f.euro(base * state[key] * vat),
+              price: f.euro(base),
+            })
+          : undefined
+      }
+      locale={locale}
+    />
+  );
   const holdingYears = (
     <NumberField
       label={t("holdingYears")}
@@ -427,6 +452,7 @@ function DealPanel({
             onChange={(v) => update({ flipMonths: Math.max(1, Math.round(v ?? 12)) })}
             locale={locale}
           />
+          {commission("sellingCommissionRate", state.resaleValue)}
           {marketValue(false)}
         </div>
       )}
@@ -489,6 +515,7 @@ function DealPanel({
           <div className="grid gap-4 sm:grid-cols-2">
             {marketValue(true)}
             {holdingYears}
+            {commission("sellingCommissionRate", state.marketValue)}
           </div>
         </>
       )}
@@ -534,6 +561,12 @@ function DealPanel({
               onChange={(v) => update({ assignmentMonths: Math.max(1, Math.round(v ?? 1)) })}
               locale={locale}
             />
+            {commission(
+              "assignmentCommissionRate",
+              state.assignmentPrice !== null && state.deposit !== null
+                ? state.assignmentPrice - state.deposit
+                : null,
+            )}
             {marketValue(true)}
           </div>
           <SwitchField

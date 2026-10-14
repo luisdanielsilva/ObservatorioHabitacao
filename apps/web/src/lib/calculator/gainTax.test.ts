@@ -13,7 +13,7 @@ const plain = (s: string) => s.replace(/\s/g, " ");
 
 const sale = (price: number) => [
   { key: "salePrice" as const, amount: price },
-  { key: "sellingCommission" as const, amount: -price * 0.05 * 1.23 },
+  { key: "sellingCommission" as const, amount: -price * 0.05 * 1.23, rate: 0.05 },
   { key: "purchasePrice" as const, amount: -250_000 },
   { key: "acquisitionCosts" as const, amount: -10_664.69 },
   { key: "renovation" as const, amount: 0 },
@@ -25,7 +25,7 @@ describe("describeGainTax", () => {
     expect(plain(text.price)).toBe("Com a venda a 278 685 €");
     expect(text.rows.map((r) => r.label)).toEqual([
       "Preço de venda",
-      "Comissão da agência (com IVA)",
+      "Comissão da agência (5% + IVA)",
       "Preço de compra",
       "IMT, Imposto do Selo e escritura",
       "Mais-valia (ganho)",

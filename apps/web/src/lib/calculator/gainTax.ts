@@ -47,7 +47,13 @@ export function describeGainTax(g: GainTax, t: Translator, f: Formatter): GainTa
     // Amounts of zero (no works, no other costs) are left out, but not the prices.
     ...g.lines
       .filter((l) => l.amount !== 0 || l.key === "salePrice" || l.key === "purchasePrice")
-      .map((l) => ({ label: t(`lines.${l.key}`), value: f.euro(l.amount) })),
+      .map((l) => ({
+        label:
+          l.key === "sellingCommission"
+            ? t("lines.sellingCommission", { rate: f.percent(l.rate ?? 0) })
+            : t(`lines.${l.key}`),
+        value: f.euro(l.amount),
+      })),
     { label: t("gain"), value: f.euro(g.gain), total: true },
   ];
   if (g.gain <= 0) {

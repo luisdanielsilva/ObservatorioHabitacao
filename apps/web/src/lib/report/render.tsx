@@ -195,6 +195,22 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
         ],
         [te("flipMonths"), `${state.flipMonths} ${te("monthsShort")}`],
         [te("holdingYears"), `${state.rentalYears} ${te("yearsShort")}`],
+        ...(state.deals.some((d) => d === "flip" || d === "shortTermRental")
+          ? [
+              [
+                te("sellingCommission"),
+                t("commissionRate", { rate: pct(state.sellingCommissionRate) }),
+              ] as Row,
+            ]
+          : []),
+        ...(state.deals.includes("contractAssignment")
+          ? [
+              [
+                te("assignmentCommission"),
+                t("commissionRate", { rate: pct(state.assignmentCommissionRate) }),
+              ] as Row,
+            ]
+          : []),
         [
           te("otherTaxableIncome"),
           state.otherTaxableIncome !== null ? f.euro(state.otherTaxableIncome) : "—",
