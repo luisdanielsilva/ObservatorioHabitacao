@@ -12,6 +12,7 @@ import type { Formatter } from "@/lib/format";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import { COST_ITEMS, ownershipCosts } from "@/lib/calculator/costs";
+import { describeGainTax } from "@/lib/calculator/gainTax";
 import { SCENARIO_COLORS } from "./colors";
 
 export type MetricKey =
@@ -202,7 +203,7 @@ export function formatMetric(
   return years(v);
 }
 
-/** Acquisition costs and warnings per strategy, in collapsible panels. */
+/** Acquisition costs, the tax on the sale and warnings per strategy, in collapsible panels. */
 export function ScenarioDetails({
   outcomes,
   defaultOpen = false,
@@ -215,6 +216,7 @@ export function ScenarioDetails({
   const tw = useTranslations("warnings");
   const ts = useTranslations("scenarios");
   const tm = useTranslations("metrics");
+  const tg = useTranslations("gainTax");
   const f = useFormat();
 
   const withResults = outcomes.filter(
@@ -227,6 +229,7 @@ export function ScenarioDetails({
       <h3 className="text-sm font-semibold">{t("details")}</h3>
       {withResults.map(({ kind, result }) => {
         const costs = ownershipCosts(kind, result);
+        const gain = result.gainTax && describeGainTax(result.gainTax, tg, f);
         return (
           <details
             key={kind}
@@ -295,6 +298,32 @@ export function ScenarioDetails({
                 <dt className="font-medium">{ta("total")}</dt>
                 <dd className="text-right font-medium tabular-nums">{f.euro(costs.total)}</dd>
               </dl>
+            )}
+            {gain && (
+              <div className="mt-3 space-y-1.5">
+                <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+                  <dt className="col-span-2 flex items-center gap-1 font-medium">
+                    {tg("title")}
+                    <HelpTip label={tg("title")} text={tg("help")} />
+                  </dt>
+                  <dd className="col-span-2 text-xs text-muted-foreground">{gain.price}</dd>
+                  {gain.rows.map((row) => (
+                    <div key={row.label} className="contents">
+                      <dt className={row.total ? "font-medium" : "text-muted-foreground"}>
+                        {row.label}
+                      </dt>
+                      <dd className={cn("text-right tabular-nums", row.total && "font-medium")}>
+                        {row.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                {gain.notes.map((note) => (
+                  <p key={note} className="text-xs text-muted-foreground">
+                    {note}
+                  </p>
+                ))}
+              </div>
             )}
             {result.warnings.length > 0 && (
               <div className="mt-3 space-y-1">

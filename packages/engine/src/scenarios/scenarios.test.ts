@@ -63,6 +63,21 @@ describe("runFlip", () => {
     expect(flip.netProfit).toBeCloseTo(-BOUGHT - 30_000 - 6 * 75 + 281_550 - tax, 2);
   });
 
+  it("shows how the capital gains tax is reached", () => {
+    const g = flip.gainTax!;
+    expect(g.lines.map((l) => l.key)).toEqual([
+      "salePrice",
+      "sellingCommission",
+      "purchasePrice",
+      "acquisitionCosts",
+      "renovation",
+    ]);
+    expect(g.gain).toBeCloseTo(44_785.31, 2);
+    expect(g.taxable).toBeCloseTo(22_392.655, 3);
+    expect(g.slices.map((s) => s.bracket)).toEqual([6, 7, 8]);
+    expect(g.tax).toBe(flip.months.at(-1)!.capitalGainsTax);
+  });
+
   it("reports investment, capital and returns", () => {
     expect(flip.totalInvestment).toBeCloseTo(BOUGHT + 30_000, 2);
     expect(flip.ownCapital).toBeCloseTo(BOUGHT + 30_000, 2);
@@ -108,6 +123,7 @@ describe("runLongTermRental", () => {
     expect(rental.months[11]!.incomeTax).toBe(0);
     // Sold at the purchase price: a loss, so no capital gains tax.
     expect(rental.months[24]!.capitalGainsTax).toBe(0);
+    expect(rental.gainTax!.gain).toBeLessThan(0);
     expect(rental.netProfit).toBeCloseTo(-BOUGHT + 24 * 855 - 2 * 2_565 + 200_000, 2);
   });
 
@@ -134,6 +150,7 @@ describe("runLongTermRental", () => {
     expect(last.incomeTax).toBeCloseTo(6 * 855 * 0.25, 6);
     // Without a sale there is no profit or IRR; the rent's yield over the period is reported.
     expect(kept.netProfit).toBeNull();
+    expect(kept.gainTax).toBeNull();
     expect(kept.irr).toBeNull();
     expect(kept.lifetimeCashFlow).toBeCloseTo(18 * 855 - 2_565 - 6 * 855 * 0.25, 2);
     expect(kept.annualCashFlow).toBeCloseTo(12 * 855 * 0.75, 6);

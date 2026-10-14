@@ -1,4 +1,4 @@
-import { irsOnExtraIncome } from "./tax";
+import { gainTax, type GainTax } from "./tax";
 import { acquisitionCosts, type AcquisitionCosts } from "./acquisition";
 import { amortize, type Loan, type LoanMonth } from "./financing";
 import { annualise, irr } from "./metrics";
@@ -138,6 +138,8 @@ export interface ScenarioResult {
   annualFixedCosts: AnnualFixedCosts | null;
   /** Rentals: maintenance in a typical year (a share of the income); null otherwise. */
   annualMaintenance: number | null;
+  /** The IRS on the gain of the sale (or assignment), with its figures; null when kept. */
+  gainTax: GainTax | null;
 
   months: MonthLine[];
 }
@@ -190,6 +192,8 @@ export interface Simulation {
   ownCapital: number;
   warnings: Warning[];
   months: MonthLine[];
+  /** The IRS on the gain of the sale; null when kept. */
+  gainTax: GainTax | null;
   /** First full year after renovation, unlevered and levered. */
   stabilisedYear: {
     income: number;
@@ -274,6 +278,7 @@ export function simulate(spec: SimulationSpec): Simulation {
 
   let block: OperatingMonth[] = [];
   let cumulative = start;
+  let saleGainTax: GainTax | null = null;
   for (let m = 1; m <= holding; m++) {
     const op = spec.operating(m);
     block.push(op);
@@ -297,16 +302,19 @@ export function simulate(spec: SimulationSpec): Simulation {
       const feeRate = input.earlyRepaymentFeeRate ?? params.financing.earlyRepaymentFeeRate;
       line.loanPayoff = balance * (1 + feeRate);
 
-      const gain =
-        line.saleProceeds -
-        input.purchasePrice -
-        acquisition.deductibleForCapitalGains -
-        input.renovationBudget;
-      line.capitalGainsTax = irsOnExtraIncome(
+      saleGainTax = gainTax(
+        [
+          { key: "salePrice", amount: exitPrice },
+          { key: "sellingCommission", amount: -sellingCosts },
+          { key: "purchasePrice", amount: -input.purchasePrice },
+          { key: "acquisitionCosts", amount: -acquisition.deductibleForCapitalGains },
+          { key: "renovation", amount: -input.renovationBudget },
+        ],
+        params.capitalGains.inclusionRate,
         input.otherTaxableIncome,
-        Math.max(0, gain) * params.capitalGains.inclusionRate,
         params,
       );
+      line.capitalGainsTax = saleGainTax.tax;
     }
 
     line.cashFlow =
@@ -339,6 +347,7 @@ export function simulate(spec: SimulationSpec): Simulation {
     ownCapital: totalInvestment - loanAmount,
     warnings,
     months,
+    gainTax: saleGainTax,
     stabilisedYear: {
       income: sum(stabilised.map((o) => o.income)),
       operatingCosts: sum(stabilised.map((o) => o.costs)),
@@ -405,6 +414,7 @@ export function summarise(
     returnOnDeposit: null,
     annualFixedCosts: sim.annualFixedCosts,
     annualMaintenance: null,
+    gainTax: sim.gainTax,
     months: sim.months,
   };
 }

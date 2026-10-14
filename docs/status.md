@@ -1,16 +1,28 @@
 # OlhoVivo — Status
 
-Updated 2026-10-12, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-14, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 214 unit tests (58 engine, 92 db, 64 web) and 34 end-to-end tests (Playwright, Chromium;
+Tests: 226 unit tests (64 engine, 92 db, 70 web) and 34 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-12)
+## Latest changes (2026-10-04 – 2026-10-14)
+
+**The IRS on a sale's gain, explained (2026-10-14)**
+
+- Each deal's details (results page and PDF) have a block "IRS sobre a mais-valia" at the
+  price entered: sale price, commission, purchase price, IMT/stamp duty/deed and works, the
+  gain, the share taxed (50 %) and the IRS, with notes on the brackets the gain falls in, the
+  holding costs that are not deducted, and other taxable income left blank (lowest bracket).
+  Contract assignments get the same, with their own lines.
+- The PDF waterfall's bar is now "IRS mais-valia", with a small note under the chart when it
+  is drawn at another price (the break-even) than the one entered.
+- The engine returns the figures (`ScenarioResult.gainTax`: lines, gain, taxable share, IRS
+  per bracket), so the explanation and the tax in the cash flow are the same calculation.
 
 **Photos on the read-only link, by choice; address search removed (2026-10-12)**
 

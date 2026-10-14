@@ -3,7 +3,8 @@ export type { AcquisitionCosts, AcquisitionInput } from "./acquisition";
 export { amortize, monthlyPayment } from "./financing";
 export type { Loan, LoanMonth } from "./financing";
 export { annualise, irr, npv } from "./metrics";
-export { irsOnExtraIncome, irsTax } from "./tax";
+export { gainTax, irsOnExtraIncome, irsSlicesOnExtraIncome, irsTax } from "./tax";
+export type { GainLineKey, GainTax, IrsSlice } from "./tax";
 export type { ImtBracket, ParameterSet, PropertyUse, Region } from "./params";
 export type {
   MonthLine,

@@ -212,6 +212,34 @@
     "valuationFee": "Property valuation (bank)",
     "processingFee": "Process opening (bank)"
   },
+  "gainTax": {
+    "title": "IRS on the capital gain",
+    "atSale": "Selling for {price}",
+    "atAssignment": "Assigning for {price}",
+    "help": "When you sell at a gain, you pay IRS on the capital gain (category G). The gain is what the sale brings in minus what the property cost you (price, IMT, stamp duty, deed and works) and the selling commission. It is paid with the following year's IRS return; here it counts in the month of the sale.",
+    "lines": {
+      "salePrice": "Sale price",
+      "assignmentPrice": "Assignment price",
+      "deposit": "Deposit paid",
+      "sellingCommission": "Agency commission (with VAT)",
+      "otherCosts": "Lawyer and other costs",
+      "purchasePrice": "Purchase price",
+      "acquisitionCosts": "IMT, stamp duty and deed",
+      "upfrontTaxes": "IMT and stamp duty paid at the CPCV",
+      "renovation": "Works"
+    },
+    "gain": "Capital gain",
+    "taxable": "Taxed share ({share} of the gain)",
+    "tax": "IRS on the capital gain",
+    "noGain": "No gain at this price: no IRS on the capital gain.",
+    "explain": "Only {share} of the gain ({taxable}) is taxed: it is added to your other taxable income ({other}) and pays IRS at the brackets it falls in: {rates}.",
+    "bracketSlice": "{rate} (bracket {n}) on {amount}",
+    "solidaritySlice": "{rate} solidarity surcharge on {amount}",
+    "notDeducted": "IMI, condominium, insurance and interest are not deducted from the gain: that is why you can pay this tax even when the deal barely makes a profit.",
+    "otherZero": "Your other taxable income counts as €0 (the field is blank or zero), so the gain starts in the lowest bracket. If you have a salary or pension, enter your annual taxable income under taxes: the gain falls in higher brackets and the tax goes up.",
+    "chartNote": "Gains IRS: {tax}. Selling for {price}, the gain is {gain} (sale minus commission, price, IMT, stamp duty, deed and works; IMI, condominium, insurance and interest are not deducted). Only {share} of it, {taxable}, is taxed: {rates}.",
+    "chartOtherZero": "Other taxable income blank or zero: with a salary or pension, the rate would be higher."
+  },
   "warnings": {
     "vpt_estimated": "Tax value (VPT) unknown: IMI was calculated on the purchase price, which may overstate it.",
     "ltv_above_limit": "The loan exceeds Banco de Portugal's recommended limit (80% for investment, 90% for your own home).",
@@ -712,7 +740,7 @@
           "incomeTax": "Income tax",
           "saleProceeds": "Sale",
           "loanPayoff": "Loan payoff",
-          "capitalGainsTax": "Gains tax",
+          "capitalGainsTax": "Gains IRS",
           "total": "Result",
           "steps": "Profit +5 to +20%"
         },

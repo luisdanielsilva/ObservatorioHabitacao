@@ -1,4 +1,4 @@
-import { irsOnExtraIncome } from "../tax";
+import { gainTax } from "../tax";
 import { imt, roundCents } from "../acquisition";
 import { annualise, irr } from "../metrics";
 import type { ParameterSet, PropertyUse } from "../params";
@@ -70,12 +70,19 @@ export function runContractAssignment(
 
   const premium = input.assignmentPrice - input.deposit;
   const commission = Math.max(0, premium) * input.commissionRate * (1 + params.vatRate);
-  const gain = premium - commission - input.otherCosts - upfrontTaxes;
-  const tax = irsOnExtraIncome(
+  const assignmentTax = gainTax(
+    [
+      { key: "assignmentPrice", amount: input.assignmentPrice },
+      { key: "deposit", amount: -input.deposit },
+      { key: "sellingCommission", amount: -commission },
+      { key: "otherCosts", amount: -input.otherCosts },
+      { key: "upfrontTaxes", amount: -upfrontTaxes },
+    ],
+    params.contractAssignment.inclusionRate,
     input.otherTaxableIncome,
-    Math.max(0, gain) * params.contractAssignment.inclusionRate,
     params,
   );
+  const tax = assignmentTax.tax;
 
   const ownCapital = input.deposit + upfrontTaxes;
   const months = [emptyLine(0, -ownCapital, -ownCapital)];
@@ -113,6 +120,7 @@ export function runContractAssignment(
     returnOnDeposit: input.deposit > 0 ? netProfit / input.deposit : null,
     annualFixedCosts: null,
     annualMaintenance: null,
+    gainTax: assignmentTax,
     months,
   };
 }

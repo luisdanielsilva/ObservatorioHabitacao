@@ -1,5 +1,5 @@
 import { chosenOutcomes } from "@/lib/calculator/run";
-import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import type { GainTax, ScenarioKind, ScenarioResult } from "@olhovivo/engine";
 import {
   Document,
   Font,
@@ -15,6 +15,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { COST_ITEMS, ownershipCosts, type CostItem } from "@/lib/calculator/costs";
+import type { GainTaxText } from "@/lib/calculator/gainTax";
 import type { SaleAnalysis, SaleStep } from "@/lib/calculator/sale";
 import type { Formatter } from "@/lib/format";
 import {
@@ -84,6 +85,12 @@ export interface ReportLabels {
     rows: Record<BreakdownRow, string>;
     total: string;
     kept: string;
+  };
+  gainTax: {
+    title: string;
+    describe: (g: GainTax) => GainTaxText;
+    /** The note under the waterfall that explains its tax bar; null without one. */
+    chartNote: (g: GainTax) => string | null;
   };
   warning: (code: string) => string;
   years: (n: number) => string;
@@ -544,6 +551,7 @@ function DealSection({
       <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.scenarioName(kind))}</Text>
       {sale && <SaleSection sale={sale} labels={labels} f={f} />}
       <DealCharts result={result} sale={sale} labels={labels} f={f} />
+      {result.gainTax && <GainTaxSection gainTax={result.gainTax} labels={labels} />}
       {warnings.length > 0 && (
         <View style={{ marginTop: 6 }}>
           <Text style={s.h3}>{pdfSafe(labels.warnings)}</Text>
@@ -554,6 +562,29 @@ function DealSection({
           ))}
         </View>
       )}
+    </View>
+  );
+}
+
+/** How the IRS on the gain of the deal's sale is reached, at the price the deal was calculated. */
+function GainTaxSection({ gainTax, labels }: { gainTax: GainTax; labels: ReportLabels }) {
+  const text = labels.gainTax.describe(gainTax);
+  return (
+    <View style={[s.twoCols, { marginTop: 8 }]}>
+      <View style={s.col}>
+        <Text style={s.h3}>{pdfSafe(labels.gainTax.title)}</Text>
+        <Text style={[s.muted, { marginBottom: 3 }]}>{pdfSafe(text.price)}</Text>
+        <KeyValues
+          rows={text.rows.map((row) => [row.label, row.value, { total: row.total }] satisfies Row)}
+        />
+      </View>
+      <View style={[s.col, { paddingTop: 12 }]}>
+        {text.notes.map((note) => (
+          <Text key={note} style={s.note}>
+            {pdfSafe(note)}
+          </Text>
+        ))}
+      </View>
     </View>
   );
 }
@@ -623,6 +654,12 @@ function DealCharts({
   const bars = waterfallBars(cashBreakdown(atBase ?? result));
   if (bars.length === 0) return null;
   const steps = atBase && sale ? sale.analysis.steps : [];
+  // The chart's tax bar explained, unless the chart is at the deal's own price (explained below it).
+  const chartTax = (atBase ?? result).gainTax;
+  const taxNote =
+    chartTax && atBase && Math.abs(chartTax.gain - (result.gainTax?.gain ?? 0)) >= 0.5
+      ? labels.gainTax.chartNote(chartTax)
+      : null;
   const mainWidth = steps.length ? WF.width - WF.stepsWidth - WF.gap : WF.width;
 
   // Zero sits at or below the middle, so the steps chart has room to rise from it.
@@ -646,6 +683,7 @@ function DealCharts({
         <WaterfallChart bars={bars} width={mainWidth} y={y} zero={zero} labels={labels} f={f} />
         {steps.length > 0 && <StepsChart steps={steps} zero={zero} f={f} labels={labels} />}
       </View>
+      {taxNote && <Text style={s.note}>{pdfSafe(taxNote)}</Text>}
     </View>
   );
 }

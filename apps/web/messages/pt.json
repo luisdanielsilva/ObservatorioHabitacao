@@ -212,6 +212,34 @@
     "valuationFee": "Avaliação do imóvel (banco)",
     "processingFee": "Abertura de processo (banco)"
   },
+  "gainTax": {
+    "title": "IRS sobre a mais-valia",
+    "atSale": "Com a venda a {price}",
+    "atAssignment": "Com a cessão a {price}",
+    "help": "Ao vender com ganho, paga IRS sobre a mais-valia (categoria G). O ganho é o que recebe na venda menos o que o imóvel lhe custou (compra, IMT, Imposto do Selo, escritura e obras) e a comissão de venda. Paga-se com a declaração de IRS do ano seguinte; aqui conta no mês da venda.",
+    "lines": {
+      "salePrice": "Preço de venda",
+      "assignmentPrice": "Preço da cessão",
+      "deposit": "Sinal pago",
+      "sellingCommission": "Comissão da agência (com IVA)",
+      "otherCosts": "Advogado e outros custos",
+      "purchasePrice": "Preço de compra",
+      "acquisitionCosts": "IMT, Imposto do Selo e escritura",
+      "upfrontTaxes": "IMT e Imposto do Selo pagos no CPCV",
+      "renovation": "Obras"
+    },
+    "gain": "Mais-valia (ganho)",
+    "taxable": "Parte tributada ({share} do ganho)",
+    "tax": "IRS sobre a mais-valia",
+    "noGain": "Sem ganho a este preço: não há IRS sobre a mais-valia.",
+    "explain": "Só {share} do ganho ({taxable}) é tributado: soma-se aos seus outros rendimentos coletáveis ({other}) e paga IRS pelos escalões em que cai: {rates}.",
+    "bracketSlice": "{rate} ({n}.º escalão) sobre {amount}",
+    "solidaritySlice": "{rate} de taxa adicional de solidariedade sobre {amount}",
+    "notDeducted": "IMI, condomínio, seguro e juros não se descontam no ganho: por isso pode pagar este imposto mesmo quando o negócio quase não dá lucro.",
+    "otherZero": "Os seus outros rendimentos coletáveis contam como 0 € (o campo está em branco ou a zero), por isso o ganho começa no escalão mais baixo. Se tiver salário ou pensão, indique o rendimento coletável anual nos impostos: o ganho cai em escalões mais altos e o imposto sobe.",
+    "chartNote": "IRS mais-valia: {tax}. Com a venda a {price}, o ganho é {gain} (venda menos comissão, compra, IMT, Imposto do Selo, escritura e obras; IMI, condomínio, seguro e juros não se descontam). Só {share} dele, {taxable}, é tributado: {rates}.",
+    "chartOtherZero": "Outros rendimentos coletáveis em branco ou a zero: com salário ou pensão, a taxa seria maior."
+  },
   "warnings": {
     "vpt_estimated": "VPT desconhecido: o IMI foi calculado sobre o preço de compra, o que pode sobrestimá-lo.",
     "ltv_above_limit": "O empréstimo excede o limite recomendado pelo Banco de Portugal (80% para investimento, 90% para habitação própria).",
@@ -712,7 +740,7 @@
           "incomeTax": "IRS",
           "saleProceeds": "Venda",
           "loanPayoff": "Empréstimo",
-          "capitalGainsTax": "Mais-valia",
+          "capitalGainsTax": "IRS mais-valia",
           "total": "Resultado",
           "steps": "Lucro +5 a +20%"
         },

@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 import type { AppLocale } from "@/i18n/routing";
+import { describeGainTax, gainTaxChartNote } from "@/lib/calculator/gainTax";
 import { chosenOutcomes, runCalculator } from "@/lib/calculator/run";
 import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import { getDb } from "@/lib/db";
@@ -36,6 +37,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   const tw = await getTranslations({ locale, namespace: "warnings" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const tsale = await getTranslations({ locale, namespace: "sale" });
+  const tg = await getTranslations({ locale, namespace: "gainTax" });
   const f = createFormatter(locale);
   const { state, output } = data;
   const dateFormat = new Intl.DateTimeFormat(locale === "en" ? "en-IE" : "pt-PT", {
@@ -126,6 +128,11 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       ) as Record<BreakdownRow, string>,
       total: t("breakdown.total"),
       kept: t("breakdown.kept"),
+    },
+    gainTax: {
+      title: tg("title"),
+      describe: (g) => describeGainTax(g, tg, f),
+      chartNote: (g) => gainTaxChartNote(g, tg, f),
     },
     warning: (code) => (tw.has(code as never) ? tw(code as never) : code),
     years: (n) => tm("years", { value: n }),
