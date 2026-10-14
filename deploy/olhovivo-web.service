@@ -9,7 +9,7 @@ User=deploy
 WorkingDirectory=/var/www/olhovivo/apps/web
 EnvironmentFile=/etc/olhovivo.env
 Environment=NODE_ENV=production
-ExecStart=/usr/bin/npx next start --hostname 127.0.0.1 --port 3200
+ExecStart=/usr/bin/npx next start --hostname localhost --port 3200
 Restart=always
 RestartSec=5
 # Hardening

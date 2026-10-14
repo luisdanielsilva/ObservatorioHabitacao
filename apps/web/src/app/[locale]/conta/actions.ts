@@ -13,6 +13,7 @@ import { signOut } from "@/auth";
 import { getDb } from "@/lib/db";
 import { removeScenarioPhotos } from "@/lib/photos";
 import { getCurrentUser } from "@/lib/session";
+import { withBasePath } from "@/lib/basePath";
 
 export async function deleteSavedScenario(id: number): Promise<boolean> {
   const user = await getCurrentUser();
@@ -60,10 +61,10 @@ export async function deleteMyAccount(_prev: DeleteState, form: FormData): Promi
   const scenarioIds = scenarioIdsOfUser(db, user.id);
   deleteAccount(db, user.id);
   await Promise.all(scenarioIds.map(removeScenarioPhotos));
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: withBasePath("/") });
   return { status: "idle" };
 }
 
 export async function signOutAction() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: withBasePath("/") });
 }

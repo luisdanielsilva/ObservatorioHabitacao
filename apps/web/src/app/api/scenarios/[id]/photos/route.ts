@@ -17,6 +17,7 @@ import {
   writePhotoFile,
 } from "@/lib/photos";
 import { getCurrentUser } from "@/lib/session";
+import { withBasePath } from "@/lib/basePath";
 
 export interface PhotoInfo {
   id: number;
@@ -44,7 +45,7 @@ const LIMIT = { requests: 120, windowSeconds: 3600 };
 
 const info = (scenarioId: number, p: PhotoRow): PhotoInfo => ({
   id: p.id,
-  url: `/api/scenarios/${scenarioId}/photos/${p.id}`,
+  url: withBasePath(`/api/scenarios/${scenarioId}/photos/${p.id}`),
   width: p.width,
   height: p.height,
   bytes: p.bytes,

@@ -7,6 +7,7 @@ import Resend from "next-auth/providers/resend";
 import { getDb } from "@/lib/db";
 import { escapeHtml, sendEmail } from "@/lib/email";
 import { rememberSignInLink } from "@/lib/devSignIn";
+import { withBasePath } from "@/lib/basePath";
 
 declare module "next-auth" {
   interface Session {
@@ -60,7 +61,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   }),
   providers,
   session: { strategy: "database", maxAge: 30 * 24 * 3600 },
-  pages: { signIn: "/entrar", verifyRequest: "/entrar/verificar", error: "/entrar" },
+  // Auth.js reads and builds full addresses, so its paths include the site's base path.
+  basePath: withBasePath("/api/auth"),
+  pages: {
+    signIn: withBasePath("/entrar"),
+    verifyRequest: withBasePath("/entrar/verificar"),
+    error: withBasePath("/entrar"),
+  },
   trustHost: true,
   callbacks: {
     session({ session, user }) {

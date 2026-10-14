@@ -29,6 +29,7 @@ import { SaveBar } from "./SaveBar";
 import { scenarioKey, type SavedScenario } from "./saved";
 import { ShareSection } from "./ShareSection";
 import { StepCard, type StepStatus } from "./StepCard";
+import { withBasePath } from "@/lib/basePath";
 
 export type Update = (patch: Partial<CalculatorState>) => void;
 
@@ -149,7 +150,7 @@ export function Calculator({
     const areaId = state.areaId;
     if (areaId === null) return;
     const controller = new AbortController();
-    fetch(`/api/reference?areaId=${areaId}`, { signal: controller.signal })
+    fetch(withBasePath(`/api/reference?areaId=${areaId}`), { signal: controller.signal })
       .then((r) => (r.ok ? (r.json() as Promise<ReferenceResponse>) : null))
       .then((ref) => {
         setLoaded({ areaId, data: ref });
@@ -226,7 +227,7 @@ export function Calculator({
           {devTools && (
             <Button asChild variant="ghost" size="sm">
               {/* A full page load, so the example replaces the evaluation in progress. */}
-              <a href={`${locale === "pt" ? "" : `/${locale}`}/avaliar?exemplo=1`}>
+              <a href={withBasePath(`${locale === "pt" ? "" : `/${locale}`}/avaliar?exemplo=1`)}>
                 <FlaskConical />
                 Preencher exemplo (dev)
               </a>

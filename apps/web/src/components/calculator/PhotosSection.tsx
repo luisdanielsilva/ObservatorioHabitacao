@@ -16,6 +16,7 @@ import { fitsLimits, MAX_SIDE, preparePhoto, type PreparedPhoto } from "@/lib/ph
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
 import { signInToSaveHref } from "./SaveBar";
+import { withBasePath } from "@/lib/basePath";
 
 /** As PHOTO_LIMITS on the server; replaced by the server's values once the photos are loaded. */
 const DEFAULT_LIMITS = { maxCount: 30, maxBytes: 5 * 1024 * 1024 };
@@ -70,7 +71,7 @@ export function PhotosSection({
     if (!scenarioId || loadedFor.current === scenarioId) return;
     loadedFor.current = scenarioId;
     let current = true;
-    fetch(`/api/scenarios/${scenarioId}/photos`)
+    fetch(withBasePath(`/api/scenarios/${scenarioId}/photos`))
       .then(async (res) => {
         if (!current) return;
         if (res.status === 401) return setStatus({ kind: "signin" });
@@ -172,7 +173,10 @@ export function PhotosSection({
       setStatus({ kind: "uploading", done: i, total: selected.length });
       const form = new FormData();
       form.append("file", pick.blob, pick.name);
-      const res = await fetch(`/api/scenarios/${saved.id}/photos`, { method: "POST", body: form });
+      const res = await fetch(withBasePath(`/api/scenarios/${saved.id}/photos`), {
+        method: "POST",
+        body: form,
+      });
       const body = (await res.json().catch(() => ({ status: "invalid" }))) as UploadResponse;
       sent.push(pick);
       if (body.status === "added") {

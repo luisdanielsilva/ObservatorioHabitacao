@@ -17,6 +17,7 @@ import { createFormatter } from "@/lib/format";
 import { requireUser } from "@/lib/session";
 import { signOutAction } from "./actions";
 import { DeleteAccountForm, DeleteScenarioButton, SettingsForm } from "./AccountForms";
+import { withBasePath } from "@/lib/basePath";
 
 export const dynamic = "force-dynamic";
 
@@ -196,7 +197,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Button asChild variant="outline">
-              <a href="/api/account/export" download>
+              <a href={withBasePath("/api/account/export")} download>
                 <Download />
                 {t("export")}
               </a>

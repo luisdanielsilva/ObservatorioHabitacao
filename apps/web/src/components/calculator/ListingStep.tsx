@@ -19,6 +19,7 @@ import { formatPeriod } from "@/lib/period";
 import { useFormat } from "@/lib/useFormat";
 import type { Update } from "./Calculator";
 import { FieldLabel, focusFirstInvalid, MissingAlert, NumberField, SelectField } from "./fields";
+import { withBasePath } from "@/lib/basePath";
 
 type LinkStatus = "idle" | "reading" | Exclude<AnalyzeResponse["status"], "ok"> | "ok";
 
@@ -64,7 +65,7 @@ export function ListingStep({
 
   async function analyze() {
     try {
-      const res = await fetch("/api/analyze", {
+      const res = await fetch(withBasePath("/api/analyze"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: state.url.trim() }),

@@ -14,6 +14,7 @@ import { getDb } from "@/lib/db";
 import { createFormatter } from "@/lib/format";
 import { googleMapsUrl } from "@/lib/mapsLink";
 import { loadSharedScenario } from "@/lib/report/shared";
+import { withBasePath } from "@/lib/basePath";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +81,7 @@ export default async function SharedScenarioPage({
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <a href={`/api/partilha/${token}/pdf?lang=${locale}`}>
+            <a href={withBasePath(`/api/partilha/${token}/pdf?lang=${locale}`)}>
               <FileDown />
               {t("downloadPdf")}
             </a>
@@ -124,7 +125,7 @@ export default async function SharedScenarioPage({
           </h2>
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {photos.map((photo, i) => {
-              const src = `/api/partilha/${token}/photos/${photo.id}`;
+              const src = withBasePath(`/api/partilha/${token}/photos/${photo.id}`);
               return (
                 <li key={photo.id} className="overflow-hidden rounded-md border">
                   <a href={src} target="_blank" rel="noopener">

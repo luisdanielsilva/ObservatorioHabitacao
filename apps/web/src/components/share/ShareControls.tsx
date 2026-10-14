@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { emailReport, getSharing, setSharing, type EmailReportResult } from "./actions";
 import { SharePhotosOption } from "./SharePhotosOption";
+import { withBasePath } from "@/lib/basePath";
 
 /** PDF download, public link (with X / Facebook / copy) and email for a saved scenario. */
 export function ShareControls({
@@ -32,7 +33,7 @@ export function ShareControls({
   const prefix = locale === "pt" ? "" : `/${locale}`;
   const shareUrl =
     token && typeof window !== "undefined"
-      ? `${window.location.origin}${prefix}/partilha/${token}`
+      ? `${window.location.origin}${withBasePath(`${prefix}/partilha/${token}`)}`
       : null;
   const postText = t("postText", { name });
 
@@ -49,7 +50,7 @@ export function ShareControls({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button asChild size={size} variant="outline">
-        <a href={`/api/scenarios/${scenarioId}/pdf?lang=${locale}`} download>
+        <a href={withBasePath(`/api/scenarios/${scenarioId}/pdf?lang=${locale}`)} download>
           <FileDown />
           <span className="sr-only sm:not-sr-only">{t("pdf")}</span>
           <span className="sr-only">{t("downloadPdf")}</span>

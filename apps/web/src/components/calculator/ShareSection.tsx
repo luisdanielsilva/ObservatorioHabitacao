@@ -28,6 +28,7 @@ import { Link } from "@/i18n/navigation";
 import type { CalculatorState } from "@/lib/calculator/state";
 import type { SavedScenario } from "./saved";
 import { signInToSaveHref } from "./SaveBar";
+import { withBasePath } from "@/lib/basePath";
 
 type Channel = "email" | "whatsapp" | "messenger";
 type Action = Channel | "account" | "pdf";
@@ -67,8 +68,10 @@ export function ShareSection({
 
   const inSync = saved !== null && saved.key === currentKey;
   const prefix = locale === "pt" ? "" : `/${locale}`;
-  const linkFor = (token: string) => `${window.location.origin}${prefix}/partilha/${token}`;
-  const pdfUrl = (scenarioId: number) => `/api/scenarios/${scenarioId}/pdf?lang=${locale}`;
+  const linkFor = (token: string) =>
+    `${window.location.origin}${withBasePath(`${prefix}/partilha/${token}`)}`;
+  const pdfUrl = (scenarioId: number) =>
+    withBasePath(`/api/scenarios/${scenarioId}/pdf?lang=${locale}`);
   // Ready to send straight away: saved as shown, with the link on.
   const readyLink = inSync && saved.token ? linkFor(saved.token) : null;
   const mobile =
