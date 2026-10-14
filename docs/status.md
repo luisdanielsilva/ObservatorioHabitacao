@@ -298,8 +298,13 @@ VPS (system libraries need sudo), so Safari is untested.
 
 **On each deployment**
 
-- Migrations run in `deploy/deploy.sh`; once per database: `npm run params:irs` and
-  `npm run import:rents` (`-w @olhovivo/db`).
+- Migrations run in `deploy/deploy.sh`.
+- Only for a database created before 2026-10-04 (e.g. an older copy moved to a new server):
+  `npm run params:irs -w @olhovivo/db` adds the IRS brackets to its stored tax parameters, and
+  `npm run import:rents -w @olhovivo/db` loads INE's yearly rent update coefficients. The
+  current database (`data/olhovivo.db`) already has both.
+- Each year, once INE's new rent update coefficient is added (development point 4), run
+  `npm run import:rents -w @olhovivo/db` again.
 - Back up `data/photos/` with the VPS backup (photos are files, not in the database).
 
 ## Changed by decisions since plan v2
