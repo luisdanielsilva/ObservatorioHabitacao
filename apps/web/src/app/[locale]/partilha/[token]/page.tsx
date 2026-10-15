@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SharedComparables } from "@/components/calculator/ComparablesSection";
 import { SharedResults } from "@/components/share/SharedResults";
 import { Link } from "@/i18n/navigation";
 import { asLocale, initPageLocale } from "@/i18n/locale";
@@ -117,6 +118,8 @@ export default async function SharedScenarioPage({
           )}
         </CardContent>
       </Card>
+
+      {state.comparables.length > 0 && <SharedComparables state={state} />}
 
       {photos.length > 0 && (
         <section aria-labelledby="fotografias" className="space-y-3">

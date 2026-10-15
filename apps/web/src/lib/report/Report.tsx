@@ -1,5 +1,5 @@
 import { chosenOutcomes } from "@/lib/calculator/run";
-import type { GainTax, ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import type { GainTax, OpportunitySignal, ScenarioKind, ScenarioResult } from "@olhovivo/engine";
 import {
   Document,
   Font,
@@ -14,10 +14,19 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import {
+  compareListings,
+  siteName,
+  webUrl,
+  type ComparableRow,
+  type ComparablesSummary,
+} from "@/lib/calculator/comparables";
 import { COST_ITEMS, ownershipCosts, type CostItem } from "@/lib/calculator/costs";
 import type { GainTaxText } from "@/lib/calculator/gainTax";
 import type { SaleAnalysis, SaleStep } from "@/lib/calculator/sale";
+import type { Condition, PropertyType } from "@/lib/calculator/state";
 import type { Formatter } from "@/lib/format";
+import { googleMapsUrl } from "@/lib/mapsLink";
 import {
   BREAKDOWN_ROWS,
   cashBreakdown,
@@ -91,6 +100,37 @@ export interface ReportLabels {
     describe: (g: GainTax) => GainTaxText;
     /** The note under the waterfall that explains its tax bar; null without one. */
     chartNote: (g: GainTax) => string | null;
+  };
+  comparables: {
+    title: string;
+    columns: Record<
+      | "property"
+      | "area"
+      | "location"
+      | "distance"
+      | "askingPrice"
+      | "perM2"
+      | "vsThis"
+      | "listing",
+      string
+    >;
+    thisProperty: string;
+    similar: (n: number) => string;
+    /** "Apartamento T2". */
+    type: (type: PropertyType, bedrooms: number | null) => string;
+    condition: (condition: Condition | null) => string;
+    verdict: (signal: OpportunitySignal) => string;
+    verdictText: (diff: string, count: number, dearer: number) => string;
+    tooFew: (count: number) => string;
+    medianPerM2: string;
+    range: string;
+    medianPrice: string;
+    valueAtMedian: string;
+    km: (value: string) => string;
+    openMap: string;
+    vsThisHelp: string;
+    differentNote: string;
+    note: string;
   };
   warning: (code: string) => string;
   years: (n: number) => string;
@@ -229,6 +269,9 @@ const s = StyleSheet.create({
   wfValue: { fontSize: 7 },
   wfLabel: { fontSize: 6.5 },
   wfStep: { fontSize: 6.5 },
+  cmpHead: { fontSize: 7.5 },
+  cmpCell: { fontSize: 7.5 },
+  cmpVerdict: { fontSize: 10, fontFamily: "Helvetica-Bold", marginBottom: 2 },
   photos: { marginTop: 10 },
   mainPhoto: { width: "100%", height: 230, objectFit: "cover" },
   thumbs: { flexDirection: "row", gap: 6, marginTop: 6 },
@@ -295,6 +338,8 @@ export function ScenarioReport({
           ? f.percent(v)
           : labels.years(Math.round(v * 10) / 10);
   const withResults = output.outcomes.filter((o) => o.result);
+  // Smaller photos when similar listings share the first page with them.
+  const compact = data.state.comparables.length > 0;
   const acquisition = withResults.find((o) => o.result?.acquisition)?.result?.acquisition;
   const annual = withResults.flatMap((o) => {
     const costs = ownershipCosts(o.kind, o.result!);
@@ -322,12 +367,19 @@ export function ScenarioReport({
           <View style={s.photos} wrap={false}>
             {/* The main photo, then up to five more, smaller. Alt text does not apply here. */}
             {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <Image src={{ data: photos[0]!.data, format: "jpg" }} style={s.mainPhoto} />
+            <Image
+              src={{ data: photos[0]!.data, format: "jpg" }}
+              style={[s.mainPhoto, compact ? { height: 150 } : {}]}
+            />
             {photos.length > 1 && (
               <View style={s.thumbs}>
                 {photos.slice(1, 6).map((p, i) => (
                   // eslint-disable-next-line jsx-a11y/alt-text
-                  <Image key={i} src={{ data: p.data, format: "jpg" }} style={s.thumb} />
+                  <Image
+                    key={i}
+                    src={{ data: p.data, format: "jpg" }}
+                    style={[s.thumb, compact ? { height: 55 } : {}]}
+                  />
                 ))}
               </View>
             )}
@@ -371,12 +423,19 @@ export function ScenarioReport({
           </View>
         )}
 
-        <Text style={s.h2}>{pdfSafe(labels.purchase)}</Text>
-        <KeyValues rows={labels.rows.purchase} />
+        {data.state.comparables.length > 0 && (
+          <Comparables summary={compareListings(data.state)} data={data} labels={labels} f={f} />
+        )}
 
-        {/* Page 2: the summary. The heading stays with its table. */}
+        {/* Page 2: the purchase and its financing, then the money over the period held. */}
         <View wrap={false} break>
-          <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.results)}</Text>
+          <Text style={[s.h2, { marginTop: 0 }]}>{pdfSafe(labels.purchase)}</Text>
+          <KeyValues rows={labels.rows.purchase} />
+        </View>
+
+        {/* The summary. The heading stays with its table. */}
+        <View wrap={false}>
+          <Text style={s.h2}>{pdfSafe(labels.results)}</Text>
           <View style={s.table}>
             <View style={s.tr}>
               <Text style={[s.th, s.metricCell]}>{pdfSafe(labels.metricHeader)}</Text>
@@ -527,6 +586,264 @@ export function ScenarioReport({
         </View>
       </Page>
     </Document>
+  );
+}
+
+/** Column widths of the similar listings' table, adding up to 100 %. */
+const CMP = {
+  property: "19%",
+  area: "8%",
+  location: "21%",
+  distance: "8%",
+  askingPrice: "12%",
+  perM2: "10%",
+  vsThis: "9%",
+  listing: "13%",
+} as const;
+
+/**
+ * Negócios semelhantes: the property against similar listings, without photos. A line for the
+ * property itself, one per listing (with links to it and to its place on the map), then the
+ * verdict against their median price per m².
+ */
+function Comparables({
+  summary,
+  data,
+  labels,
+  f,
+}: {
+  summary: ComparablesSummary;
+  data: ReportData;
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const l = labels.comparables;
+  const { state } = data;
+  const { opportunity } = summary;
+  const anyDifferent = summary.rows.some((r) => r.differences.length > 0);
+  const own = {
+    label: l.thisProperty,
+    type: l.type(state.propertyType, state.bedrooms),
+    condition: l.condition(state.condition),
+    areaM2: state.areaM2,
+    location: [...data.breadcrumb].reverse().slice(0, 2).join(", ") || state.address,
+    mapsUrl: googleMapsUrl(state.mapsUrl),
+    askingPrice: state.askingPrice,
+    pricePerM2: summary.pricePerM2,
+    listingUrl: webUrl(state.url),
+  };
+  return (
+    <View>
+      <Text style={s.h2}>{pdfSafe(l.title)}</Text>
+      <View style={s.table}>
+        <View style={s.tr} wrap={false}>
+          {(Object.keys(CMP) as (keyof typeof CMP)[]).map((k, i) => (
+            <Text
+              key={k}
+              style={[
+                s.th,
+                s.cmpHead,
+                { width: CMP[k] },
+                i === 0 ? { paddingLeft: 0 } : {},
+                NUMERIC.has(k) ? { textAlign: "right" } : {},
+              ]}
+            >
+              {pdfSafe(l.columns[k])}
+            </Text>
+          ))}
+        </View>
+        <ComparableTr
+          name={own.label}
+          type={own.type}
+          condition={own.condition}
+          areaM2={own.areaM2}
+          location={own.location}
+          mapsUrl={own.mapsUrl}
+          distance={null}
+          askingPrice={own.askingPrice}
+          pricePerM2={own.pricePerM2}
+          difference={null}
+          listingUrl={own.listingUrl}
+          bold
+          labels={labels}
+          f={f}
+        />
+        {summary.rows.map((row, i) => (
+          <ComparableTr
+            key={i}
+            name={l.similar(i + 1)}
+            type={l.type(row.comparable.propertyType, row.comparable.bedrooms)}
+            condition={l.condition(row.comparable.condition)}
+            areaM2={row.comparable.areaM2}
+            location={row.comparable.location}
+            mapsUrl={row.mapsUrl}
+            distance={row.distanceKm}
+            askingPrice={row.comparable.askingPrice}
+            pricePerM2={row.pricePerM2}
+            difference={row.difference}
+            listingUrl={row.listingUrl}
+            differences={row.differences}
+            labels={labels}
+            f={f}
+          />
+        ))}
+      </View>
+      {anyDifferent && <Text style={s.note}>{pdfSafe(l.differentNote)}</Text>}
+
+      <View style={[s.twoCols, { marginTop: 8 }]} wrap={false}>
+        <View style={s.col}>
+          {summary.tooFew ? (
+            <Text style={s.bold}>{pdfSafe(l.tooFew(summary.count))}</Text>
+          ) : (
+            opportunity && (
+              <View>
+                <Text
+                  style={[
+                    s.cmpVerdict,
+                    opportunity.signal === "opportunity"
+                      ? s.good
+                      : opportunity.signal === "above"
+                        ? s.negative
+                        : {},
+                  ]}
+                >
+                  {pdfSafe(l.verdict(opportunity.signal))}
+                </Text>
+                <Text>
+                  {pdfSafe(
+                    l.verdictText(
+                      f.signedPercent(opportunity.difference),
+                      summary.count,
+                      summary.dearer,
+                    ),
+                  )}
+                </Text>
+              </View>
+            )
+          )}
+          <Text style={s.note}>{pdfSafe(`${l.vsThisHelp} ${l.note}`)}</Text>
+        </View>
+        <View style={s.col}>
+          {summary.medianPerM2 !== null && (
+            <KeyValues
+              rows={[
+                [l.medianPerM2, f.euroPerM2(summary.medianPerM2)],
+                [
+                  l.range,
+                  `${f.number(Math.round(summary.minPerM2!))} - ${f.euroPerM2(summary.maxPerM2!)}`,
+                ],
+                ...(summary.medianPrice !== null
+                  ? [[l.medianPrice, f.euro(summary.medianPrice)] as Row]
+                  : []),
+                ...(summary.valueAtMedian !== null
+                  ? [[l.valueAtMedian, f.euro(summary.valueAtMedian), { total: true }] as Row]
+                  : []),
+              ]}
+            />
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const NUMERIC = new Set<keyof typeof CMP>(["area", "distance", "askingPrice", "perM2", "vsThis"]);
+
+/** One line of the similar listings' table; values that set a listing apart are marked "*". */
+function ComparableTr({
+  name,
+  type,
+  condition,
+  areaM2,
+  location,
+  mapsUrl,
+  distance,
+  askingPrice,
+  pricePerM2,
+  difference,
+  listingUrl,
+  differences = [],
+  bold,
+  labels,
+  f,
+}: {
+  name: string;
+  type: string;
+  condition: string;
+  areaM2: number | null;
+  location: string;
+  mapsUrl: string | null;
+  distance: number | null;
+  askingPrice: number | null;
+  pricePerM2: number | null;
+  difference: number | null;
+  listingUrl: string | null;
+  differences?: ComparableRow["differences"];
+  bold?: boolean;
+  labels: ReportLabels;
+  f: Formatter;
+}) {
+  const l = labels.comparables;
+  const star = (on: boolean) => (on ? "*" : "");
+  const cell = (k: keyof typeof CMP) => [
+    s.td,
+    s.cmpCell,
+    { width: CMP[k] },
+    NUMERIC.has(k) ? { textAlign: "right" as const } : {},
+    bold ? s.bold : {},
+  ];
+  return (
+    <View style={s.tr} wrap={false}>
+      <View style={[s.td, { width: CMP.property, paddingLeft: 0 }]}>
+        <Text style={[s.cmpCell, s.bold]}>{pdfSafe(name)}</Text>
+        <Text style={[s.cmpCell, s.muted]}>
+          {pdfSafe(
+            `${type}${star(differences.includes("type") || differences.includes("bedrooms"))}${condition ? ` · ${condition}${star(differences.includes("condition"))}` : ""}`,
+          )}
+        </Text>
+      </View>
+      <Text style={cell("area")}>
+        {pdfSafe(
+          areaM2 !== null ? `${f.number(areaM2)} m²${star(differences.includes("area"))}` : "-",
+        )}
+      </Text>
+      <Text style={cell("location")}>{pdfSafe(location || "-")}</Text>
+      {/* The distance, with the map link under it: the location then fits in two lines. */}
+      <View style={[s.td, { width: CMP.distance, alignItems: "flex-end" }]}>
+        {(distance !== null || !mapsUrl) && (
+          <Text style={[s.cmpCell, bold ? s.bold : {}]}>
+            {pdfSafe(distance !== null ? l.km(f.number(distance, distance < 10 ? 1 : 0)) : "-")}
+          </Text>
+        )}
+        {mapsUrl && (
+          <Link src={mapsUrl} style={[s.cmpCell, s.link]}>
+            {pdfSafe(l.openMap)}
+          </Link>
+        )}
+      </View>
+      <Text style={cell("askingPrice")}>
+        {pdfSafe(askingPrice !== null ? f.euro(askingPrice) : "-")}
+      </Text>
+      <Text style={cell("perM2")}>{pdfSafe(pricePerM2 !== null ? f.euro(pricePerM2) : "-")}</Text>
+      <Text
+        style={[
+          ...cell("vsThis"),
+          difference !== null && difference < -0.005 ? s.good : {},
+          difference !== null && difference > 0.005 ? s.negative : {},
+        ]}
+      >
+        {pdfSafe(difference !== null ? f.signedPercent(difference, 0) : "-")}
+      </Text>
+      <View style={[s.td, { width: CMP.listing, paddingRight: 0 }]}>
+        {listingUrl ? (
+          <Link src={listingUrl} style={[s.cmpCell, s.link]}>
+            {pdfSafe(siteName(listingUrl))}
+          </Link>
+        ) : (
+          <Text style={s.cmpCell}>-</Text>
+        )}
+      </View>
+    </View>
   );
 }
 

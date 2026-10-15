@@ -15,6 +15,29 @@ export const CONDITIONS = ["novo", "usado", "para_recuperar"] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export type Condition = (typeof CONDITIONS)[number];
 
+/**
+ * A similar listing the property is compared with: added by the user (a link read for them, or
+ * typed in), or later found automatically ("auto"). `null` means not known.
+ */
+export interface Comparable {
+  source: "user" | "auto";
+  /** The listing's address on its site; may be empty for one typed in without a link. */
+  url: string;
+  propertyType: PropertyType;
+  bedrooms: number | null;
+  areaM2: number | null;
+  condition: Condition | null;
+  askingPrice: number | null;
+  /** Where it is, as shown: e.g. "São Vicente, Braga". */
+  location: string;
+  /** A Google Maps link to it (see lib/mapsLink), which also gives its distance to the property. */
+  mapsUrl: string;
+}
+
+/** At least this many similar listings for a fair comparison; at most MAX_COMPARABLES. */
+export const MIN_COMPARABLES = 3;
+export const MAX_COMPARABLES = 10;
+
 /** `null` means the user has not entered a value. Rates are fractions (0.05 = 5 %). */
 export interface CalculatorState {
   /** The deals the user is evaluating, in the order of SCENARIO_KINDS; empty until chosen. */
@@ -34,6 +57,8 @@ export interface CalculatorState {
   condition: Condition;
   askingPrice: number | null;
   extras: { garage: boolean; elevator: boolean; balcony: boolean; pool: boolean };
+  /** Similar listings to compare the asking price with. */
+  comparables: Comparable[];
 
   // 2. Market values, entered by the user
   marketValue: number | null;
@@ -141,6 +166,7 @@ export function initialState(overrides: Partial<CalculatorState> = {}): Calculat
     condition: "usado",
     askingPrice: null,
     extras: { garage: false, elevator: false, balcony: false, pool: false },
+    comparables: [],
 
     marketValue: null,
     resaleValue: null,
@@ -268,5 +294,47 @@ export function normaliseState(raw: unknown): CalculatorState {
   state.listingPhotos = listingPhotos(source.listingPhotos);
   state.address = state.address.slice(0, 300);
   state.mapsUrl = state.mapsUrl.slice(0, 2000);
+  state.comparables = (Array.isArray(source.comparables) ? source.comparables : [])
+    .slice(0, MAX_COMPARABLES)
+    .map(normaliseComparable);
   return state;
+}
+
+/** A blank similar listing, to be filled in. */
+export function emptyComparable(overrides: Partial<Comparable> = {}): Comparable {
+  return {
+    source: "user",
+    url: "",
+    propertyType: "apartamento",
+    bedrooms: null,
+    areaM2: null,
+    condition: null,
+    askingPrice: null,
+    location: "",
+    mapsUrl: "",
+    ...overrides,
+  };
+}
+
+function normaliseComparable(raw: unknown): Comparable {
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const text = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "");
+  const amount = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : null);
+  const oneOf = <T extends string>(v: unknown, allowed: readonly T[]) =>
+    typeof v === "string" && (allowed as readonly string[]).includes(v) ? (v as T) : null;
+  const bedrooms = source.bedrooms;
+  return {
+    source: source.source === "auto" ? "auto" : "user",
+    url: text(source.url, 2000),
+    propertyType: oneOf(source.propertyType, PROPERTY_TYPES) ?? "apartamento",
+    bedrooms:
+      typeof bedrooms === "number" && Number.isInteger(bedrooms) && bedrooms >= 0
+        ? Math.min(5, bedrooms)
+        : null,
+    areaM2: amount(source.areaM2),
+    condition: oneOf(source.condition, CONDITIONS),
+    askingPrice: amount(source.askingPrice),
+    location: text(source.location, 200),
+    mapsUrl: text(source.mapsUrl, 2000),
+  };
 }

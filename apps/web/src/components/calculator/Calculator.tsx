@@ -20,6 +20,7 @@ import {
 import { runCalculator } from "@/lib/calculator/run";
 import { initialState, normaliseDeals, type CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
+import { ComparablesSection } from "./ComparablesSection";
 import { DetailsStep, detailsSummary } from "./DealDetails";
 import { DealResults } from "./DealResults";
 import { DealStep } from "./DealStep";
@@ -326,6 +327,20 @@ export function Calculator({
               params={params}
               startMonth={startMonth}
               onAddDeal={addDeal}
+              comparables={
+                <ComparablesSection
+                  state={state}
+                  update={update}
+                  locationOf={(areaId) =>
+                    findAreaChain(tree, areaId)
+                      .slice(1)
+                      .reverse()
+                      .map((a) => a.name)
+                      .join(", ")
+                  }
+                  locale={locale}
+                />
+              }
               photos={
                 <PhotosSection
                   scenarioId={savedId}

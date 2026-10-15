@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { googleMapsUrl, mapsUrlForPoint } from "./mapsLink";
+import { distanceKm, googleMapsUrl, mapsUrlForPoint, pointFromMapsUrl } from "./mapsLink";
 
 describe("googleMapsUrl", () => {
   it("accepts Google Maps links, as https", () => {
@@ -38,5 +38,39 @@ describe("mapsUrlForPoint", () => {
     const link = mapsUrlForPoint(41.54579, -8.432778);
     expect(link).toBe("https://www.google.com/maps?q=41.545790,-8.432778");
     expect(googleMapsUrl(link)).toBe(link);
+  });
+});
+
+describe("pointFromMapsUrl", () => {
+  it("reads the point written in a Google Maps link", () => {
+    expect(pointFromMapsUrl(mapsUrlForPoint(41.54579, -8.432778))).toEqual({
+      lat: 41.54579,
+      lng: -8.432778,
+    });
+    expect(pointFromMapsUrl("https://www.google.pt/maps/@41.54579,-8.432778,17z")).toEqual({
+      lat: 41.54579,
+      lng: -8.432778,
+    });
+    expect(pointFromMapsUrl("https://www.google.com/maps/place/38.7,-9.14")).toEqual({
+      lat: 38.7,
+      lng: -9.14,
+    });
+  });
+
+  it("is null without a point, or for other sites", () => {
+    expect(pointFromMapsUrl("https://maps.app.goo.gl/AbCdEf123")).toBeNull();
+    expect(pointFromMapsUrl("https://www.google.co.uk/maps?q=Braga")).toBeNull();
+    expect(pointFromMapsUrl("https://example.com/?q=41.5,-8.4")).toBeNull();
+    expect(pointFromMapsUrl("https://www.google.com/maps?q=95,-8.4")).toBeNull();
+  });
+});
+
+describe("distanceKm", () => {
+  it("measures in a straight line", () => {
+    // Lisbon to Porto: about 274 km.
+    expect(distanceKm({ lat: 38.7223, lng: -9.1393 }, { lat: 41.1579, lng: -8.6291 })).toBeCloseTo(
+      274,
+      -1,
+    );
   });
 });

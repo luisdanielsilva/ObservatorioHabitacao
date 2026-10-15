@@ -1,6 +1,6 @@
 import type { AreaTree } from "@/components/shared/AreaPicker";
 import { mapsUrlForPoint } from "../mapsLink";
-import { initialState, type CalculatorState } from "./state";
+import { emptyComparable, initialState, type CalculatorState, type Comparable } from "./state";
 
 /** The listing the example comes from (Imovirtual, read on 2026-10-07). */
 const LISTING_URL =
@@ -51,7 +51,53 @@ export function exampleState(areaId: number | null): CalculatorState {
     assignmentPrice: 40_000,
     useLoan: true,
     flipMonths: 6,
+    comparables: exampleComparables(),
   });
+}
+
+/**
+ * Similar listings for the example, typed in by hand: invented figures near the property, with
+ * no listing links (one is a T2, to show a listing that differs).
+ */
+const EXAMPLE_COMPARABLES = [
+  {
+    bedrooms: 1,
+    areaM2: 65,
+    condition: "novo",
+    askingPrice: 249_000,
+    at: [41.5491, -8.4302],
+    location: "Braga (São Vicente), Braga",
+  },
+  {
+    bedrooms: 1,
+    areaM2: 74,
+    condition: "novo",
+    askingPrice: 285_000,
+    at: [41.5432, -8.4361],
+    location: "Braga (Maximinos, Sé e Cividade), Braga",
+  },
+  {
+    bedrooms: 1,
+    areaM2: 68,
+    condition: "usado",
+    askingPrice: 215_000,
+    at: [41.5517, -8.4215],
+    location: "Braga (São Víctor), Braga",
+  },
+  {
+    bedrooms: 2,
+    areaM2: 92,
+    condition: "novo",
+    askingPrice: 335_000,
+    at: [41.5389, -8.4402],
+    location: "Braga (Maximinos, Sé e Cividade), Braga",
+  },
+] as const satisfies readonly (Partial<Comparable> & { at: readonly [number, number] })[];
+
+function exampleComparables(): Comparable[] {
+  return EXAMPLE_COMPARABLES.map(({ at, ...c }) =>
+    emptyComparable({ ...c, mapsUrl: mapsUrlForPoint(at[0], at[1]) }),
+  );
 }
 
 /** The listing's parish (Braga, Maximinos, Sé e Cividade), or else the first parish there is. */

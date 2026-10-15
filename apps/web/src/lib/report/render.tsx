@@ -6,11 +6,13 @@ import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 import type { AppLocale } from "@/i18n/routing";
+import { hasTypology } from "@/lib/calculator/flow";
 import { describeGainTax, gainTaxChartNote } from "@/lib/calculator/gainTax";
+import { siteName, webUrl } from "@/lib/calculator/comparables";
 import { chosenOutcomes, runCalculator } from "@/lib/calculator/run";
 import { profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
 import { getDb } from "@/lib/db";
-import { normaliseState } from "@/lib/calculator/state";
+import { MIN_COMPARABLES, normaliseState } from "@/lib/calculator/state";
 import { createFormatter } from "@/lib/format";
 import { isListingPhotoUrl } from "@/lib/listingPhotos";
 import { googleMapsUrl } from "@/lib/mapsLink";
@@ -38,6 +40,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
   const tc = await getTranslations({ locale, namespace: "common" });
   const tsale = await getTranslations({ locale, namespace: "sale" });
   const tg = await getTranslations({ locale, namespace: "gainTax" });
+  const tcmp = await getTranslations({ locale, namespace: "comparables" });
   const f = createFormatter(locale);
   const { state, output } = data;
   const dateFormat = new Intl.DateTimeFormat(locale === "en" ? "en-IE" : "pt-PT", {
@@ -134,6 +137,36 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
       describe: (g) => describeGainTax(g, tg, f),
       chartNote: (g) => gainTaxChartNote(g, tg, f),
     },
+    comparables: {
+      title: tcmp("title"),
+      columns: {
+        property: tcmp("columns.property"),
+        area: te("areaM2"),
+        location: tcmp("columns.location"),
+        distance: tcmp("columns.distance"),
+        askingPrice: tcmp("columns.askingPrice"),
+        perM2: tcmp("columns.perM2"),
+        vsThis: tcmp("columns.vsThis"),
+        listing: tcmp("columns.listing"),
+      },
+      thisProperty: tcmp("thisProperty"),
+      similar: (n) => tcmp("similar", { n }),
+      type: (type, bedrooms) =>
+        `${te(`types.${type}`)}${hasTypology(type) && bedrooms !== null ? ` T${bedrooms === 5 ? "5+" : bedrooms}` : ""}`,
+      condition: (condition) => (condition ? te(`conditions.${condition}`) : ""),
+      verdict: (signal) => tcmp(`verdict.${signal}`),
+      verdictText: (diff, count, dearer) => tcmp("verdictText", { diff, count, dearer }),
+      tooFew: (count) => tcmp("tooFew", { count, min: MIN_COMPARABLES }),
+      medianPerM2: tcmp("medianPerM2"),
+      range: tcmp("range"),
+      medianPrice: tcmp("medianPrice"),
+      valueAtMedian: tcmp("valueAtMedian"),
+      km: (value) => tcmp("km", { value }),
+      openMap: tcmp("openMap"),
+      vsThisHelp: tcmp("vsThisHelp"),
+      differentNote: tcmp("differentNote"),
+      note: tcmp("note"),
+    },
     warning: (code) => (tw.has(code as never) ? tw(code as never) : code),
     years: (n) => tm("years", { value: n }),
     rows: {
@@ -159,7 +192,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
           ? [
               [
                 t("listing"),
-                t("openListing", { site: new URL(listingUrl).hostname.replace(/^www\./, "") }),
+                t("openListing", { site: siteName(listingUrl) }),
                 { href: listingUrl },
               ] as Row,
             ]
@@ -265,16 +298,6 @@ function reportSales(data: ReportData): ReportSale[] {
         : null;
     return [{ kind: o.kind, analysis, expectedProfit, basePrice, baseResult }];
   });
-}
-
-/** The listing link, when it is a web address (it becomes a clickable link in the PDF). */
-function webUrl(value: string): string | null {
-  try {
-    const url = new URL(value.trim());
-    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
-  } catch {
-    return null;
-  }
 }
 
 /** A main photo and up to five more, smaller. */

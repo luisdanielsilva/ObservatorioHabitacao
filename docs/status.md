@@ -1,16 +1,30 @@
 # OlhoVivo — Status
 
-Updated 2026-10-14, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-15, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 226 unit tests (64 engine, 92 db, 70 web) and 34 end-to-end tests (Playwright, Chromium;
+Tests: 235 unit tests (64 engine, 92 db, 79 web) and 34 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-14)
+## Latest changes (2026-10-04 – 2026-10-15)
+
+**Similar listings, compared by hand (2026-10-15)**
+
+- A "Negócios semelhantes" section at the top of the results: the user adds up to 10 similar
+  listings, by link (read by the same reader as the property's listing) or by hand, each with
+  type, bedrooms, area, condition, asking price, location and a Google Maps link.
+- It shows the property's €/m² against the listings' median, their range, the asking price
+  at the median €/m², and a verdict with the same ±5 % thresholds as the market value; with
+  fewer than 3 listings priced per m² it says the comparison is weak. Each listing shows its
+  difference, its straight-line distance (when both Google Maps links have coordinates) and
+  marks what differs from the property (type, bedrooms, area, condition).
+- The same comparison is on the read-only shared link and on the PDF's first page (a table
+  under the photos, which get smaller when it is there). The example (`?exemplo=1`) has four.
+- Finding the listings automatically is still open (open point 6).
 
 **Loan term: 40 years by default (2026-10-14)**
 
@@ -301,9 +315,9 @@ VPS (system libraries need sudo), so Safari is untested.
    home, apply the young buyers' support: no IMT and no stamp duty on the purchase up to the
    legal price limit (partial above it), and up to 100 % financing with the State's public
    guarantee. Limits and conditions to confirm with the accountant (open point 1 above).
-6. Comparable listings: for each listing analysed, find at least 5 other listings with the same
-   characteristics (type, bedrooms, similar area and condition, same parish or nearby) and
-   compare the asking price and €/m² with them (median, range, where this one stands). Needs a
+6. Comparable listings, found automatically: the comparison is done (listings added by the
+   user); still to do is finding at least 5 listings with the same characteristics (type,
+   bedrooms, similar area and condition, same parish or nearby) without the user. Needs a
    source of listings (reading listing sites: see the legal open point 2 above).
 
 **On each deployment**

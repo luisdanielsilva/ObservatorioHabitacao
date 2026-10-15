@@ -58,6 +58,7 @@ export function DealResults({
   params,
   startMonth,
   onAddDeal,
+  comparables,
   saveBar,
   photos,
   share,
@@ -69,6 +70,8 @@ export function DealResults({
   startMonth: number;
   /** Adds a strategy to the chosen deals and opens its details. */
   onAddDeal: (kind: ScenarioKind) => void;
+  /** Similar listings, compared with the property: first, as on the PDF's first page. */
+  comparables: React.ReactNode;
   /** The scenario's name and save button, shown after the comparison. */
   saveBar: React.ReactNode;
   /** The property's photos, under the save button. */
@@ -110,6 +113,8 @@ export function DealResults({
           </span>
         </div>
       )}
+
+      {comparables}
 
       {several && (
         <div className="rounded-lg border p-4">
