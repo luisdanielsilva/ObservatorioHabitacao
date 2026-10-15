@@ -12,6 +12,15 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-14)
 
+**Loan term: 40 years by default (2026-10-14)**
+
+- The loan term now starts at 40 years, the most Banco de Portugal recommends for a new
+  mortgage, instead of 30; it can still go up to 50, with a note above 40 that few banks accept
+  it. Saved scenarios keep their own term. The limit stays at 50 years (decided by the owner;
+  was decision point 6).
+- A long-term rental with a loan is measured over the loan term when it is longer than 30
+  years, so over 40 years by default (up to 50) instead of 30.
+
 **The agency's commission, in view (2026-10-14)**
 
 - The commission on the sale (default 5 % + VAT) was only in the collapsed "Pressupostos". It is
@@ -148,14 +157,16 @@ VPS (system libraries need sudo), so Safari is untested.
 - **Taxes:** IRS by brackets, not a fixed rate: sale gains (50 %), AL income and aggregated rents
   are added to the user's optional other annual income (CIRS art. 68 and 68-A, brackets in the
   versioned parameters). A note says when aggregating rents can beat the 25 % flat rate.
-- **Long-term rental:** kept for good (no sale), measured over 30 years or the loan term;
+- **Long-term rental:** kept for good (no sale), measured over 30 years or the loan term
+  when longer (40 by default with a loan, up to 50);
   consecutive leases separated by a vacancy in months; its own condominium (25 €/month) and home
   insurance (20 €/month); yearly rent increase defaults to the latest legal rent update
   coefficient (2026: 2.24 %, Aviso n.º 23174/2025/2).
 - **Rental results:** monthly, annual and lifetime cash flow and annual return on capital; no
   profit, ROI or IRR for a property that is kept.
 - **Financing:** none by default. With a loan: amount = most banks lend for the use (90 % own
-  home, 80 % otherwise); rate = TAEG as the global rate; term 30 years, at most 50.
+  home, 80 % otherwise); rate = TAEG as the global rate; term 40 years (Banco de Portugal's
+  recommended maximum), at most 50.
 - **Purchase costs:** IMT, stamp duty on the purchase and on the loan, Casa Pronta (deed and
   registration), bank valuation (250 €) and process opening (300 €).
 - **Yearly costs** (IMI, condominium, insurance) shown explicitly.
@@ -260,9 +271,9 @@ VPS (system libraries need sudo), so Safari is untested.
 - **Messenger on a computer** cannot be pre-filled without a Facebook app id: the link is copied
   and messenger.com opened for the user to paste it.
 - **Default interest rate is an estimate** (Euribor + typical spread), lower than a real TAEG.
-- **Loan term up to 50 years,** while Banco de Portugal guidance caps new mortgages at 40.
 - **IMI uses the price when the VPT is unknown,** which overstates it (a warning is shown).
-- **Long-term rental horizon of 30 years** is an assumption; its sale chart assumes a sale then.
+- **Long-term rental horizon of 30 years** (or the loan term, up to 50) is an assumption; its
+  sale chart assumes a sale then.
 - **Tax year:** the 2025 parameter set is active; 2026 is a draft awaiting review.
 - **Draft per browser:** an unsaved evaluation does not follow the user to another device.
 - **Untested in Safari.**
@@ -278,7 +289,6 @@ VPS (system libraries need sudo), so Safari is untested.
 3. Brand and domain (olhovivo.pt), trademark.
 4. `ANTHROPIC_API_KEY` for the AI link reader.
 5. GitHub remote (enables CI); sudo for the deployment (systemd, Nginx, backups, timers).
-6. Loan term limit: 50 years (as now) or 40 (Banco de Portugal).
 
 **Development**
 

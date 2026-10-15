@@ -12,6 +12,7 @@ import { permanentRentalYears, type MissingField } from "@/lib/calculator/run";
 import {
   DEFAULT_LOAN_TERM_YEARS,
   MAX_LOAN_TERM_YEARS,
+  RECOMMENDED_LOAN_TERM_YEARS,
   type CalculatorState,
 } from "@/lib/calculator/state";
 import { englobamentoThreshold } from "@/lib/calculator/tax";
@@ -338,7 +339,15 @@ function Financing({
             kind="number"
             suffix={t("yearsShort")}
             value={state.loanTermYears}
-            help={t("loanTermHelp", { max: MAX_LOAN_TERM_YEARS })}
+            help={t("loanTermHelp", {
+              recommended: RECOMMENDED_LOAN_TERM_YEARS,
+              max: MAX_LOAN_TERM_YEARS,
+            })}
+            hint={
+              state.loanTermYears > RECOMMENDED_LOAN_TERM_YEARS
+                ? t("loanTermAboveRecommended", { recommended: RECOMMENDED_LOAN_TERM_YEARS })
+                : undefined
+            }
             onChange={(v) =>
               update({
                 loanTermYears: Math.min(

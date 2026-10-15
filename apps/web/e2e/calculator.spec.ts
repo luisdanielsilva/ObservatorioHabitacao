@@ -317,7 +317,7 @@ test("long-term rental: kept for good, consecutive leases, legal rent update", a
   ).toBeVisible();
 });
 
-test("financing: off by default, TAEG rate, term up to 50 years, fields aligned", async ({
+test("financing: off by default, TAEG rate, term 40 years up to 50, fields aligned", async ({
   page,
 }) => {
   await page.goto("/avaliar");
@@ -330,10 +330,14 @@ test("financing: off by default, TAEG rate, term up to 50 years, fields aligned"
   const rate = field(page, "Taxa de juro (TAEG)");
   const term = field(page, "Prazo");
   await expect(rate).toBeVisible();
-  await expect(term).toHaveValue("30");
+  // Banco de Portugal's recommended maximum by default; longer terms are allowed, with a note.
+  const above = page.getByText(/^Acima dos 40 anos recomendados pelo Banco de Portugal/);
+  await expect(term).toHaveValue("40");
+  await expect(above).toHaveCount(0);
   await term.fill("60");
   await term.blur();
   await expect(term).toHaveValue("50");
+  await expect(above).toBeVisible();
 
   // The three loan inputs start at the same height.
   const tops = await Promise.all(

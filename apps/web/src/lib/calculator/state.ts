@@ -111,8 +111,12 @@ export interface CalculatorState {
  * (reference rate "rent_update") is the default.
  */
 export const FALLBACK_RENT_UPDATE = 0.0224;
-/** Loan term: 30 years by default, up to 50. */
-export const DEFAULT_LOAN_TERM_YEARS = 30;
+/**
+ * Loan term: by default the 40 years Banco de Portugal recommends as the most for a new
+ * mortgage (macroprudential measure); up to 50 for the few banks that go beyond it.
+ */
+export const RECOMMENDED_LOAN_TERM_YEARS = 40;
+export const DEFAULT_LOAN_TERM_YEARS = RECOMMENDED_LOAN_TERM_YEARS;
 export const MAX_LOAN_TERM_YEARS = 50;
 /** Used when no Euribor value is available. */
 export const FALLBACK_INTEREST_RATE = 0.035;
