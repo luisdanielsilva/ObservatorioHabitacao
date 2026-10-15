@@ -12,6 +12,14 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-15)
 
+**Focus on "Avaliar anúncio": Vender and Preços dormant (2026-10-15)**
+
+- Decided by the owner: for now the site only offers the listing evaluation. "Vender" (the
+  sales-support request) and "Preços" (median prices per area) are switched off in
+  `apps/web/src/lib/features.ts`: out of the menu, the home page and the sitemap; their pages,
+  the sales form and `/api/prices` answer 404. The code, data and imports stay; switching a
+  flag back on restores them (the e2e tests follow the flags).
+
 **Similar listings, compared by hand (2026-10-15)**
 
 - A "Negócios semelhantes" section at the top of the results: the user adds up to 10 similar
@@ -319,6 +327,10 @@ VPS (system libraries need sudo), so Safari is untested.
    user); still to do is finding at least 5 listings with the same characteristics (type,
    bedrooms, similar area and condition, same parish or nearby) without the user. Needs a
    source of listings (reading listing sites: see the legal open point 2 above).
+7. Preços (dormant, see `lib/features.ts`), to do before switching it back on: accessible rent
+   values per municipality, i.e. the maximum rent per typology under the Programa de
+   Arrendamento Acessível, next to INE's median rents (source and yearly update to confirm).
+   The same values are needed as a layer in the map feature.
 
 **On each deployment**
 

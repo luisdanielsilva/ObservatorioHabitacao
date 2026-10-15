@@ -387,7 +387,7 @@ test("the evaluation is kept while moving around the site, until a new one", asy
   await showResults(page);
 
   // Away to other pages and back: the evaluation is still there, at the results.
-  await page.goto("/precos");
+  await page.goto("/sobre");
   await page.goto("/metodologia");
   await page.goto("/avaliar");
   await expect(step(page, "Imóvel")).toContainText("Apartamento T2 · 80 m² · 400 000 €");

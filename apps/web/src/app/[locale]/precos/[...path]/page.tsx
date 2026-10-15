@@ -17,6 +17,7 @@ import { asLocale, initPageLocale } from "@/i18n/locale";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { getDb } from "@/lib/db";
+import { FEATURES } from "@/lib/features";
 import { createFormatter } from "@/lib/format";
 
 // Rendered on first visit, then cached and regenerated at most once a day (ISR).
@@ -44,7 +45,7 @@ async function displayName(locale: AppLocale, data: AreaPageData) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const locale = asLocale((await params).locale);
-  const data = await load(params);
+  const data = FEATURES.prices ? await load(params) : null;
   if (!data) return {};
   const t = await getTranslations({ locale, namespace: "prices" });
   const name = await displayName(locale, data);
@@ -60,6 +61,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function AreaPricesPage({ params }: { params: Params }) {
+  if (!FEATURES.prices) notFound();
   const locale = await initPageLocale(params);
   const data = await load(params);
   if (!data) notFound();

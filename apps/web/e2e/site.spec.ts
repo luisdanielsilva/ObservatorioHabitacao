@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { FEATURES } from "../src/lib/features";
 import { expectNoHorizontalScroll, field, watchProblems } from "./helpers";
 
 test("home page in Portuguese and English, with the language switch", async ({ page }) => {
@@ -54,7 +55,29 @@ test("unknown pages show the localised 404", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
 });
 
+test("dormant sections: no Vender or Preços in the menu or on the home page; pages are 404", async ({
+  page,
+  request,
+}) => {
+  test.skip(FEATURES.sell && FEATURES.prices, "both sections are on");
+  await page.goto("/");
+  const menu = page.getByRole("navigation", { name: "Menu" });
+  await expect(menu.getByRole("link", { name: "Avaliar anúncio" })).toBeVisible();
+  if (!FEATURES.sell) {
+    await expect(menu.getByRole("link", { name: "Vender" })).toHaveCount(0);
+    expect((await request.get("/vender")).status()).toBe(404);
+  }
+  if (!FEATURES.prices) {
+    await expect(menu.getByRole("link", { name: "Preços" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Explorar preços" })).toHaveCount(0);
+    for (const path of ["/precos", "/precos/lisboa", "/api/prices/lisboa"]) {
+      expect((await request.get(path)).status(), path).toBe(404);
+    }
+  }
+});
+
 test("prices: overview → district → municipality", async ({ page }) => {
+  test.skip(!FEATURES.prices, "Preços is dormant");
   const problems = watchProblems(page);
   await page.goto("/precos");
   await page.waitForLoadState("networkidle");
@@ -86,8 +109,7 @@ test.describe("phone layout", () => {
   for (const path of [
     "/",
     "/avaliar",
-    "/precos",
-    "/precos/lisboa/cascais",
+    ...(FEATURES.prices ? ["/precos", "/precos/lisboa/cascais"] : []),
     "/metodologia",
     "/entrar",
   ]) {

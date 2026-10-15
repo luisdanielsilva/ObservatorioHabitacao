@@ -5,6 +5,7 @@ import { initPageLocale } from "@/i18n/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { FEATURES } from "@/lib/features";
 
 const SCENARIOS = [
   { key: "flip", icon: Building2, color: "text-chart-2" },
@@ -71,15 +72,17 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         </ol>
       </section>
 
-      <section className="rounded-xl border bg-card p-8">
-        <h2 className="text-2xl font-semibold tracking-tight">{t("pricesTitle")}</h2>
-        <p className="mt-2 max-w-2xl text-muted-foreground">{t("pricesText")}</p>
-        <Button asChild variant="link" className="mt-2 px-0">
-          <Link href="/precos">
-            {t("pricesLink")} <ArrowRight />
-          </Link>
-        </Button>
-      </section>
+      {FEATURES.prices && (
+        <section className="rounded-xl border bg-card p-8">
+          <h2 className="text-2xl font-semibold tracking-tight">{t("pricesTitle")}</h2>
+          <p className="mt-2 max-w-2xl text-muted-foreground">{t("pricesText")}</p>
+          <Button asChild variant="link" className="mt-2 px-0">
+            <Link href="/precos">
+              {t("pricesLink")} <ArrowRight />
+            </Link>
+          </Button>
+        </section>
+      )}
     </div>
   );
 }

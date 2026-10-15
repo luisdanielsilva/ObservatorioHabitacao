@@ -2,6 +2,7 @@ import { getAreaTree, type AreaNode } from "@olhovivo/db";
 import type { MetadataRoute } from "next";
 import { localizedUrl } from "@/lib/urls";
 import { getDb } from "@/lib/db";
+import { FEATURES } from "@/lib/features";
 
 // Rebuilt at most once a day, so new areas from the CAOP import appear without a deploy.
 export const revalidate = 86400;
@@ -9,8 +10,8 @@ export const revalidate = 86400;
 const STATIC_PATHS = [
   "/",
   "/avaliar",
-  "/precos",
-  "/vender",
+  ...(FEATURES.prices ? ["/precos"] : []),
+  ...(FEATURES.sell ? ["/vender"] : []),
   "/sobre",
   "/metodologia",
   "/contactos",
@@ -37,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       areas.push(n.path);
       walk(n.children);
     });
-  walk(getAreaTree(getDb()));
+  if (FEATURES.prices) walk(getAreaTree(getDb()));
 
   return [
     ...STATIC_PATHS.flatMap((p) => entries(p, p === "/" ? 1 : 0.7)),

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "@/i18n/navigation";
+import { FEATURES } from "@/lib/features";
 import { AccountButton } from "./AccountButton";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { Logo } from "./Logo";
@@ -12,10 +13,10 @@ import { ThemeToggle } from "./ThemeToggle";
 export async function Header() {
   const t = await getTranslations("nav");
   const links = [
-    { href: "/vender", label: t("sell") },
+    ...(FEATURES.sell ? [{ href: "/vender", label: t("sell") }] : []),
     { href: "/avaliar", label: t("evaluate") },
-    { href: "/precos", label: t("prices") },
-  ] as const;
+    ...(FEATURES.prices ? [{ href: "/precos", label: t("prices") }] : []),
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">

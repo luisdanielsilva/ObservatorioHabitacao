@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getAreaBreadcrumb } from "@olhovivo/db";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { FEATURES } from "@/lib/features";
 import { getCurrentUser } from "@/lib/session";
 
 export type LeadState = { status: "idle" | "success" | "invalid" | "error" };
@@ -24,6 +25,7 @@ const leadSchema = z
 
 /** Stores a sales-support request as a lead for the team (WBS 6.4.1). */
 export async function requestSalesSupport(_prev: LeadState, form: FormData): Promise<LeadState> {
+  if (!FEATURES.sell) return { status: "error" };
   const parsed = leadSchema.safeParse({
     name: form.get("name") ?? "",
     email: form.get("email") ?? "",

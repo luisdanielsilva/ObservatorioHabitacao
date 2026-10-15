@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Disclaimer } from "@/components/shared/Disclaimer";
@@ -9,6 +10,7 @@ import { PriceTable } from "@/components/prices/PriceTable";
 import { alternatesFor } from "@/lib/urls";
 import { asLocale, initPageLocale } from "@/i18n/locale";
 import { getDb } from "@/lib/db";
+import { FEATURES } from "@/lib/features";
 
 // Regenerated at most once a day; imports refresh the data far less often.
 export const revalidate = 86400;
@@ -26,6 +28,7 @@ export async function generateMetadata({
 }
 
 export default async function PricesPage({ params }: PageProps<"/[locale]/precos">) {
+  if (!FEATURES.prices) notFound();
   await initPageLocale(params);
   const t = await getTranslations("prices");
   const common = await getTranslations("common");
