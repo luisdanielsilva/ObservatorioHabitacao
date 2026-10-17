@@ -1,4 +1,4 @@
-import { jobsSummary, listIngestionJobs, listSources } from "@olhovivo/db";
+import { jobsSummary, listIngestionJobs, listSources } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { toggleSourceAction } from "@/app/[locale]/admin/actions";

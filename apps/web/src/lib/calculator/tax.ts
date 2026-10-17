@@ -1,4 +1,4 @@
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 
 /**
  * Where englobamento of rents can pay off: the top of the highest IRS bracket whose rate is

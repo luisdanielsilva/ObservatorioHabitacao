@@ -14,7 +14,7 @@ import { eq, like } from "drizzle-orm";
 import { unzipSync } from "fflate";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Region } from "@olhovivo/engine";
+import type { Region } from "@observatorio-habitacao/engine";
 import type { Db } from "../client";
 import { analyses, areaBoundaries, areas, listings, valuations, type AreaLevel } from "../schema";
 import { slugify } from "../seed";

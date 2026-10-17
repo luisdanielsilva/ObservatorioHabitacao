@@ -1,4 +1,4 @@
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 

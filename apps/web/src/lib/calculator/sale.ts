@@ -1,4 +1,4 @@
-import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@observatorio-habitacao/engine";
 import { permanentRentalYears, runCalculator } from "./run";
 import type { CalculatorState } from "./state";
 

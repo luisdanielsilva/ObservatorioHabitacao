@@ -1,4 +1,4 @@
-import type { ImtBracket, ParameterSet } from "@olhovivo/engine";
+import type { ImtBracket, ParameterSet } from "@observatorio-habitacao/engine";
 import { and, eq } from "drizzle-orm";
 import type { Db } from "../client";
 import { createParameterSetDraft } from "../queries";

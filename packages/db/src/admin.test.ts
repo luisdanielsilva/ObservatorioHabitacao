@@ -31,7 +31,7 @@ beforeEach(() => {
   seed(db);
   db.insert(users)
     .values([
-      { id: "boss", email: "boss@olhovivo.pt", role: "admin" },
+      { id: "boss", email: "boss@observatoriohabitacao.pt", role: "admin" },
       { id: "ana", email: "ana@example.pt", name: "Ana_Silva" },
       { id: "old", email: "old@example.pt", createdAt: "2020-01-01 00:00:00" },
     ])

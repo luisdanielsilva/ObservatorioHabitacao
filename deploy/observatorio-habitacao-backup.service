@@ -1,0 +1,10 @@
+# Nightly consistent SQLite copy, before the VPS backup (WBS 3.4.2).
+[Unit]
+Description=Observatório Habitação database backup
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/var/www/olhovivo
+EnvironmentFile=/etc/observatorio-habitacao.env
+ExecStart=/usr/bin/npm run db:backup -w @observatorio-habitacao/db

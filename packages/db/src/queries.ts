@@ -1,4 +1,4 @@
-import type { AlRegistrationStatus, ParameterSet, Region } from "@olhovivo/engine";
+import type { AlRegistrationStatus, ParameterSet, Region } from "@observatorio-habitacao/engine";
 import { and, asc, desc, eq, lte, max } from "drizzle-orm";
 import type { Db } from "./client";
 import { parameterSetSchema } from "./parameterSchema";

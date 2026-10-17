@@ -4,7 +4,7 @@ import {
   getLatestReferenceRate,
   getScenario,
   RENT_UPDATE_RATE,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { exampleAreaId, exampleState } from "@/lib/calculator/example";

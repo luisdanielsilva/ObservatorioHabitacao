@@ -1,6 +1,6 @@
 "use server";
 
-import { clientIp, rateLimit } from "@olhovivo/db";
+import { clientIp, rateLimit } from "@observatorio-habitacao/db";
 import { getLocale } from "next-intl/server";
 import { cookies, headers } from "next/headers";
 import { signIn } from "@/auth";

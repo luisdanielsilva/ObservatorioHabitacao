@@ -26,7 +26,7 @@ export async function sendEmail(email: Email): Promise<void> {
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     signal: AbortSignal.timeout(15_000),
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM ?? "OlhoVivo <noreply@olhovivo.pt>",
+      from: process.env.EMAIL_FROM ?? "Observatório Habitação <noreply@observatoriohabitacao.pt>",
       to: [email.to],
       subject: email.subject,
       text: email.text,

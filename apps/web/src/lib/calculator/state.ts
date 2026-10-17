@@ -1,4 +1,4 @@
-import type { ScenarioKind, Seasonal } from "@olhovivo/engine";
+import type { ScenarioKind, Seasonal } from "@observatorio-habitacao/engine";
 import { listingPhotos } from "../listingPhotos";
 
 export const PROPERTY_TYPES = [

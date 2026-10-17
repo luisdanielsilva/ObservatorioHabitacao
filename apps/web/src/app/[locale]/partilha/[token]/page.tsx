@@ -1,5 +1,5 @@
 import { ArrowRight, FileDown, MapPin } from "lucide-react";
-import { listSharedPhotos } from "@olhovivo/db";
+import { listSharedPhotos } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";

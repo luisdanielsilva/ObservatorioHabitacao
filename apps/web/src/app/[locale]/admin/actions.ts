@@ -10,7 +10,7 @@ import {
   updateLead,
   updateSource,
   verifyParameterSet,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";

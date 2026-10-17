@@ -1,6 +1,6 @@
 "use client";
 
-import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import type { ScenarioKind, ScenarioResult } from "@observatorio-habitacao/engine";
 import { AlertTriangle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId } from "react";

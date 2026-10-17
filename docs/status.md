@@ -1,6 +1,6 @@
-# OlhoVivo — Status
+# Observatório Habitação — Status
 
-Updated 2026-10-15, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-17, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
@@ -10,7 +10,17 @@ Tests: 235 unit tests (64 engine, 92 db, 79 web) and 34 end-to-end tests (Playwr
 sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-15)
+## Latest changes (2026-10-04 – 2026-10-17)
+
+**Renamed to Observatório Habitação; code on GitHub (2026-10-17)**
+
+- The product is now Observatório Habitação (was OlhoVivo): site, PDF, emails, page titles,
+  file names, docs. Planned domain observatoriohabitacao.pt (not registered yet). Internal
+  names follow: packages `@observatorio-habitacao/*`, database `data/observatorio-habitacao.db`,
+  PM2 and systemd names `observatorio-habitacao*`, preview path `/observatorio-habitacao`
+  (the old `/olhovivo` redirects). The VPS folder stays `/var/www/olhovivo` (needs sudo).
+- Repository: https://github.com/luisdanielsilva/ObservatorioHabitacao (public).
+- Browser drafts saved under the old name are not carried over; sign-in sessions are kept.
 
 **Focus on "Avaliar anúncio": Vender and Preços dormant (2026-10-15)**
 
@@ -154,7 +164,7 @@ VPS (system libraries need sudo), so Safari is untested.
   across saves; a note says when there are unsaved changes; it can be turned off.
 - **Channels:** email opens the mail app (`mailto:`); WhatsApp opens `wa.me` in a new tab;
   Messenger opens the app on phones (`fb-messenger://`) and, on computers, copies the link and
-  opens messenger.com; the account email is sent by OlhoVivo (10 emails a day, shared with the
+  opens messenger.com; the account email is sent by Observatório Habitação (10 emails a day, shared with the
   report emails).
 - **First save no longer reloads the page** (the address changes to `?cenario=<id>`).
 - **PDF report complete:** yearly costs per deal, the sale price and profit chart per deal and
@@ -215,13 +225,13 @@ VPS (system libraries need sudo), so Safari is untested.
 | WBS       | Item                               | Status | Notes                                                                 |
 | --------- | ---------------------------------- | ------ | --------------------------------------------------------------------- |
 | 1         | Project management                 | 🟡     | Plan, WBS and this status in `docs/`; no backlog/issue tracker        |
-| 2.2       | Brand identity, domain, trademark  | ⬜ 👤  | No logo; olhovivo.pt not registered                                   |
+| 2.2       | Brand identity, domain, trademark  | ⬜ 👤  | No logo; observatoriohabitacao.pt not registered                      |
 | 2.3.1     | Scenario formulas and assumptions  | 🟡 👤  | `packages/engine/METHODOLOGY.md`; needs accountant review             |
 | 2.3.2     | Default values and editable inputs | ✅     | Defaults in `lib/calculator/state.ts`, editable as assumptions        |
 | 2.3.3     | Reference spreadsheet              | ⬜ 👤  | Engine tests use developer-worked examples                            |
 | 2.4       | UX/UI design                       | ⬜     | Built directly with shadcn/ui; no separate mockups                    |
 | 3.1       | Environments, VPS                  | 🟡     | Dev server on the Tailscale address only (100.93.94.115:3100)         |
-| 3.2.1     | Git repository                     | ✅     | Local repo, branch `main`; **no remote, nothing pushed**              |
+| 3.2.1     | Git repository                     | ✅     | GitHub `luisdanielsilva/ObservatorioHabitacao`, branch `main`         |
 | 3.2.2     | CI pipeline                        | 🟡     | `.github/workflows/ci.yml` written; runs once pushed to GitHub        |
 | 3.2.3     | Deployment script (systemd)        | 🟡 👤  | `deploy/` ready (pull, install, backup, migrate, build); needs sudo   |
 | 3.3.1     | SQLite, WAL, R*Tree                | ✅     | WAL; R*Tree used for the parish lookup                                |
@@ -308,9 +318,9 @@ VPS (system libraries need sudo), so Safari is untested.
    purchase-cost assumptions; then activate the 2026 set.
 2. Legal: terms, privacy, cookies (is a banner needed?), reading listing sites (Imovirtual terms;
    Idealista), using listing photos in the owner's PDF, AMI licence if commissions are taken.
-3. Brand and domain (olhovivo.pt), trademark.
+3. Brand and domain (observatoriohabitacao.pt), trademark.
 4. `ANTHROPIC_API_KEY` for the AI link reader.
-5. GitHub remote (enables CI); sudo for the deployment (systemd, Nginx, backups, timers).
+5. sudo for the deployment (systemd, Nginx, backups, timers).
 
 **Development**
 
@@ -336,11 +346,11 @@ VPS (system libraries need sudo), so Safari is untested.
 
 - Migrations run in `deploy/deploy.sh`.
 - Only for a database created before 2026-10-04 (e.g. an older copy moved to a new server):
-  `npm run params:irs -w @olhovivo/db` adds the IRS brackets to its stored tax parameters, and
-  `npm run import:rents -w @olhovivo/db` loads INE's yearly rent update coefficients. The
-  current database (`data/olhovivo.db`) already has both.
+  `npm run params:irs -w @observatorio-habitacao/db` adds the IRS brackets to its stored tax parameters, and
+  `npm run import:rents -w @observatorio-habitacao/db` loads INE's yearly rent update coefficients. The
+  current database (`data/observatorio-habitacao.db`) already has both.
 - Each year, once INE's new rent update coefficient is added (development point 4), run
-  `npm run import:rents -w @olhovivo/db` again.
+  `npm run import:rents -w @observatorio-habitacao/db` again.
 - Back up `data/photos/` with the VPS backup (photos are files, not in the database).
 
 ## Changed by decisions since plan v2

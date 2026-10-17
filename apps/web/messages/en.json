@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "OlhoVivo — property evaluation and investment scenarios",
+    "title": "Observatório Habitação — property evaluation and investment scenarios",
     "description": "See what a property is worth, how much it can earn and which strategy makes sense: resale, long-term rental, short-term rental or contract assignment."
   },
   "nav": {
@@ -23,7 +23,7 @@
     "terms": "Terms and conditions",
     "cookies": "Cookies",
     "apps": "iOS and Android apps coming soon",
-    "rights": "© {year} OlhoVivo",
+    "rights": "© {year} Observatório Habitação",
     "disclaimer": "Results are estimates and do not constitute financial or tax advice.",
     "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI"
   },
@@ -81,8 +81,8 @@
   },
   "methodology": {
     "title": "How we calculate",
-    "metaDescription": "OlhoVivo's calculations explained: the four scenarios, the metrics, taxes, costs, financing, data sources and assumptions.",
-    "intro": "OlhoVivo applies costs, Portuguese taxes and financing to the market values you enter, and compares four strategies. This page explains how, in plain language.",
+    "metaDescription": "Observatório Habitação's calculations explained: the four scenarios, the metrics, taxes, costs, financing, data sources and assumptions.",
+    "intro": "Observatório Habitação applies costs, Portuguese taxes and financing to the market values you enter, and compares four strategies. This page explains how, in plain language.",
     "contents": "On this page",
     "scenariosTitle": "The four scenarios",
     "scenariosIntro": "All scenarios start from the same property data. The purchase happens in month 0 and the calculation runs month by month until the sale or the assignment.",
@@ -107,7 +107,7 @@
     "exitTitle": "Sale at the end of the period",
     "exitText": "For short-term rental, the property is sold at the end of the holding period at today's value, with no appreciation: the value after renovation (if you renovate) or the market value. The sale counts in profit, ROI and IRR, but not in payback. Long-term rental has no sale.",
     "dataTitle": "Data sources",
-    "dataIne": "Prices and rents: INE medians by municipality and parish (sale price per m² over 12 months, quarterly; rent per m² of new leases, yearly). District figures are the median of the municipalities' medians, calculated by OlhoVivo.",
+    "dataIne": "Prices and rents: INE medians by municipality and parish (sale price per m² over 12 months, quarterly; rent per m² of new leases, yearly). District figures are the median of the municipalities' medians, calculated by Observatório Habitação.",
     "dataCaop": "Administrative boundaries: CAOP 2025 from Direção-Geral do Território (CC BY 4.0), used to find the parish of an address.",
     "dataEuribor": "Euribor: monthly averages published by the European Central Bank.",
     "dataImi": "IMI rates: an open transcription (CC BY 4.0) of the rates published by the tax authority, still to be checked against the official source. Some municipalities set rates per parish and are not included.",
@@ -143,7 +143,7 @@
     "faq": [
       {
         "q": "Why do I have to enter the market value and the rent?",
-        "a": "In this first version, OlhoVivo does not estimate these values automatically. We show the area's INE medians as a reference; individual properties can differ a lot."
+        "a": "In this first version, Observatório Habitação does not estimate these values automatically. We show the area's INE medians as a reference; individual properties can differ a lot."
       },
       {
         "q": "Do the results replace an accountant?",
@@ -570,8 +570,8 @@
     "chartSale": "Median sale price (€/m²)",
     "chartRent": "Median rent (€/m²/month)",
     "chartSummary": "From {from} in {firstPeriod} to {to} in {lastPeriod}.",
-    "derivedNote": "INE does not publish district figures. District values are the median of its municipalities' medians, calculated by OlhoVivo from INE data.",
-    "overviewNote": "Districts: median of the municipalities' medians (calculated by OlhoVivo from INE data). Açores and Madeira: figures published by INE."
+    "derivedNote": "INE does not publish district figures. District values are the median of its municipalities' medians, calculated by Observatório Habitação from INE data.",
+    "overviewNote": "Districts: median of the municipalities' medians (calculated by Observatório Habitação from INE data). Açores and Madeira: figures published by INE."
   },
   "sell": {
     "title": "Sell your property",
@@ -582,7 +582,7 @@
     "phone": "Phone",
     "area": "Property location",
     "message": "Tell us about the property",
-    "consent": "I agree to be contacted by OlhoVivo about this request, under the privacy policy.",
+    "consent": "I agree to be contacted by Observatório Habitação about this request, under the privacy policy.",
     "submit": "Send request",
     "sending": "Sending…",
     "success": "Request sent. We will be in touch soon.",
@@ -591,7 +591,7 @@
   },
   "signIn": {
     "title": "Sign in",
-    "text": "OlhoVivo accounts (saved scenarios, PDF reports and alerts) come in a later phase.",
+    "text": "Observatório Habitação accounts (saved scenarios, PDF reports and alerts) come in a later phase.",
     "intro": "Sign in to save scenarios, export reports and share analyses. No password: we email you a sign-in link.",
     "email": "Email",
     "submit": "Email me a sign-in link",
@@ -606,16 +606,16 @@
   },
   "legal": {
     "draft": "Draft. This text will be reviewed before launch.",
-    "aboutTitle": "About OlhoVivo",
-    "aboutText": "OlhoVivo helps investors evaluate property in Portugal: it compares the price with the market and works out taxes, costs and financing for four investment strategies.",
+    "aboutTitle": "About Observatório Habitação",
+    "aboutText": "Observatório Habitação helps investors evaluate property in Portugal: it compares the price with the market and works out taxes, costs and financing for four investment strategies.",
     "contactsTitle": "Contacts",
-    "contactsText": "For questions about OlhoVivo, contact us by email. The address will be published before launch.",
+    "contactsText": "For questions about Observatório Habitação, contact us by email. The address will be published before launch.",
     "privacyTitle": "Privacy policy",
     "privacyText": "We only process the data needed to provide the service, under the GDPR. Contact requests are used only to answer them. You can ask to access, correct or delete your data at any time.",
     "termsTitle": "Terms and conditions",
-    "termsText": "OlhoVivo's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
+    "termsText": "Observatório Habitação's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "OlhoVivo only uses essential cookies (language and theme). We do not use analytics or advertising cookies."
+    "cookiesText": "Observatório Habitação only uses essential cookies (language and theme). We do not use analytics or advertising cookies."
   },
   "account": {
     "title": "My account",
@@ -650,7 +650,7 @@
     "saveSettings": "Save settings",
     "settingsSaved": "Settings saved.",
     "consents": "Consents",
-    "consentMarketing": "Receive news and tips from OlhoVivo by email",
+    "consentMarketing": "Receive news and tips from Observatório Habitação by email",
     "consentPartners": "Share my requests with partners (credit, lawyers, inspections) when I ask",
     "privacy": "Your data (GDPR)",
     "export": "Download my data (JSON)",
@@ -692,13 +692,13 @@
     "emailInvalid": "Enter a valid email address.",
     "emailLimit": "You have reached the limit of 10 emails per day.",
     "emailError": "Could not send the report.",
-    "emailSubject": "OlhoVivo report: {name}",
-    "emailText": "Attached is the OlhoVivo report for the scenario “{name}”.\n\nResults are estimates and do not constitute financial or tax advice.\n\nolhovivo.pt",
+    "emailSubject": "Observatório Habitação report: {name}",
+    "emailText": "Attached is the Observatório Habitação report for the scenario “{name}”.\n\nResults are estimates and do not constitute financial or tax advice.\n\nobservatoriohabitacao.pt",
     "notAvailable": "PDF reports are included in the Premium plan.",
     "sharedTitle": "Shared scenario: {name}",
-    "sharedIntro": "Investment analysis shared through OlhoVivo, read-only. The market values were entered by the person who shared it.",
+    "sharedIntro": "Investment analysis shared through Observatório Habitação, read-only. The market values were entered by the person who shared it.",
     "calculateYourOwn": "Calculate your own scenario",
-    "postText": "Property investment analysis on OlhoVivo: {name}",
+    "postText": "Property investment analysis on Observatório Habitação: {name}",
     "ogNoResults": "Property investment analysis",
     "report": {
       "title": "Investment report",
@@ -931,7 +931,7 @@
   },
   "shareResults": {
     "title": "Share the results",
-    "intro": "Send a read-only link to this evaluation on OlhoVivo: whoever opens it sees the results but cannot change them. To create the link, the evaluation is saved to your account as it is.",
+    "intro": "Send a read-only link to this evaluation on Observatório Habitação: whoever opens it sees the results but cannot change them. To create the link, the evaluation is saved to your account as it is.",
     "email": "Email",
     "whatsapp": "WhatsApp",
     "messenger": "Facebook Messenger",
@@ -951,9 +951,9 @@
     "emailLimit": "You have reached the limit of 10 emails per day.",
     "error": "Could not share the evaluation. Please try again.",
     "sent": "Link sent to {email}.",
-    "messageText": "Property investment evaluation on OlhoVivo: {name}",
-    "emailSubject": "OlhoVivo evaluation: {name}",
-    "emailText": "See the evaluation “{name}” on OlhoVivo, read-only:\n\n{url}\n\nResults are estimates and do not constitute financial or tax advice.\n\nolhovivo.pt",
+    "messageText": "Property investment evaluation on Observatório Habitação: {name}",
+    "emailSubject": "Observatório Habitação evaluation: {name}",
+    "emailText": "See the evaluation “{name}” on Observatório Habitação, read-only:\n\n{url}\n\nResults are estimates and do not constitute financial or tax advice.\n\nobservatoriohabitacao.pt",
     "messengerCopied": "Link copied. Paste it into a Messenger chat, opened in a new tab."
   },
   "sale": {

@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * End-to-end tests (WBS 11.5) against a running server:
- *   E2E_BASE_URL=http://localhost:3000 npm run test:e2e -w @olhovivo/web
+ *   E2E_BASE_URL=http://localhost:3000 npm run test:e2e -w @observatorio-habitacao/web
  * Set E2E_SERVER_LOG to the dev server's log file to also run the magic-link sign-in test.
  */
 export default defineConfig({

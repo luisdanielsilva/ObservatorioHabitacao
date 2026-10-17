@@ -1,6 +1,6 @@
 "use client";
 
-import type { ScenarioKind } from "@olhovivo/engine";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";

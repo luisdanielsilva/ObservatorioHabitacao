@@ -4,7 +4,7 @@ import { FlaskConical, RotateCcw } from "lucide-react";
 import { saveScenario, type SaveResult } from "@/app/[locale]/avaliar/actions";
 import { Button } from "@/components/ui/button";
 import { writeDraft } from "@/lib/calculator/draft";
-import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@observatorio-habitacao/engine";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { findAreaChain, type AreaTree } from "@/components/shared/AreaPicker";

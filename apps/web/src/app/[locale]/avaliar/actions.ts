@@ -9,7 +9,7 @@ import {
   getActiveParameterSet,
   setScenarioSharing,
   updateScenario,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 import { getDb } from "@/lib/db";

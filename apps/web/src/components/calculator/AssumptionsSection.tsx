@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import type { ScenarioKind } from "@olhovivo/engine";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";

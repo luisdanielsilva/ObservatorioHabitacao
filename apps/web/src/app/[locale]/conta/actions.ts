@@ -7,7 +7,7 @@ import {
   scenarioIdsOfUser,
   setConsent,
   updateProfile,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { revalidatePath } from "next/cache";
 import { signOut } from "@/auth";
 import { getDb } from "@/lib/db";

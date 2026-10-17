@@ -1,4 +1,4 @@
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { z } from "zod";
 
 const rate = z.number().min(0).max(1);

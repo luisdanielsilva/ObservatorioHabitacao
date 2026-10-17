@@ -1,7 +1,7 @@
 {
-  "name": "olhovivo",
+  "name": "observatorio-habitacao",
   "private": true,
-  "description": "OlhoVivo — real estate investment intelligence for the Portuguese market",
+  "description": "Observatório Habitação — real estate investment intelligence for the Portuguese market",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -10,21 +10,21 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "npm run dev -w @olhovivo/web",
+    "dev": "npm run dev -w @observatorio-habitacao/web",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:migrate": "npm run db:migrate -w @olhovivo/db",
-    "db:seed": "npm run db:seed -w @olhovivo/db",
-    "db:reset": "npm run db:reset -w @olhovivo/db",
-    "import:caop": "npm run import:caop -w @olhovivo/db",
-    "import:ine": "npm run import:ine -w @olhovivo/db",
-    "import:euribor": "npm run import:euribor -w @olhovivo/db",
-    "import:imi": "npm run import:imi -w @olhovivo/db",
-    "import:all": "npm run import:all -w @olhovivo/db"
+    "db:migrate": "npm run db:migrate -w @observatorio-habitacao/db",
+    "db:seed": "npm run db:seed -w @observatorio-habitacao/db",
+    "db:reset": "npm run db:reset -w @observatorio-habitacao/db",
+    "import:caop": "npm run import:caop -w @observatorio-habitacao/db",
+    "import:ine": "npm run import:ine -w @observatorio-habitacao/db",
+    "import:euribor": "npm run import:euribor -w @observatorio-habitacao/db",
+    "import:imi": "npm run import:imi -w @observatorio-habitacao/db",
+    "import:all": "npm run import:all -w @observatorio-habitacao/db"
   },
   "devDependencies": {
     "prettier": "^3"

@@ -1,7 +1,7 @@
 import "server-only";
 
 /**
- * Domains whose terms allow OlhoVivo to read a listing page on the user's request
+ * Domains whose terms allow Observatório Habitação to read a listing page on the user's request
  * (WBS 4.3.4, 10.4). Configured with LINK_READER_ALLOWED_DOMAINS (comma-separated);
  * empty by default, so nothing is fetched until the allow-list is decided.
  */
@@ -19,7 +19,7 @@ export function isAllowedHost(hostname: string, domains = allowedDomains()): boo
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const TIMEOUT_MS = 10_000;
-const USER_AGENT = "OlhoVivoLinkReader/0.1 (+https://olhovivo.pt)";
+const USER_AGENT = "ObservatorioHabitacaoLinkReader/0.1 (+https://observatoriohabitacao.pt)";
 
 export class NotAllowedError extends Error {}
 

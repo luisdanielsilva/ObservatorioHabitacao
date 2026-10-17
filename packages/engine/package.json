@@ -1,5 +1,5 @@
 {
-  "name": "@olhovivo/engine",
+  "name": "@observatorio-habitacao/engine",
   "version": "0.1.0",
   "private": true,
   "description": "Pure investment scenario engine (no I/O, no UI dependencies)",

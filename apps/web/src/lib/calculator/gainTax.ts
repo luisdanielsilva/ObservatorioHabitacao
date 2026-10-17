@@ -1,4 +1,4 @@
-import type { GainTax } from "@olhovivo/engine";
+import type { GainTax } from "@observatorio-habitacao/engine";
 import type { useTranslations } from "next-intl";
 import type { Formatter } from "@/lib/format";
 

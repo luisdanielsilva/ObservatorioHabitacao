@@ -1,4 +1,4 @@
-import { getSharedPhoto } from "@olhovivo/db";
+import { getSharedPhoto } from "@observatorio-habitacao/db";
 import { readFile } from "node:fs/promises";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";

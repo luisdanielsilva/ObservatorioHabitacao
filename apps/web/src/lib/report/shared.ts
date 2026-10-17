@@ -1,5 +1,5 @@
 import "server-only";
-import { getSharedScenario } from "@olhovivo/db";
+import { getSharedScenario } from "@observatorio-habitacao/db";
 import { cache } from "react";
 import { getDb } from "@/lib/db";
 import { buildReportData } from "./data";

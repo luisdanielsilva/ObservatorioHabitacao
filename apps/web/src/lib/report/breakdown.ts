@@ -1,4 +1,4 @@
-import type { ScenarioResult } from "@olhovivo/engine";
+import type { ScenarioResult } from "@observatorio-habitacao/engine";
 
 export const BREAKDOWN_ROWS = [
   "initial",

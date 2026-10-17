@@ -1,6 +1,7 @@
 /** HTTP helpers for import scripts: polite User-Agent, pacing and retries. */
 
-export const USER_AGENT = "OlhoVivo-data-import/0.1 (+https://olhovivo.pt)";
+export const USER_AGENT =
+  "ObservatorioHabitacao-data-import/0.1 (+https://observatoriohabitacao.pt)";
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@observatorio-habitacao/engine";
 import { useTranslations } from "next-intl";
 import { Results } from "@/components/calculator/Results";
 import { SaleChart } from "@/components/calculator/SaleChart";

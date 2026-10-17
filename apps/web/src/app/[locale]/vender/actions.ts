@@ -1,8 +1,8 @@
 "use server";
 
-import { leads } from "@olhovivo/db";
+import { leads } from "@observatorio-habitacao/db";
 import { z } from "zod";
-import { getAreaBreadcrumb } from "@olhovivo/db";
+import { getAreaBreadcrumb } from "@observatorio-habitacao/db";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { FEATURES } from "@/lib/features";

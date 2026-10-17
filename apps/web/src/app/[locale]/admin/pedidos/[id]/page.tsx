@@ -1,4 +1,4 @@
-import { getLead, listAdmins } from "@olhovivo/db";
+import { getLead, listAdmins } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";

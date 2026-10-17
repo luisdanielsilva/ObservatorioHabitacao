@@ -1,4 +1,4 @@
-import type { ScenarioKind } from "@olhovivo/engine";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import type { CalculatorOutput, MissingField } from "./run";
 import type { CalculatorState } from "./state";
 

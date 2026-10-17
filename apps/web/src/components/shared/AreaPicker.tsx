@@ -1,6 +1,6 @@
 "use client";
 
-import type { AreaNode } from "@olhovivo/db";
+import type { AreaNode } from "@observatorio-habitacao/db";
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Label } from "@/components/ui/label";

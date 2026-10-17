@@ -39,8 +39,9 @@ type Message =
 
 /**
  * Sharing the results (WBS 6.3.4): every channel sends a read-only link to this evaluation on
- * OlhoVivo; "Ver PDF" opens the full report in a new tab instead. The evaluation is saved first, as on
- * screen, so what is shared is always what the user sees (signing in if needed).
+ * Observatório Habitação; "Ver PDF" opens the full report in a new tab instead. The evaluation
+ * is saved first, as on screen, so what is shared is always what the user sees (signing in if
+ * needed).
  */
 export function ShareSection({
   state,

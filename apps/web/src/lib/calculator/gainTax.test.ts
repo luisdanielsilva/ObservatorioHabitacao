@@ -1,4 +1,4 @@
-import { gainTax } from "@olhovivo/engine";
+import { gainTax } from "@observatorio-habitacao/engine";
 import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";

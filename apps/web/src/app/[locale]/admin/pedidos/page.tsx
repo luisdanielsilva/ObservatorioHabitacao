@@ -1,4 +1,4 @@
-import { listAdmins, listLeads } from "@olhovivo/db";
+import { listAdmins, listLeads } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";

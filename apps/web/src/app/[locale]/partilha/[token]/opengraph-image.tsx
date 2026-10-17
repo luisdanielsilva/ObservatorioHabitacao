@@ -5,7 +5,7 @@ import { asLocale } from "@/i18n/locale";
 import { createFormatter } from "@/lib/format";
 import { loadSharedScenario } from "@/lib/report/shared";
 
-export const alt = "OlhoVivo";
+export const alt = "Observatório Habitação";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -53,7 +53,7 @@ export default async function Image({
       }}
     >
       <div style={{ display: "flex", fontSize: 40, fontWeight: 700 }}>
-        Olho<span style={{ color: "#4fd1c5" }}>Vivo</span>
+        Observatório&nbsp;<span style={{ color: "#4fd1c5" }}>Habitação</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={{ display: "flex", fontSize: 58, fontWeight: 700, lineHeight: 1.1 }}>

@@ -1,4 +1,4 @@
-import { getAreaBreadcrumb, getImiRate, getMarketReference } from "@olhovivo/db";
+import { getAreaBreadcrumb, getImiRate, getMarketReference } from "@observatorio-habitacao/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 

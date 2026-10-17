@@ -10,7 +10,7 @@ import {
   type PropertyInputs,
   type ScenarioKind,
   type ScenarioResult,
-} from "@olhovivo/engine";
+} from "@observatorio-habitacao/engine";
 import type { CalculatorState } from "./state";
 
 export const SCENARIO_KINDS: ScenarioKind[] = [

@@ -39,10 +39,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Served under a path of a shared domain when set (e.g. "/olhovivo"); see lib/basePath.
+  // Served under a path of a shared domain when set (e.g. "/observatorio-habitacao");
+  // see lib/basePath.
   basePath: process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, "") || undefined,
   // Workspace packages are published as TypeScript source.
-  transpilePackages: ["@olhovivo/engine", "@olhovivo/db"],
+  transpilePackages: ["@observatorio-habitacao/engine", "@observatorio-habitacao/db"],
   // Native or Node-only packages loaded at runtime instead of being bundled.
   serverExternalPackages: ["better-sqlite3", "@react-pdf/renderer"],
   poweredByHeader: false,

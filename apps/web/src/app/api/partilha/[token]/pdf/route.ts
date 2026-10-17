@@ -1,4 +1,4 @@
-import { getSharedScenario } from "@olhovivo/db";
+import { getSharedScenario } from "@observatorio-habitacao/db";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { reportLocale } from "@/lib/report/locale";

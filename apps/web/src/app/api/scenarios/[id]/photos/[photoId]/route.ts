@@ -1,4 +1,4 @@
-import { deletePhoto, getPhoto } from "@olhovivo/db";
+import { deletePhoto, getPhoto } from "@observatorio-habitacao/db";
 import { readFile } from "node:fs/promises";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";

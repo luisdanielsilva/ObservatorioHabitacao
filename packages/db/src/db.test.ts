@@ -1,4 +1,4 @@
-import { runShortTermRental, type ParameterSet } from "@olhovivo/engine";
+import { runShortTermRental, type ParameterSet } from "@observatorio-habitacao/engine";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createDb, migrateDb, type Db } from "./client";

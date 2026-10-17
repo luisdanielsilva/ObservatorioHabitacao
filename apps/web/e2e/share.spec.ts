@@ -44,7 +44,9 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await whatsapp.close();
   const link = await share.getByLabel("Link só de leitura").inputValue();
   expect(link).toMatch(/\/partilha\/[\w-]{16}$/);
-  expect(text).toMatch(/^Simulação de investimento imobiliário no OlhoVivo: Apartamento T2 em .+ /);
+  expect(text).toMatch(
+    /^Simulação de investimento imobiliário no Observatório Habitação: Apartamento T2 em .+ /,
+  );
   expect(text.endsWith(` ${link}`)).toBe(true);
 
   // Now saved as shown: the channels are plain links with the same read-only link.
@@ -60,7 +62,9 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await share.getByRole("button", { name: "Enviar para o email da conta" }).click();
   await expect(share.getByText(`Link enviado para ${email}.`)).toBeVisible();
   await expect
-    .poll(() => readFileSync(LOG!, "utf8").includes(`to=${email} subject="Simulação OlhoVivo:`))
+    .poll(() =>
+      readFileSync(LOG!, "utf8").includes(`to=${email} subject="Simulação Observatório Habitação:`),
+    )
     .toBe(true);
   expect(readFileSync(LOG!, "utf8")).toContain(`/partilha/${link.split("/partilha/")[1]}`);
 
@@ -72,7 +76,9 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await (await pdfTab).close();
   const pdf = await page.request.get((await pdfLink.getAttribute("href"))!);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");
-  expect(pdf.headers()["content-disposition"]).toMatch(/^inline; filename="olhovivo-.*\.pdf"$/);
+  expect(pdf.headers()["content-disposition"]).toMatch(
+    /^inline; filename="observatorio-habitacao-.*\.pdf"$/,
+  );
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
   // The location opens in Google Maps from the PDF.
   expect((await pdf.body()).toString("latin1")).toContain(`/URI (${MAPS})`);

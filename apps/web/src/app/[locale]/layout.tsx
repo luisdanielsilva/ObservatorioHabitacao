@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   return {
     // Absolute URLs for Open Graph images and canonical links.
     metadataBase: new URL(siteUrl()),
-    title: { default: t("title"), template: "%s · OlhoVivo" },
+    title: { default: t("title"), template: "%s · Observatório Habitação" },
     description: t("description"),
     // The site has its own English version: browsers should not machine-translate the
     // Portuguese pages (Chrome and Edge otherwise offer or apply it automatically).

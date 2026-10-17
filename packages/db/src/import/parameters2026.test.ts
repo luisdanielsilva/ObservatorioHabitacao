@@ -1,4 +1,4 @@
-import { imt } from "@olhovivo/engine";
+import { imt } from "@observatorio-habitacao/engine";
 import { describe, expect, it } from "vitest";
 import { createDb, migrateDb } from "../client";
 import { parameterSetSchema } from "../parameterSchema";

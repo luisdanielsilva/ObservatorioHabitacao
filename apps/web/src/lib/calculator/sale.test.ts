@@ -1,4 +1,4 @@
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";
 import { nearStep, profitAtSale, saleAnalysis } from "./sale";

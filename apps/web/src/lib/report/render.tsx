@@ -1,6 +1,6 @@
 import "server-only";
-import { listPhotos, type ScenarioRow } from "@olhovivo/db";
-import type { ScenarioKind } from "@olhovivo/engine";
+import { listPhotos, type ScenarioRow } from "@observatorio-habitacao/db";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";

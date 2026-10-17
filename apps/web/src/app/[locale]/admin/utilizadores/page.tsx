@@ -1,4 +1,4 @@
-import { listUsers } from "@olhovivo/db";
+import { listUsers } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";

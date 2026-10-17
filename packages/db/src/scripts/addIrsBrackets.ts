@@ -4,7 +4,7 @@
  * a new version with the brackets for their year.
  */
 import { eq } from "drizzle-orm";
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { createDb, defaultDatabasePath, migrateDb } from "../client";
 import { parameters2026 } from "../import/parameters2026";
 import { parameterSetSchema } from "../parameterSchema";

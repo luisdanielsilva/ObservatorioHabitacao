@@ -5,8 +5,8 @@ import {
   parameterSets,
   type MarketReferenceValue,
   type ScenarioRow,
-} from "@olhovivo/db";
-import type { ParameterSet } from "@olhovivo/engine";
+} from "@observatorio-habitacao/db";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { runCalculator, type CalculatorOutput } from "@/lib/calculator/run";

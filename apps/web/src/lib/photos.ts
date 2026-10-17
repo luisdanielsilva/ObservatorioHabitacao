@@ -14,7 +14,8 @@ export { MAX_UPLOAD_BYTES };
  */
 export function photosDir(): string {
   if (process.env.PHOTOS_DIR) return process.env.PHOTOS_DIR;
-  const database = process.env.DATABASE_PATH ?? path.join(process.cwd(), "../../data/olhovivo.db");
+  const database =
+    process.env.DATABASE_PATH ?? path.join(process.cwd(), "../../data/observatorio-habitacao.db");
   return path.join(path.dirname(database), "photos");
 }
 

@@ -1,4 +1,4 @@
-# OlhoVivo — AI-powered real estate investment platform for Portugal
+# Observatório Habitação — AI-powered real estate investment platform for Portugal
 
 > Product brief and work breakdown structure as provided by the project owner (version 2,
 > received 2026-10-03). This is the project plan; see [status.md](status.md) for progress
@@ -8,7 +8,7 @@
 
 ---
 
-You are a senior full-stack engineer and product designer. Build **OlhoVivo**, a real estate investment intelligence platform for the Portuguese market. OlhoVivo evaluates properties and calculates investment scenarios, so investors can quickly see what a property is worth, how much it can earn, and which strategy makes the most sense. In the first version, the user provides the market values (market value, rent, nightly rate, occupancy, resale price) and OlhoVivo applies the costs, Portuguese taxes and financing to calculate each scenario. Estimating those values automatically from market data is a later phase. The work breakdown structure in Part B is the project plan; follow its structure and phases.
+You are a senior full-stack engineer and product designer. Build **Observatório Habitação**, a real estate investment intelligence platform for the Portuguese market. Observatório Habitação evaluates properties and calculates investment scenarios, so investors can quickly see what a property is worth, how much it can earn, and which strategy makes the most sense. In the first version, the user provides the market values (market value, rent, nightly rate, occupancy, resale price) and Observatório Habitação applies the costs, Portuguese taxes and financing to calculate each scenario. Estimating those values automatically from market data is a later phase. The work breakdown structure in Part B is the project plan; follow its structure and phases.
 
 ## 1. Product goals
 
@@ -37,12 +37,12 @@ Footer: about, contacts, privacy policy (RGPD), terms, cookie settings, app stor
 
 Reachable from **Avaliar anúncio** and from the user's dashboard. The main flow starts from a **listing link given by the user**.
 
-- **Property input:** the user pastes a listing link. OlhoVivo reads that page on demand (only from sites whose terms allow it) and pre-fills location, type, typology, area, condition, asking price and extras; the user confirms or corrects them. Manual entry is the fallback.
+- **Property input:** the user pastes a listing link. Observatório Habitação reads that page on demand (only from sites whose terms allow it) and pre-fills location, type, typology, area, condition, asking price and extras; the user confirms or corrects them. Manual entry is the fallback.
 - **Location:** the property's address or coordinates are matched to its freguesia and concelho using the CAOP boundaries.
 - **Market reference (INE):** next to the user's inputs, show the INE median sale €/m² and rent €/m² for that freguesia/concelho, and how the asking price and the user's rent compare (e.g. "14 €/m² vs. median of 12 €/m² in the parish").
 - **Market values (entered by the user):** market value, expected resale price, expected monthly rent, expected nightly rate and occupancy (by season), and for the cessão de posição: CPCV price, deposit and expected assignment price. Fields show units and short help texts. Automatic estimates for these fields come in a later phase.
 - **Evaluation:** compares the asking price with the market value entered by the user and shows whether it is **below, in line with, or above** it.
-- **Scenarios:** OlhoVivo runs all four scenarios from section 1 using the values entered by the user; acquisition costs, taxes and financing are calculated automatically from the tax parameters. Results update instantly when any input changes.
+- **Scenarios:** Observatório Habitação runs all four scenarios from section 1 using the values entered by the user; acquisition costs, taxes and financing are calculated automatically from the tax parameters. Results update instantly when any input changes.
 - **Common inputs:** purchase price, acquisition costs (calculated automatically), renovation budget, financing (own capital, loan amount, interest rate, term), holding period.
 - **Results per scenario:** total investment, net profit or annual cash flow, gross/net yield, ROI, IRR, payback period, and a chart over time.
 - _Later phase (needs the AL registry):_ AL check showing whether new AL registrations are allowed in that area (containment zones).
@@ -151,10 +151,10 @@ Work iteratively: propose the architecture and schema first, then build feature 
 
 ## Part B — Work Breakdown Structure (WBS)
 
-The WBS splits OlhoVivo into deliverables (level 1), sub-deliverables (level 2) and work packages (level 3). Each work package should be small enough to estimate, assign and track as a single task. The core of the project is **property evaluation and investment scenarios** (buy & resell, long-term rental, short-term rental, contract position selling).
+The WBS splits Observatório Habitação into deliverables (level 1), sub-deliverables (level 2) and work packages (level 3). Each work package should be small enough to estimate, assign and track as a single task. The core of the project is **property evaluation and investment scenarios** (buy & resell, long-term rental, short-term rental, contract position selling).
 
 ```
-OlhoVivo
+Observatório Habitação
 ├── 1. Project management
 ├── 2. Discovery & design
 ├── 3. Infrastructure & DevOps
@@ -191,9 +191,9 @@ OlhoVivo
   - 2.1.2 User interviews (investors, landlords, AL operators, buyers)
   - 2.1.3 Personas and user journeys (one per scenario)
 - **2.2 Brand identity**
-  - 2.2.1 Logo and visual identity for OlhoVivo
+  - 2.2.1 Logo and visual identity for Observatório Habitação
   - 2.2.2 Colour palette, typography, tone of voice
-  - 2.2.3 Domain registration (olhovivo.pt) and INPI trademark check/registration
+  - 2.2.3 Domain registration (observatoriohabitacao.pt) and INPI trademark check/registration
 - **2.3 Scenario methodology**
   - 2.3.1 Define formulas and assumptions for each scenario (with an accountant/tax advisor)
   - 2.3.2 Define default values (vacancy, maintenance, AL occupancy, fees) and which inputs users can edit

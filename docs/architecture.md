@@ -1,4 +1,4 @@
-# OlhoVivo — Architecture
+# Observatório Habitação — Architecture
 
 Status: v2 (2026-10-03), aligned with [product-spec.md](product-spec.md) version 2.
 Progress per WBS item is tracked in [status.md](status.md).
@@ -6,7 +6,7 @@ Progress per WBS item is tracked in [status.md](status.md).
 ## Overview
 
 ```
-olhovivo/                      npm workspaces monorepo, TypeScript throughout
+observatorio-habitacao/                      npm workspaces monorepo, TypeScript throughout
 ├── apps/web/                  Next.js 16 (App Router) + Tailwind + shadcn/ui + next-intl
 │   ├── src/app/[locale]/...   pt (default, no prefix) / en; /precos/[...path] (ISR)
 │   └── src/app/api/...        route handlers: link analysis, prices, scenarios, leads
@@ -22,7 +22,7 @@ added later if ML training (automatic estimates, Phase 4) needs it.
 ## Key decisions
 
 1. **The user enters the market values in v1.** Market value, resale price, rent, nightly
-   rate and occupancy come from the user; OlhoVivo adds costs, taxes and financing. INE
+   rate and occupancy come from the user; Observatório Habitação adds costs, taxes and financing. INE
    medians are shown next to the inputs as a reference, not used as estimates. Automatic
    estimates are Phase 4.
 2. **Scenario engine in TypeScript, run in the browser.** Results update instantly as inputs

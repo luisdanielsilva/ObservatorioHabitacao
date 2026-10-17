@@ -1,6 +1,6 @@
 "use client";
 
-import type { ParameterSet, ScenarioKind } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind } from "@observatorio-habitacao/engine";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";

@@ -1,5 +1,5 @@
-import { getParameterSetById } from "@olhovivo/db";
-import type { ImtBracket } from "@olhovivo/engine";
+import { getParameterSetById } from "@observatorio-habitacao/db";
+import type { ImtBracket } from "@observatorio-habitacao/engine";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";

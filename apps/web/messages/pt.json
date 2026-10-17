@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "OlhoVivo — avaliação de imóveis e cenários de investimento",
+    "title": "Observatório Habitação — avaliação de imóveis e cenários de investimento",
     "description": "Veja quanto vale um imóvel, quanto pode render e que estratégia faz mais sentido: revenda, arrendamento, alojamento local ou cessão de posição contratual."
   },
   "nav": {
@@ -23,7 +23,7 @@
     "terms": "Termos e condições",
     "cookies": "Cookies",
     "apps": "Aplicações iOS e Android brevemente",
-    "rights": "© {year} OlhoVivo",
+    "rights": "© {year} Observatório Habitação",
     "disclaimer": "Os resultados apresentados são estimativas e não constituem aconselhamento financeiro ou fiscal.",
     "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI"
   },
@@ -81,8 +81,8 @@
   },
   "methodology": {
     "title": "Como calculamos",
-    "metaDescription": "Os cálculos do OlhoVivo explicados: os quatro cenários, os indicadores, impostos, custos, financiamento, fontes de dados e pressupostos.",
-    "intro": "O OlhoVivo aplica custos, impostos portugueses e financiamento aos valores de mercado que introduz, e compara quatro estratégias. Esta página explica como, em linguagem simples.",
+    "metaDescription": "Os cálculos do Observatório Habitação explicados: os quatro cenários, os indicadores, impostos, custos, financiamento, fontes de dados e pressupostos.",
+    "intro": "O Observatório Habitação aplica custos, impostos portugueses e financiamento aos valores de mercado que introduz, e compara quatro estratégias. Esta página explica como, em linguagem simples.",
     "contents": "Nesta página",
     "scenariosTitle": "Os quatro cenários",
     "scenariosIntro": "Todos os cenários partem dos mesmos dados do imóvel. A compra acontece no mês 0 e o cálculo segue mês a mês até à venda ou à cessão.",
@@ -107,7 +107,7 @@
     "exitTitle": "Venda no fim do período",
     "exitText": "No alojamento local, o imóvel é vendido no fim do período de detenção ao valor de hoje, sem valorização: o valor após obras (se fizer obras) ou o valor de mercado. A venda entra no lucro, no ROI e na TIR, mas não no retorno do capital. O arrendamento de longa duração não tem venda.",
     "dataTitle": "Fontes de dados",
-    "dataIne": "Preços e rendas: medianas do INE por concelho e freguesia (venda por m² a 12 meses, trimestral; renda por m² de novos contratos, anual). Os valores dos distritos são a mediana das medianas dos concelhos, calculada pelo OlhoVivo.",
+    "dataIne": "Preços e rendas: medianas do INE por concelho e freguesia (venda por m² a 12 meses, trimestral; renda por m² de novos contratos, anual). Os valores dos distritos são a mediana das medianas dos concelhos, calculada pelo Observatório Habitação.",
     "dataCaop": "Limites administrativos: CAOP 2025 da Direção-Geral do Território (CC BY 4.0), usados para encontrar a freguesia de uma morada.",
     "dataEuribor": "Euribor: médias mensais publicadas pelo Banco Central Europeu.",
     "dataImi": "Taxas de IMI: transcrição aberta (CC BY 4.0) das taxas publicadas pela Autoridade Tributária, por confirmar na fonte oficial. Alguns concelhos fixam taxas por freguesia e não estão incluídos.",
@@ -143,7 +143,7 @@
     "faq": [
       {
         "q": "Porque tenho de introduzir o valor de mercado e a renda?",
-        "a": "Nesta primeira versão, o OlhoVivo não estima estes valores automaticamente. Mostramos as medianas do INE da zona como referência; os valores de cada imóvel podem ser bem diferentes."
+        "a": "Nesta primeira versão, o Observatório Habitação não estima estes valores automaticamente. Mostramos as medianas do INE da zona como referência; os valores de cada imóvel podem ser bem diferentes."
       },
       {
         "q": "Os resultados substituem um contabilista?",
@@ -570,8 +570,8 @@
     "chartSale": "Mediana de venda (€/m²)",
     "chartRent": "Mediana de renda (€/m²/mês)",
     "chartSummary": "De {from} em {firstPeriod} para {to} em {lastPeriod}.",
-    "derivedNote": "O INE não publica valores por distrito. Os valores do distrito são a mediana das medianas dos seus concelhos, calculada pelo OlhoVivo com dados do INE.",
-    "overviewNote": "Distritos: mediana das medianas dos concelhos (cálculo OlhoVivo com dados do INE). Açores e Madeira: valores publicados pelo INE."
+    "derivedNote": "O INE não publica valores por distrito. Os valores do distrito são a mediana das medianas dos seus concelhos, calculada pelo Observatório Habitação com dados do INE.",
+    "overviewNote": "Distritos: mediana das medianas dos concelhos (cálculo do Observatório Habitação com dados do INE). Açores e Madeira: valores publicados pelo INE."
   },
   "sell": {
     "title": "Vender o seu imóvel",
@@ -582,7 +582,7 @@
     "phone": "Telefone",
     "area": "Localização do imóvel",
     "message": "Conte-nos sobre o imóvel",
-    "consent": "Aceito ser contactado pelo OlhoVivo sobre este pedido, nos termos da política de privacidade.",
+    "consent": "Aceito ser contactado pelo Observatório Habitação sobre este pedido, nos termos da política de privacidade.",
     "submit": "Enviar pedido",
     "sending": "A enviar…",
     "success": "Pedido enviado. Entraremos em contacto brevemente.",
@@ -591,7 +591,7 @@
   },
   "signIn": {
     "title": "Entrar",
-    "text": "As contas OlhoVivo (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase.",
+    "text": "As contas do Observatório Habitação (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase.",
     "intro": "Entre para guardar cenários, exportar relatórios e partilhar análises. Sem palavra-passe: enviamos um link para o seu email.",
     "email": "Email",
     "submit": "Enviar link de acesso",
@@ -606,16 +606,16 @@
   },
   "legal": {
     "draft": "Versão provisória. Este texto será revisto antes do lançamento.",
-    "aboutTitle": "Sobre o OlhoVivo",
-    "aboutText": "O OlhoVivo ajuda investidores a avaliar imóveis em Portugal: compara o preço com o mercado e calcula impostos, custos e financiamento para quatro estratégias de investimento.",
+    "aboutTitle": "Sobre o Observatório Habitação",
+    "aboutText": "O Observatório Habitação ajuda investidores a avaliar imóveis em Portugal: compara o preço com o mercado e calcula impostos, custos e financiamento para quatro estratégias de investimento.",
     "contactsTitle": "Contactos",
-    "contactsText": "Para questões sobre o OlhoVivo, contacte-nos por email. O endereço será publicado antes do lançamento.",
+    "contactsText": "Para questões sobre o Observatório Habitação, contacte-nos por email. O endereço será publicado antes do lançamento.",
     "privacyTitle": "Política de privacidade",
     "privacyText": "Tratamos apenas os dados necessários para prestar o serviço, nos termos do RGPD. Os pedidos de contacto são usados apenas para responder ao pedido. Pode pedir o acesso, a retificação ou o apagamento dos seus dados a qualquer momento.",
     "termsTitle": "Termos e condições",
-    "termsText": "Os cálculos do OlhoVivo são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
+    "termsText": "Os cálculos do Observatório Habitação são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "O OlhoVivo usa apenas cookies essenciais (idioma e tema). Não usamos cookies de análise ou publicidade."
+    "cookiesText": "O Observatório Habitação usa apenas cookies essenciais (idioma e tema). Não usamos cookies de análise ou publicidade."
   },
   "account": {
     "title": "A minha conta",
@@ -650,7 +650,7 @@
     "saveSettings": "Guardar definições",
     "settingsSaved": "Definições guardadas.",
     "consents": "Consentimentos",
-    "consentMarketing": "Receber novidades e dicas do OlhoVivo por email",
+    "consentMarketing": "Receber novidades e dicas do Observatório Habitação por email",
     "consentPartners": "Partilhar os meus pedidos com parceiros (crédito, advogados, vistorias) quando eu pedir",
     "privacy": "Os seus dados (RGPD)",
     "export": "Descarregar os meus dados (JSON)",
@@ -692,13 +692,13 @@
     "emailInvalid": "Indique um email válido.",
     "emailLimit": "Atingiu o limite de 10 envios por dia.",
     "emailError": "Não foi possível enviar o relatório.",
-    "emailSubject": "Relatório OlhoVivo: {name}",
-    "emailText": "Segue em anexo o relatório OlhoVivo do cenário «{name}».\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nolhovivo.pt",
+    "emailSubject": "Relatório Observatório Habitação: {name}",
+    "emailText": "Segue em anexo o relatório do Observatório Habitação do cenário «{name}».\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nobservatoriohabitacao.pt",
     "notAvailable": "Os relatórios PDF estão incluídos no plano Premium.",
     "sharedTitle": "Cenário partilhado: {name}",
-    "sharedIntro": "Análise de investimento partilhada através do OlhoVivo, só para leitura. Os valores de mercado foram indicados por quem partilhou.",
+    "sharedIntro": "Análise de investimento partilhada através do Observatório Habitação, só para leitura. Os valores de mercado foram indicados por quem partilhou.",
     "calculateYourOwn": "Calcule o seu próprio cenário",
-    "postText": "Análise de investimento imobiliário no OlhoVivo: {name}",
+    "postText": "Análise de investimento imobiliário no Observatório Habitação: {name}",
     "ogNoResults": "Análise de investimento imobiliário",
     "report": {
       "title": "Relatório de investimento",
@@ -931,7 +931,7 @@
   },
   "shareResults": {
     "title": "Partilhar resultados",
-    "intro": "Envie um link para esta simulação no OlhoVivo, só de leitura: quem o abrir vê os resultados mas não os pode alterar. Para criar o link, a simulação é guardada na sua conta tal como está.",
+    "intro": "Envie um link para esta simulação no Observatório Habitação, só de leitura: quem o abrir vê os resultados mas não os pode alterar. Para criar o link, a simulação é guardada na sua conta tal como está.",
     "email": "Email",
     "whatsapp": "WhatsApp",
     "messenger": "Facebook Messenger",
@@ -951,9 +951,9 @@
     "emailLimit": "Atingiu o limite de 10 emails por dia.",
     "error": "Não foi possível partilhar a simulação. Tente novamente.",
     "sent": "Link enviado para {email}.",
-    "messageText": "Simulação de investimento imobiliário no OlhoVivo: {name}",
-    "emailSubject": "Simulação OlhoVivo: {name}",
-    "emailText": "Veja a simulação «{name}» no OlhoVivo, só de leitura:\n\n{url}\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nolhovivo.pt",
+    "messageText": "Simulação de investimento imobiliário no Observatório Habitação: {name}",
+    "emailSubject": "Simulação Observatório Habitação: {name}",
+    "emailText": "Veja a simulação «{name}» no Observatório Habitação, só de leitura:\n\n{url}\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nobservatoriohabitacao.pt",
     "messengerCopied": "Link copiado. Cole-o numa conversa do Messenger, que abriu num novo separador."
   },
   "sale": {

@@ -4,7 +4,7 @@ import { normaliseState, type CalculatorState } from "./state";
  * The evaluation in progress, kept in this browser so it survives moving around the site,
  * signing in to save it, or reloading the page. One draft per browser; "Nova avaliação" clears it.
  */
-export const DRAFT_KEY = "olhovivo:calculator-draft";
+export const DRAFT_KEY = "observatorio-habitacao:calculator-draft";
 
 export interface Draft {
   state: CalculatorState;

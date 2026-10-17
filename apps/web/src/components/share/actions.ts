@@ -6,7 +6,7 @@ import {
   getScenario,
   setScenarioSharePhotos,
   setScenarioSharing,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import type { AppLocale } from "@/i18n/routing";

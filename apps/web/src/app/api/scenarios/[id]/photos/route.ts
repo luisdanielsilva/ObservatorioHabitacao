@@ -6,7 +6,7 @@ import {
   photoUsage,
   rateLimit,
   type PhotoRow,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import {

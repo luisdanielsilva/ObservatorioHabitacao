@@ -1,4 +1,7 @@
-/** OlhoVivo mark: an eye whose iris is a rising bar chart. Placeholder until the brand work. */
+/**
+ * Observatório Habitação mark: an eye whose iris is a rising bar chart. Placeholder until the
+ * brand work.
+ */
 export function Logo({ className }: { className?: string }) {
   return (
     <span
@@ -21,7 +24,7 @@ export function Logo({ className }: { className?: string }) {
         />
       </svg>
       <span className="text-lg">
-        Olho<span className="text-primary">Vivo</span>
+        Observatório <span className="text-primary">Habitação</span>
       </span>
     </span>
   );

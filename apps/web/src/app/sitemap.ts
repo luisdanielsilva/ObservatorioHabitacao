@@ -1,4 +1,4 @@
-import { getAreaTree, type AreaNode } from "@olhovivo/db";
+import { getAreaTree, type AreaNode } from "@observatorio-habitacao/db";
 import type { MetadataRoute } from "next";
 import { localizedUrl } from "@/lib/urls";
 import { getDb } from "@/lib/db";

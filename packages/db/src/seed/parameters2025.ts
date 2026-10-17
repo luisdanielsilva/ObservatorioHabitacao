@@ -1,4 +1,4 @@
-import type { ParameterSet } from "@olhovivo/engine";
+import type { ParameterSet } from "@observatorio-habitacao/engine";
 
 /**
  * Mainland 2025 parameters. NOT VERIFIED by a tax advisor (WBS 10.6). IMT tables checked against

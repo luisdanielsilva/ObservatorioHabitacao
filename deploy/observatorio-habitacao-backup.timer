@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the OlhoVivo database backup nightly
+Description=Run the Observatório Habitação database backup nightly
 
 [Timer]
 # Adjust so it finishes before the Hetzner backup window.

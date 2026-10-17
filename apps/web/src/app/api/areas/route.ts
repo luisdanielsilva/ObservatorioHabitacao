@@ -1,4 +1,4 @@
-import { getAreaTree } from "@olhovivo/db";
+import { getAreaTree } from "@observatorio-habitacao/db";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 

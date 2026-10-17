@@ -1,6 +1,6 @@
 "use client";
 
-import type { ParameterSet, ScenarioKind, Seasonal } from "@olhovivo/engine";
+import type { ParameterSet, ScenarioKind, Seasonal } from "@observatorio-habitacao/engine";
 import { ArrowLeft, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";

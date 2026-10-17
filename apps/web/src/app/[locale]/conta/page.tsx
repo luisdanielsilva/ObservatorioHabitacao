@@ -1,5 +1,11 @@
-import { getConsents, listScenarios, listUserAnalyses, listUserLeads, users } from "@olhovivo/db";
-import type { ScenarioKind } from "@olhovivo/engine";
+import {
+  getConsents,
+  listScenarios,
+  listUserAnalyses,
+  listUserLeads,
+  users,
+} from "@observatorio-habitacao/db";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import { eq } from "drizzle-orm";
 import { Download, ExternalLink, LogOut, Plus } from "lucide-react";
 import type { Metadata } from "next";

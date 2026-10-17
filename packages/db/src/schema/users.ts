@@ -11,7 +11,7 @@ import { listings } from "./listings";
 
 /**
  * Users. The id, name, email, emailVerified and image columns follow the Auth.js adapter
- * schema (WBS 6.1); role, plan and locale are OlhoVivo's own.
+ * schema (WBS 6.1); role, plan and locale are Observatório Habitação's own.
  */
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),

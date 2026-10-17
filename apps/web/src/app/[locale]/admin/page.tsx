@@ -1,4 +1,4 @@
-import { getDashboardStats } from "@olhovivo/db";
+import { getDashboardStats } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

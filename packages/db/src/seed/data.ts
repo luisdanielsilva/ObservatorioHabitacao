@@ -1,4 +1,4 @@
-import type { Region } from "@olhovivo/engine";
+import type { Region } from "@observatorio-habitacao/engine";
 
 /**
  * Seed data so the app works end-to-end before real data is ingested.

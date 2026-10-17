@@ -2,7 +2,10 @@ import type { AppLocale } from "@/i18n/routing";
 
 /** Public base URL, without a trailing slash. */
 export function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "https://olhovivo.pt").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "https://observatoriohabitacao.pt").replace(
+    /\/$/,
+    "",
+  );
 }
 
 /** Absolute URL of a pathname ("/precos/lisboa") in a locale: pt has no prefix, en uses /en. */

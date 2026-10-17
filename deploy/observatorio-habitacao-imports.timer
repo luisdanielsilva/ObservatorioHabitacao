@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the OlhoVivo data imports weekly
+Description=Run the Observatório Habitação data imports weekly
 
 [Timer]
 OnCalendar=Mon *-*-* 04:00:00

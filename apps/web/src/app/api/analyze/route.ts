@@ -6,7 +6,7 @@ import {
   findAreaByNames,
   findAreaByPoint,
   rateLimit,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import { aiExtractProperty, aiReaderEnabled, NotAListingError } from "@/lib/linkReader/aiExtract";

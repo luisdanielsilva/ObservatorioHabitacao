@@ -1,4 +1,4 @@
-import { classifyOpportunity, type Opportunity } from "@olhovivo/engine";
+import { classifyOpportunity, type Opportunity } from "@observatorio-habitacao/engine";
 import { distanceKm, googleMapsUrl, pointFromMapsUrl } from "../mapsLink";
 import { MIN_COMPARABLES, type CalculatorState, type Comparable } from "./state";
 

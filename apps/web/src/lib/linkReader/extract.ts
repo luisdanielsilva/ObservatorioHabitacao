@@ -1,4 +1,4 @@
-import type { PropertyData } from "@olhovivo/db";
+import type { PropertyData } from "@observatorio-habitacao/db";
 import type { Condition, PropertyType } from "@/lib/calculator/state";
 import { listingPhotos } from "../listingPhotos";
 

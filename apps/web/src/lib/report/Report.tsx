@@ -1,5 +1,10 @@
 import { chosenOutcomes } from "@/lib/calculator/run";
-import type { GainTax, OpportunitySignal, ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import type {
+  GainTax,
+  OpportunitySignal,
+  ScenarioKind,
+  ScenarioResult,
+} from "@observatorio-habitacao/engine";
 import {
   Document,
   Font,
@@ -349,13 +354,13 @@ export function ScenarioReport({
   return (
     <Document
       title={pdfSafe(`${labels.title} - ${data.name}`)}
-      author="OlhoVivo"
-      creator="OlhoVivo"
+      author="Observatório Habitação"
+      creator="Observatório Habitação"
     >
       <Page size="A4" style={s.page} wrap>
         <View style={s.header} fixed>
           <Text style={s.brand}>
-            Olho<Text style={s.brandAccent}>Vivo</Text>
+            Observatório <Text style={s.brandAccent}>Habitação</Text>
           </Text>
           <Text style={s.muted}>{pdfSafe(labels.generated)}</Text>
         </View>
@@ -579,7 +584,7 @@ export function ScenarioReport({
         </View>
 
         <View style={s.footer} fixed>
-          <Text>olhovivo.pt</Text>
+          <Text>observatoriohabitacao.pt</Text>
           <Text
             render={({ pageNumber, totalPages }) => pdfSafe(labels.page(pageNumber, totalPages))}
           />

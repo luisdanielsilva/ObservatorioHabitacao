@@ -1,5 +1,5 @@
 {
-  "name": "@olhovivo/web",
+  "name": "@observatorio-habitacao/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,8 +14,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
     "@auth/drizzle-adapter": "^1.11.3",
-    "@olhovivo/db": "^0.1.0",
-    "@olhovivo/engine": "^0.1.0",
+    "@observatorio-habitacao/db": "^0.1.0",
+    "@observatorio-habitacao/engine": "^0.1.0",
     "@react-pdf/renderer": "^4.9.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",

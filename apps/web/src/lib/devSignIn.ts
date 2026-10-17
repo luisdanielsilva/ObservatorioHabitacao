@@ -4,14 +4,16 @@ import "server-only";
  * Development without an email provider: sign-in links are kept here (as well as written to the
  * server log) so the "check your email" page can show them. Never used in production.
  */
-export const DEV_LINK_COOKIE = "olhovivo-dev-signin-link";
+export const DEV_LINK_COOKIE = "observatorio-habitacao-dev-signin-link";
 
 export const showSignInLinks = () =>
   process.env.NODE_ENV === "development" && !process.env.RESEND_API_KEY;
 
 // On globalThis: auth and the pages can be bundled separately in development.
-const store = globalThis as typeof globalThis & { __olhovivoSignInLinks?: Map<string, string> };
-const links = (store.__olhovivoSignInLinks ??= new Map());
+const store = globalThis as typeof globalThis & {
+  __observatorioHabitacaoSignInLinks?: Map<string, string>;
+};
+const links = (store.__observatorioHabitacaoSignInLinks ??= new Map());
 
 export function rememberSignInLink(email: string, url: string) {
   if (showSignInLinks()) links.set(email.trim().toLowerCase(), url);

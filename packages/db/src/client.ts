@@ -7,9 +7,12 @@ import * as schema from "./schema";
 
 export type Db = ReturnType<typeof createDb>;
 
-/** `DATABASE_PATH`, or `data/olhovivo.db` at the repository root. */
+/** `DATABASE_PATH`, or `data/observatorio-habitacao.db` at the repository root. */
 export function defaultDatabasePath(): string {
-  return process.env.DATABASE_PATH ?? path.join(packageDir(), "..", "..", "data", "olhovivo.db");
+  return (
+    process.env.DATABASE_PATH ??
+    path.join(packageDir(), "..", "..", "data", "observatorio-habitacao.db")
+  );
 }
 
 /** Opens a database (":memory:" for tests) with WAL and foreign keys enabled. */

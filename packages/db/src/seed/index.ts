@@ -1,4 +1,4 @@
-import type { Region } from "@olhovivo/engine";
+import type { Region } from "@observatorio-habitacao/engine";
 import { count } from "drizzle-orm";
 import type { Db } from "../client";
 import { activateParameterSet, createParameterSetDraft } from "../queries";

@@ -9,7 +9,7 @@ import {
   type Area,
   type Db,
   type MarketReferenceValue,
-} from "@olhovivo/db";
+} from "@observatorio-habitacao/db";
 
 export interface AreaPrices {
   sale: MarketReferenceValue | null;

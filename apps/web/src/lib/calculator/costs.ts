@@ -1,4 +1,4 @@
-import type { ScenarioKind, ScenarioResult } from "@olhovivo/engine";
+import type { ScenarioKind, ScenarioResult } from "@observatorio-habitacao/engine";
 
 export const COST_ITEMS = ["imi", "condominium", "insurance", "maintenance"] as const;
 export type CostItem = (typeof COST_ITEMS)[number];

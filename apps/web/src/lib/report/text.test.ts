@@ -22,9 +22,9 @@ describe("pdfSafe", () => {
 describe("reportFilename", () => {
   it("builds a safe file name from the scenario name", () => {
     expect(reportFilename("Apartamento T2 em São Vicente")).toBe(
-      "olhovivo-apartamento-t2-em-sao-vicente.pdf",
+      "observatorio-habitacao-apartamento-t2-em-sao-vicente.pdf",
     );
-    expect(reportFilename("«»")).toBe("olhovivo-cenario.pdf");
-    expect(reportFilename('a"b\nc')).toBe("olhovivo-a-b-c.pdf");
+    expect(reportFilename("«»")).toBe("observatorio-habitacao-cenario.pdf");
+    expect(reportFilename('a"b\nc')).toBe("observatorio-habitacao-a-b-c.pdf");
   });
 });

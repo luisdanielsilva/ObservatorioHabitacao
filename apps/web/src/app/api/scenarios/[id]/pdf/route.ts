@@ -1,4 +1,4 @@
-import { getScenario } from "@olhovivo/db";
+import { getScenario } from "@observatorio-habitacao/db";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { entitlementsFor } from "@/lib/entitlements";

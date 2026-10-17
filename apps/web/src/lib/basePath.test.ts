@@ -16,8 +16,8 @@ describe("withBasePath", () => {
   });
 
   it("prefixes paths under a base path", async () => {
-    const { withBasePath } = await load("/olhovivo/");
-    expect(withBasePath("/api/analyze")).toBe("/olhovivo/api/analyze");
-    expect(withBasePath("/")).toBe("/olhovivo");
+    const { withBasePath } = await load("/observatorio-habitacao/");
+    expect(withBasePath("/api/analyze")).toBe("/observatorio-habitacao/api/analyze");
+    expect(withBasePath("/")).toBe("/observatorio-habitacao");
   });
 });

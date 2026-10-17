@@ -1,4 +1,4 @@
-import { listParameterSets } from "@olhovivo/db";
+import { listParameterSets } from "@observatorio-habitacao/db";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";

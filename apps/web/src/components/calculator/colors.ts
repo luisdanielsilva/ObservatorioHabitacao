@@ -1,4 +1,4 @@
-import type { ScenarioKind } from "@olhovivo/engine";
+import type { ScenarioKind } from "@observatorio-habitacao/engine";
 
 /** One chart colour per deal, used in markers, tabs and charts. */
 export const SCENARIO_COLORS: Record<ScenarioKind, string> = {
