@@ -13,6 +13,15 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**Sign-in: 1-hour links, 5-day sessions (2026-10-17)**
+
+- Decided by the owner: the email link is valid for 1 hour (was 24) and a sign-in lasts 5 days
+  (was 30). Sessions created before keep their own expiry.
+- Sign-in emails per address: 20 per hour for now, while the site is tested (was 5); to lower
+  to 5 per hour later. Per IP: 20 per hour, unchanged.
+- Still open (GitHub #2): no `RESEND_API_KEY` on the server, so the preview cannot send sign-in
+  emails; the link is only written to the server log.
+
 **More colour on the home page (2026-10-17)**
 
 - Chosen by the owner from a numbered mockup (all nine kept), on the same pine, sand and beige

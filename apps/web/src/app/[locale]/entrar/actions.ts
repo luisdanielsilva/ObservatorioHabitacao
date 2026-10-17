@@ -15,8 +15,11 @@ import {
 import { safeReturnTo } from "@/lib/returnTo";
 import { withBasePath } from "@/lib/basePath";
 
-/** Sign-in emails: per address (to protect inboxes) and per IP (to protect the sender). */
-const EMAIL_LIMIT = { requests: 5, windowSeconds: 3600 };
+/**
+ * Sign-in emails: per address (to protect inboxes) and per IP (to protect the sender).
+ * 20 per address for now, while the site is tested; to lower to 5 per hour later (owner).
+ */
+const EMAIL_LIMIT = { requests: 20, windowSeconds: 3600 };
 const IP_LIMIT = { requests: 20, windowSeconds: 3600 };
 
 export async function signInWithEmail(form: FormData) {

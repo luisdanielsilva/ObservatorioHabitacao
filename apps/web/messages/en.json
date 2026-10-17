@@ -779,7 +779,7 @@
     "google": "Continue with Google",
     "or": "or",
     "checkTitle": "Check your email",
-    "checkText": "We sent you a sign-in link. Open it on this device to sign in. The link is valid for 24 hours.",
+    "checkText": "We sent you a sign-in link. Open it on this device to sign in. The link is valid for 1 hour.",
     "error": "We could not sign you in. Try again or ask for a new link.",
     "terms": "By signing in you accept the terms and conditions and the privacy policy.",
     "signOut": "Sign out",

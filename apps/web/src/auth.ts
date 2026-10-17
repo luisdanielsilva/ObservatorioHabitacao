@@ -34,15 +34,17 @@ const providers: NextAuthConfig["providers"] = [
   Resend({
     apiKey: process.env.RESEND_API_KEY ?? "development",
     from: process.env.EMAIL_FROM ?? "Observatório Habitação <noreply@observatoriohabitacao.pt>",
+    // The link is valid for 1 hour (decided by the owner, 2026-10-17).
+    maxAge: 60 * 60,
     async sendVerificationRequest({ identifier, url }) {
       rememberSignInLink(identifier, url);
       const host = new URL(url).host;
       await sendEmail({
         to: identifier,
         subject: "Entrar no Observatório Habitação / Sign in to Observatório Habitação",
-        text: `Para entrar no Observatório Habitação, abre este link (válido 24 horas):\n${url}\n\nTo sign in to Observatório Habitação, open this link (valid for 24 hours):\n${url}\n\nSe não pediste este email, ignora-o. / If you did not ask for this email, ignore it.`,
-        html: `<p>Para entrar no Observatório Habitação (${escapeHtml(host)}), clica no link abaixo. É válido durante 24 horas.</p>
-<p>To sign in to Observatório Habitação, click the link below. It is valid for 24 hours.</p>
+        text: `Para entrar no Observatório Habitação, abre este link (válido durante 1 hora):\n${url}\n\nTo sign in to Observatório Habitação, open this link (valid for 1 hour):\n${url}\n\nSe não pediste este email, ignora-o. / If you did not ask for this email, ignore it.`,
+        html: `<p>Para entrar no Observatório Habitação (${escapeHtml(host)}), clica no link abaixo. É válido durante 1 hora.</p>
+<p>To sign in to Observatório Habitação, click the link below. It is valid for 1 hour.</p>
 <p><a href="${escapeHtml(url)}" style="display:inline-block;padding:10px 16px;background:#1e5b45;color:#fff;border-radius:6px;text-decoration:none">Entrar / Sign in</a></p>
 <p style="color:#666;font-size:12px">Se não pediste este email, ignora-o. / If you did not ask for this email, ignore it.</p>`,
       });
@@ -60,7 +62,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verificationTokensTable: verificationTokens,
   }),
   providers,
-  session: { strategy: "database", maxAge: 30 * 24 * 3600 },
+  // Signed in for 5 days (decided by the owner, 2026-10-17).
+  session: { strategy: "database", maxAge: 5 * 24 * 3600 },
   // Auth.js reads and builds full addresses, so its paths include the site's base path.
   basePath: withBasePath("/api/auth"),
   pages: {

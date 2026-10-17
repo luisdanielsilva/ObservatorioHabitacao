@@ -779,7 +779,7 @@
     "google": "Continuar com Google",
     "or": "ou",
     "checkTitle": "Verifica o teu email",
-    "checkText": "Enviámos um link de acesso. Abre-o neste dispositivo para entrar. O link é válido durante 24 horas.",
+    "checkText": "Enviámos um link de acesso. Abre-o neste dispositivo para entrar. O link é válido durante 1 hora.",
     "error": "Não foi possível entrar. Tenta novamente ou pede um novo link.",
     "terms": "Ao entrar aceitas os termos e condições e a política de privacidade.",
     "signOut": "Sair",
