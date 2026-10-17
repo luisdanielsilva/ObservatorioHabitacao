@@ -97,7 +97,7 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
 
   // A change on screen: the link shows the saved version until it is saved again.
   await results.getByLabel("Nome do cenário").fill("Revenda Cascais");
-  await expect(share.getByText(/Tem alterações por guardar/)).toBeVisible();
+  await expect(share.getByText(/Tens alterações por guardar/)).toBeVisible();
   // Ver PDF saves the changes first, then shows the report in the new tab.
   // (Headless Chromium has no PDF viewer, so the tab's request is checked, not its address.)
   const changedPdf = page.waitForEvent("popup");
@@ -109,7 +109,7 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   expect((await pdfRequest).frame().page()).toBe(changedTab);
   await changedTab.close();
   await expect(share.getByRole("link", { name: "Ver PDF" })).toBeVisible();
-  await expect(share.getByText(/Tem alterações por guardar/)).toHaveCount(0);
+  await expect(share.getByText(/Tens alterações por guardar/)).toHaveCount(0);
   await expect(share.getByLabel("Link só de leitura")).toHaveValue(link);
   await visitor.reload();
   await expect(

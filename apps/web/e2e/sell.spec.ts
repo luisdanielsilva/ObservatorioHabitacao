@@ -65,10 +65,10 @@ test("vender: value from the INE median and similar listings, asking price, what
   await field(page, "Ano de compra").fill("2015");
   await field(page, "Crédito em dívida").fill("100000");
   await page.getByRole("button", { name: "Ver resultado" }).click();
-  const proceeds = result.getByRole("region", { name: "Quanto fica para si" });
+  const proceeds = result.getByRole("region", { name: "Quanto fica para ti" });
   await expect(proceeds.getByRole("row", { name: /Comissão da agência/ }).first()).toBeVisible();
   await expect(proceeds.getByRole("row", { name: /Crédito liquidado/ })).toContainText("100 000 €");
-  await expect(proceeds.getByRole("row", { name: /Fica para si/ })).toBeVisible();
+  await expect(proceeds.getByRole("row", { name: /Fica para ti/ })).toBeVisible();
   await proceeds.locator("summary", { hasText: "IRS sobre a mais-valia" }).click();
   await expect(proceeds.getByText(/coeficiente 1,20, Portaria n\.º 382\/2025\/1/)).toBeVisible();
 

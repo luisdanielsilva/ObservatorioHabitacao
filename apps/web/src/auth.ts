@@ -40,11 +40,11 @@ const providers: NextAuthConfig["providers"] = [
       await sendEmail({
         to: identifier,
         subject: "Entrar no Observatório Habitação / Sign in to Observatório Habitação",
-        text: `Para entrar no Observatório Habitação, abra este link (válido 24 horas):\n${url}\n\nTo sign in to Observatório Habitação, open this link (valid for 24 hours):\n${url}\n\nSe não pediu este email, ignore-o. / If you did not ask for this email, ignore it.`,
-        html: `<p>Para entrar no Observatório Habitação (${escapeHtml(host)}), clique no link abaixo. É válido durante 24 horas.</p>
+        text: `Para entrar no Observatório Habitação, abre este link (válido 24 horas):\n${url}\n\nTo sign in to Observatório Habitação, open this link (valid for 24 hours):\n${url}\n\nSe não pediste este email, ignora-o. / If you did not ask for this email, ignore it.`,
+        html: `<p>Para entrar no Observatório Habitação (${escapeHtml(host)}), clica no link abaixo. É válido durante 24 horas.</p>
 <p>To sign in to Observatório Habitação, click the link below. It is valid for 24 hours.</p>
 <p><a href="${escapeHtml(url)}" style="display:inline-block;padding:10px 16px;background:#0e7c7b;color:#fff;border-radius:6px;text-decoration:none">Entrar / Sign in</a></p>
-<p style="color:#666;font-size:12px">Se não pediu este email, ignore-o. / If you did not ask for this email, ignore it.</p>`,
+<p style="color:#666;font-size:12px">Se não pediste este email, ignora-o. / If you did not ask for this email, ignore it.</p>`,
       });
     },
   }),

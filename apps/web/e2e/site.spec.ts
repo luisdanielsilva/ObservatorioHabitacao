@@ -6,7 +6,7 @@ test("home page in Portuguese and English, with the language switch", async ({ p
   const problems = watchProblems(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Saiba se um imóvel vale a pena antes de avançar",
+    "Descobre se um imóvel vale a pena antes de avançar",
   );
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-PT");
   await page.getByRole("button", { name: /English/ }).click();
@@ -45,7 +45,7 @@ test("the home page link box opens Avaliar anúncio and reads the link", async (
 
 test("the home page offers manual entry", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Não tem link? Preencha os dados à mão" }).click();
+  await page.getByRole("link", { name: "Não tens link? Preenche os dados à mão" }).click();
   await expect(field(page, "Preço pedido")).toBeVisible();
 });
 
@@ -53,6 +53,25 @@ test("unknown pages show the localised 404", async ({ page }) => {
   const response = await page.goto("/esta-pagina-nao-existe");
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
+});
+
+test("home page: the owners' banner opens Vender, and its link Avaliar anúncio", async ({
+  page,
+}) => {
+  test.skip(!FEATURES.sell, "Vender is dormant");
+  await page.goto("/");
+  const banner = page.getByRole("region", { name: "Quanto vale a minha casa?" });
+  await expect(banner.getByRole("listitem")).toHaveText([
+    "Gratuito",
+    "1 minuto",
+    "Sem compromisso",
+  ]);
+  await banner.getByRole("link", { name: "Viste um anúncio? Vê se o preço é justo" }).click();
+  await expect(page).toHaveURL(/\/avaliar$/);
+  await page.goBack();
+  await banner.getByRole("link", { name: "Avaliar a minha casa" }).click();
+  await expect(page).toHaveURL(/\/vender$/);
+  await expect(page.getByRole("heading", { name: "Quanto vale a tua casa?" })).toBeVisible();
 });
 
 test("dormant sections: no Vender or Preços in the menu or on the home page; pages are 404", async ({
@@ -65,6 +84,7 @@ test("dormant sections: no Vender or Preços in the menu or on the home page; pa
   await expect(menu.getByRole("link", { name: "Avaliar anúncio" })).toBeVisible();
   if (!FEATURES.sell) {
     await expect(menu.getByRole("link", { name: "Vender" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Avaliar a minha casa" })).toHaveCount(0);
     expect((await request.get("/vender")).status()).toBe(404);
   }
   if (!FEATURES.prices) {
@@ -99,7 +119,7 @@ test("methodology page explains the metrics and has a FAQ", async ({ page }) => 
   await expect(page.getByRole("heading", { name: "Os indicadores" })).toBeVisible();
   await expect(page.getByText("TIR anual")).toBeVisible();
   await page.getByText("Os resultados substituem um contabilista?").click();
-  await expect(page.getByText(/confirme os impostos e os custos/)).toBeVisible();
+  await expect(page.getByText(/confirma os impostos e os custos/)).toBeVisible();
   await page.goto("/en/metodologia");
   await expect(page.getByRole("heading", { level: 1, name: "How we calculate" })).toBeVisible();
 });

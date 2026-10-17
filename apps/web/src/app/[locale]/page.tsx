@@ -1,5 +1,6 @@
 import { ArrowRight, Building2, FileSignature, Home, KeyRound } from "lucide-react";
 import { LinkBox } from "@/components/home/LinkBox";
+import { SellBanner } from "@/components/home/SellBanner";
 import { getTranslations } from "next-intl/server";
 import { initPageLocale } from "@/i18n/locale";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,12 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           ))}
         </div>
       </section>
+
+      {FEATURES.sell && (
+        <div className="py-8">
+          <SellBanner />
+        </div>
+      )}
 
       <section aria-labelledby="how" className="py-12">
         <h2 id="how" className="text-2xl font-semibold tracking-tight">

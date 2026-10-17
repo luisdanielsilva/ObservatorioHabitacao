@@ -63,7 +63,19 @@
     "linkPlaceholder": "Paste the listing link here",
     "evaluate": "Evaluate",
     "supported": "Idealista.pt and Imovirtual.com supported",
-    "manualLink": "No link? Enter the details by hand"
+    "manualLink": "No link? Enter the details by hand",
+    "sellBanner": {
+      "eyebrow": "For homeowners",
+      "title": "What is my home worth?",
+      "subtitle": "Find out in a minute, from the INE median for your area and similar listings. And see what you keep after the agency's commission, IRS and the mortgage.",
+      "pills": {
+        "free": "Free",
+        "minute": "1 minute",
+        "noCommitment": "No commitment"
+      },
+      "cta": "Value my home",
+      "evaluateLink": "Seen a listing? Check if the price is fair"
+    }
   },
   "scenarios": {
     "flip": "Buy and resell",

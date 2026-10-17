@@ -27,7 +27,7 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   await field(page, "Preço de venda após obras").fill("300000");
   await showResults(page);
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await expect(page.getByText(/Para guardar precisa de entrar/)).toBeVisible();
+  await expect(page.getByText(/Para guardar precisas de entrar/)).toBeVisible();
   await page.getByRole("link", { name: "Guardar →" }).click();
 
   await signInWithLink(page, email, LOG!);
@@ -46,7 +46,7 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   expect(exported.status()).toBe(200);
   expect((await exported.json()).user.email).toBe(email);
 
-  await page.getByLabel("Escreva APAGAR para confirmar").fill("APAGAR");
+  await page.getByLabel("Escreve APAGAR para confirmar").fill("APAGAR");
   await page.getByRole("button", { name: "Apagar a minha conta" }).click();
   await expect(page).not.toHaveURL(/conta/);
   expect((await page.request.get("/api/account/export")).status()).toBe(401);

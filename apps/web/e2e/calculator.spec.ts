@@ -80,7 +80,7 @@ test("several deals: details in turn, then compared side by side", async ({ page
   // A deal's required inputs are checked before moving on.
   await nextPanel(page);
   await expect(step(page, "Detalhes do negócio").getByRole("alert")).toHaveText(
-    "Indique: preço de venda após obras",
+    "Indica: preço de venda após obras",
   );
   await expect(field(page, "Preço de venda após obras")).toBeFocused();
   await field(page, "Preço de venda após obras").fill("480000");
@@ -161,7 +161,7 @@ test("the property step requires every field", async ({ page }) => {
   await page.getByRole("button", { name: "Continuar" }).click();
   // A clear message, the missing fields marked, and the focus on the first one.
   await expect(step(page, "Imóvel").getByRole("alert")).toHaveText(
-    "Indique: tipologia, área útil, localização (pelo menos o concelho)",
+    "Indica: tipologia, área útil, localização (pelo menos o concelho)",
   );
   await expect(page.getByLabel("Concelho")).toHaveAttribute("aria-invalid", "true");
   await expect(field(page, "Área útil")).toHaveAttribute("aria-invalid", "true");
@@ -206,7 +206,7 @@ test("sale price: lowest price without a loss, and profit in 5 % steps above it"
   await expect(breakEven).toHaveText(/^4\d\d\s\d{3}\s€$/);
 
   // The profit at the price entered, and in 5 % steps above the lowest price: 0 % to +20 %.
-  await expect(sale.getByText("Lucro ao preço que indicou (480 000 €)")).toBeVisible();
+  await expect(sale.getByText("Lucro ao preço que indicaste (480 000 €)")).toBeVisible();
   const steps = sale.getByRole("list", { name: /em subidas de 5 %/ }).getByRole("listitem");
   await expect(steps).toHaveCount(5);
   await expect(steps.first()).toContainText(/^0%4\d\d\s\d{3}\s€/);
@@ -229,7 +229,7 @@ test("sale price: lowest price without a loss, and profit in 5 % steps above it"
   expect(shareBox!.y).toBeGreaterThan(saveBox!.y);
 
   await share.getByRole("button", { name: "Email", exact: true }).click();
-  await expect(share.getByText("Entre na sua conta para guardar e partilhar")).toBeVisible();
+  await expect(share.getByText("Entra na tua conta para guardar e partilhar")).toBeVisible();
   await expect(share.getByRole("link", { name: "Entrar →" })).toHaveAttribute(
     "href",
     /\/entrar\?voltar=.*rascunho/,
@@ -396,7 +396,7 @@ test("the evaluation is kept while moving around the site, until a new one", asy
   ).toBeVisible();
   // Also after trying to save without an account and coming back.
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await expect(page.getByText(/Para guardar precisa de entrar/)).toBeVisible();
+  await expect(page.getByText(/Para guardar precisas de entrar/)).toBeVisible();
   await page.goBack();
   await page.goto("/avaliar?manual=1");
   await expect(step(page, "Imóvel")).toContainText("400 000 €");

@@ -6,16 +6,27 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 257 unit tests (64 engine, 94 db, 99 web) and 36 end-to-end tests (Playwright, Chromium;
+Tests: 257 unit tests (64 engine, 94 db, 99 web) and 37 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**The site says "tu"; an owners' banner on the home page (2026-10-17)**
+
+- Decided by the owner: the whole site now addresses the reader informally ("tu": "Cola o
+  link", "Quanto vale a tua casa?", "Fica para ti"), including the PDF reports, the share
+  messages, the back-office and the sign-in email. Labels in the infinitive ("Guardar",
+  "Entrar") were already neutral. The English site is unchanged.
+- Home page, between the strategies and "Como funciona": a banner for owners ("Para
+  proprietários", "Quanto vale a minha casa?") on the brand colour, with "Avaliar a minha casa"
+  to `/vender` and "Viste um anúncio? Vê se o preço é justo" to `/avaliar`. Shown while Vender
+  is on (`components/home/SellBanner.tsx`).
+
 **Vender is back, as the seller's valuation (2026-10-17)**
 
-- `/vender` ("Quanto vale a sua casa?") replaces the dormant sales-support request: in four
+- `/vender` ("Quanto vale a tua casa?") replaces the dormant sales-support request: in four
   steps (the property, similar listings, the sale, the result) the seller sees the likely value,
   a range, a confidence level, a suggested asking price and the INE median's trend for the
   area. "Vender" is in the menu again (`FEATURES.sell`); "Preços" stays dormant.
@@ -26,7 +37,7 @@ VPS (system libraries need sudo), so Safari is untested.
   taken as the seller's. "Como calculámos" shows each step. Every assumption is in
   `lib/valuation/model.ts` (version `v1-2026-10`, saved with each valuation) and needs review
   against real sales data.
-- With the sale's details (optional): "Quanto fica para si" deducts the agency's commission with
+- With the sale's details (optional): "Quanto fica para ti" deducts the agency's commission with
   VAT, the IRS on the gain (purchase price corrected by the inflation coefficient, Portaria
   n.º 382/2025/1, to update each November), the loan still owed and the early-repayment fee.
 - Signed in, a valuation is saved under a name, listed in `/conta` (open, delete) and has a PDF

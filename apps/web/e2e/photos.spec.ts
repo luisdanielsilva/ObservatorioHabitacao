@@ -112,7 +112,7 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
   const visitor = await browser.newPage();
   expect((await visitor.request.get(sharedPhoto)).status()).toBe(404);
   const option = step(page, "Resultados").getByRole("checkbox", {
-    name: "Mostrar as fotografias do imóvel no link e no seu PDF",
+    name: "Mostrar as fotografias do imóvel no link e no teu PDF",
   });
   await expect(option).not.toBeChecked();
   await option.click();
@@ -176,7 +176,7 @@ test("photos chosen before saving: signed out asks to sign in, signed in saves f
   let photos = await results();
   await choose(photos, await jpeg("#4a8"));
   await photos.getByRole("button", { name: "Enviar 1 fotografia" }).click();
-  await expect(photos.getByText(/Entre na sua conta para guardar o cenário/)).toBeVisible();
+  await expect(photos.getByText(/Entra na tua conta para guardar o cenário/)).toBeVisible();
 
   // Signed in, a new evaluation: sending the photo saves it as a new scenario.
   await saveSignedIn(page, `e2e+photos-unsaved${Date.now()}@example.pt`, LOG!);
