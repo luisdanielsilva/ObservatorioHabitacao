@@ -6,15 +6,45 @@ test("home page in Portuguese and English, with the language switch", async ({ p
   const problems = watchProblems(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Descobre se um imóvel vale a pena antes de avançar",
+    "Queres comprar um imóvel e não sabes se é um bom investimento?",
   );
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-PT");
   await page.getByRole("button", { name: /English/ }).click();
   await expect(page).toHaveURL(/\/en$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Know whether a property is worth it before you commit",
+    "Buying a property and not sure it's a good investment?",
   );
   expect(problems).toEqual([]);
+});
+
+test("home page: the situation picked sets the question and the way in", async ({ page }) => {
+  await page.goto("/");
+  const situations = page.getByRole("tablist", { name: "A tua situação" });
+  const panel = page.getByRole("tabpanel");
+  await expect(situations.getByRole("tab", { name: /Vou comprar/ })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(panel.getByRole("textbox", { name: "Link do anúncio" })).toBeVisible();
+
+  // The arrow keys move between situations, as in any tab list.
+  await situations.getByRole("tab", { name: /Vou comprar/ }).focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(
+    situations.getByRole("tab", { name: /Quero arrendar|Quero vender/ }).first(),
+  ).toBeFocused();
+
+  await situations.getByRole("tab", { name: /Vi um anúncio/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Viste um anúncio e não sabes se o preço é justo?",
+  );
+  test.skip(!FEATURES.sell, "Vender is dormant");
+  await situations.getByRole("tab", { name: /Quero vender/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Queres vender a tua casa e não sabes quanto vale?",
+  );
+  await panel.getByRole("link", { name: "Avaliar a minha casa" }).click();
+  await expect(page).toHaveURL(/\/vender$/);
 });
 
 test("the home page link box opens Avaliar anúncio and reads the link", async ({ page }) => {

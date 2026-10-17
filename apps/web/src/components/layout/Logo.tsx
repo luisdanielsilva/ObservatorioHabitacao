@@ -7,7 +7,7 @@ export function Logo({ className, onDark }: { className?: string; onDark?: boole
   return (
     <span className={`inline-flex items-center gap-2 font-semibold ${className ?? ""}`}>
       <LogoMark className="size-7" onDark={onDark} />
-      <span className={`text-lg ${onDark ? "text-white" : ""}`}>
+      <span className={`text-base whitespace-nowrap sm:text-lg ${onDark ? "text-white" : ""}`}>
         Observatório{" "}
         <span className={onDark ? "text-brand-accent" : "text-primary"}>Habitação</span>
       </span>

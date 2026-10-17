@@ -13,6 +13,22 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**Home page led by questions, over a map of Portugal (2026-10-17, issue #4)**
+
+- Chosen by the owner (design B): the hero asks the question for the visitor's situation, picked
+  from four ("Vou comprar", "Quero vender", "Quero arrendar", "Vi um anúncio"; tabs, arrow keys).
+  The key words of each question are in pine with a hand-drawn sand underline that follows
+  the words when they wrap. Buying, renting and checking a listing start from the link box;
+  selling from "Avaliar a minha casa" (`components/home/QuestionHero.tsx`).
+- Behind it, mainland Portugal by district, faint, from the CAOP boundaries already in the
+  database (CAOP 2025, DGT, CC BY 4.0): `scripts/district-map.mjs` writes
+  `components/home/districtMap.ts` (18 districts, about 30 KB); run it again after a new CAOP
+  import.
+- "Outras perguntas a que respondemos" replaces "Quatro estratégias, lado a lado": six questions,
+  each linked to Avaliar anúncio or Vender. The owners' banner, the example and "Como funciona"
+  stay.
+- The previous home page is kept as the git tag `frontpage-cores-2026-10-17` (on GitHub too).
+
 **Sign-in: 1-hour links, 5-day sessions (2026-10-17)**
 
 - Decided by the owner: the email link is valid for 1 hour (was 24) and a sign-in lasts 5 days

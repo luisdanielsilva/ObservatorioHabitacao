@@ -109,6 +109,65 @@
         "irs": "IRS"
       },
       "cta": "Try it with your home"
+    },
+    "situationsEyebrow": "What do you want to know?",
+    "situationsLabel": "Your situation",
+    "situations": {
+      "buy": {
+        "label": "I'm buying",
+        "hint": "To invest or to live in",
+        "question": "Buying a property and not sure it's <mark>a good investment</mark>?",
+        "answer": "Paste the listing link and see the numbers for four deals, with IMT, stamp duty, the mortgage and IRS."
+      },
+      "sell": {
+        "label": "I want to sell",
+        "hint": "My home or an investment",
+        "question": "Selling your home and not sure <mark>what it's worth</mark>?",
+        "answer": "See the likely value, the asking price and what you keep after the commission, IRS and the mortgage.",
+        "cta": "Value my home"
+      },
+      "rent": {
+        "label": "I want to rent out",
+        "hint": "Long-term or short-term rental",
+        "question": "Does renting out pay? <mark>Long-term or short-term rental</mark>?",
+        "answer": "Rent, occupancy, costs and taxes: see the cash flow and the yield of each option, side by side."
+      },
+      "check": {
+        "label": "I saw a listing",
+        "hint": "And I'm not sure the price is fair",
+        "question": "Saw a listing and not sure <mark>the price is fair</mark>?",
+        "answer": "Paste the link and compare the price per m² with the INE median for the area and with similar listings."
+      }
+    },
+    "questions": {
+      "title": "Other questions we answer",
+      "text": "Each question leads to the part of the site that answers it.",
+      "items": {
+        "pricey": {
+          "q": "Is this listing overpriced?",
+          "a": "Compare the price per m² with the INE median and with similar listings you add."
+        },
+        "strategy": {
+          "q": "Does renting, reselling or short-term letting pay more?",
+          "a": "The four deals side by side: profit, IRR, yield and cash flow."
+        },
+        "costs": {
+          "q": "How much IMT, stamp duty and deed costs will I pay?",
+          "a": "The purchase costs worked out, with or without a mortgage, for your own home or an investment."
+        },
+        "breakEven": {
+          "q": "What is the lowest price I can sell at without a loss?",
+          "a": "The break-even price and what you gain at each 5 % step above it."
+        },
+        "gainTax": {
+          "q": "How much IRS do I pay if I sell at a profit?",
+          "a": "The capital gain explained line by line, with the inflation correction and the brackets."
+        },
+        "proceeds": {
+          "q": "How much do I keep after selling?",
+          "a": "From the sale price we take the commission, IRS and the mortgage still owed."
+        }
+      }
     }
   },
   "scenarios": {

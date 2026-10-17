@@ -1,6 +1,7 @@
-import { ArrowRight, Building2, FileSignature, Home, KeyRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { DistrictMap } from "@/components/home/DistrictMap";
 import { HomeExample } from "@/components/home/HomeExample";
-import { LinkBox } from "@/components/home/LinkBox";
+import { QuestionHero } from "@/components/home/QuestionHero";
 import { SellBanner } from "@/components/home/SellBanner";
 import { getTranslations } from "next-intl/server";
 import { initPageLocale } from "@/i18n/locale";
@@ -8,21 +9,45 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { FEATURES } from "@/lib/features";
 
-/** Each strategy in its own colour of the palette: pine, sand, moss and deep pine. */
-const SCENARIOS = [
-  { key: "flip", icon: Building2, bar: "bg-primary", tile: "bg-mint text-primary" },
+/** "Outras perguntas": each question in a colour of the palette, linked to what answers it. */
+const QUESTIONS = [
   {
-    key: "longTermRental",
-    icon: KeyRound,
-    bar: "bg-brand-accent-foreground",
-    tile: "bg-sand-soft text-brand-accent-foreground",
+    key: "pricey",
+    href: "/avaliar",
+    colour: "text-primary bg-mint",
+    hover: "hover:border-primary",
   },
-  { key: "shortTermRental", icon: Home, bar: "bg-moss", tile: "bg-moss-soft text-moss" },
   {
-    key: "contractAssignment",
-    icon: FileSignature,
-    bar: "bg-pine-deep dark:bg-primary",
-    tile: "bg-secondary text-pine-deep dark:text-primary",
+    key: "strategy",
+    href: "/avaliar",
+    colour: "text-moss bg-moss-soft",
+    hover: "hover:border-moss",
+  },
+  {
+    key: "costs",
+    href: "/avaliar",
+    colour: "text-brand-accent-foreground bg-sand-soft",
+    hover: "hover:border-brand-accent",
+  },
+  {
+    key: "breakEven",
+    href: "/avaliar",
+    colour: "text-pine-deep bg-secondary dark:text-primary",
+    hover: "hover:border-pine-deep",
+  },
+  {
+    key: "gainTax",
+    href: "/vender",
+    colour: "text-brand-accent-foreground bg-sand-soft",
+    hover: "hover:border-brand-accent",
+    sell: true,
+  },
+  {
+    key: "proceeds",
+    href: "/vender",
+    colour: "text-primary bg-mint",
+    hover: "hover:border-primary",
+    sell: true,
   },
 ] as const;
 
@@ -37,46 +62,14 @@ const STEP_COLOURS = [
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   await initPageLocale(params);
   const t = await getTranslations("home");
-  const ts = await getTranslations("scenarios");
+  const tn = await getTranslations("nav");
 
   return (
     <>
-      <section className="relative overflow-hidden bg-linear-to-b from-muted/70 to-background">
-        <HeroBackdrop />
-        <div className="relative mx-auto max-w-4xl px-4 py-14 text-center sm:py-20">
-          <p className="inline-flex items-center gap-2 rounded-full bg-sand-soft px-3 py-1.5 text-xs font-semibold tracking-[0.14em] text-brand-accent-foreground uppercase">
-            <span className="size-1.5 rounded-full bg-primary" aria-hidden />
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-            {t.rich("title", {
-              mark: (chunks) => (
-                <span className="relative whitespace-nowrap text-primary">
-                  {chunks}
-                  <svg
-                    viewBox="0 0 200 12"
-                    preserveAspectRatio="none"
-                    aria-hidden
-                    className="absolute -bottom-[0.12em] -left-[2%] h-[0.3em] w-[104%]"
-                  >
-                    <path
-                      d="M2 8 C 50 2, 120 2, 198 7"
-                      className="stroke-brand-accent"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-              ),
-            })}
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground text-pretty">
-            {t("subtitle")}
-          </p>
-          <div className="mx-auto mt-9 max-w-3xl text-left">
-            <LinkBox />
-          </div>
+      <section className="relative overflow-hidden bg-linear-to-b from-mint-soft to-background">
+        <DistrictMap className="pointer-events-none absolute top-6 left-1/2 h-[34rem] w-auto -translate-x-1/2 opacity-60 lg:top-1/2 lg:left-[52%] lg:h-[94%] lg:-translate-y-1/2 lg:opacity-100" />
+        <div className="relative mx-auto max-w-6xl px-4 py-12 sm:py-16">
+          <QuestionHero showSell={FEATURES.sell} />
         </div>
       </section>
 
@@ -95,30 +88,38 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       </section>
 
       <div className="mx-auto max-w-6xl px-4">
-        <section aria-labelledby="scenarios" className="py-14">
-          <h2 id="scenarios" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            {t("scenariosTitle")}
+        <section aria-labelledby="questions" className="py-14">
+          <h2 id="questions" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            {t("questions.title")}
           </h2>
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {SCENARIOS.map(({ key, icon: Icon, bar, tile }) => (
-              <article
-                key={key}
-                className="flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-background pb-5 transition hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-              >
-                <div className={`h-1.5 ${bar}`} aria-hidden />
-                <div className={`mx-5 mt-5 grid size-12 place-items-center rounded-xl ${tile}`}>
-                  <Icon className="size-6" aria-hidden />
-                </div>
-                <h3 className="mx-5 mt-4 font-semibold">{ts(key)}</h3>
-                <p className="mx-5 mt-2 text-sm text-muted-foreground">{ts(`${key}Text`)}</p>
-                <span
-                  className={`mx-5 mt-4 self-start rounded-full px-2.5 py-0.5 text-xs font-semibold ${tile}`}
+          <p className="mt-2 max-w-2xl text-muted-foreground">{t("questions.text")}</p>
+          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {QUESTIONS.filter((q) => FEATURES.sell || !("sell" in q)).map((q) => (
+              <li key={q.key} className="min-w-0">
+                <Link
+                  href={q.href}
+                  className={`flex h-full flex-col gap-2.5 rounded-2xl border bg-background p-5 transition hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${q.hover}`}
                 >
-                  {t(`scenarioTags.${key}`)}
-                </span>
-              </article>
+                  <span
+                    aria-hidden
+                    className={`grid size-9 place-items-center rounded-lg text-lg font-bold ${q.colour}`}
+                  >
+                    ?
+                  </span>
+                  <h3 className="text-lg leading-snug font-semibold">
+                    {t(`questions.items.${q.key}.q`)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{t(`questions.items.${q.key}.a`)}</p>
+                  <span
+                    className={`mt-auto inline-flex items-center gap-1.5 pt-1 text-sm font-semibold ${q.colour.split(" ")[0]}`}
+                  >
+                    {q.href === "/vender" ? tn("sell") : tn("evaluate")}
+                    <ArrowRight className="size-4" aria-hidden />
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
         {FEATURES.sell && (
@@ -167,58 +168,6 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           </section>
         )}
       </div>
-    </>
-  );
-}
-
-/** Sand contour lines and the logo's eyepiece, large and faint, behind the hero. */
-function HeroBackdrop() {
-  return (
-    <>
-      <svg
-        viewBox="0 0 1200 520"
-        preserveAspectRatio="xMidYMid slice"
-        aria-hidden
-        className="pointer-events-none absolute inset-0 size-full"
-      >
-        <g fill="none" className="stroke-brand-accent" strokeOpacity="0.28" strokeWidth="1.2">
-          <path d="M-20 420 C 160 360, 300 470, 470 410 S 760 330, 930 400 S 1150 470, 1240 420" />
-          <path d="M-20 455 C 170 395, 310 505, 480 445 S 770 365, 940 435 S 1160 505, 1240 455" />
-          <path d="M-20 490 C 180 430, 320 540, 490 480 S 780 400, 950 470 S 1170 540, 1240 490" />
-          <path d="M-20 120 C 120 80, 260 150, 380 110 S 560 60, 640 95" />
-          <path d="M-20 150 C 130 110, 270 180, 390 140 S 570 90, 650 125" />
-        </g>
-      </svg>
-      <svg
-        viewBox="0 0 32 32"
-        aria-hidden
-        fill="none"
-        strokeLinecap="round"
-        className="pointer-events-none absolute -top-16 -right-24 size-72 opacity-60 sm:size-[26rem]"
-      >
-        <circle
-          cx="16"
-          cy="16"
-          r="11"
-          className="stroke-primary"
-          strokeOpacity="0.1"
-          strokeWidth="0.8"
-        />
-        <circle
-          cx="16"
-          cy="16"
-          r="7"
-          className="stroke-brand-accent"
-          strokeOpacity="0.22"
-          strokeWidth="0.5"
-        />
-        <path
-          d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5"
-          className="stroke-brand-accent"
-          strokeOpacity="0.45"
-          strokeWidth="0.9"
-        />
-      </svg>
     </>
   );
 }
