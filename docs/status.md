@@ -13,6 +13,19 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**New look: "Pinhal" palette, "Ocular" logo, Instrument Sans (2026-10-17)**
+
+- Chosen by the owner from four proposals: a white page with deep pine green (`#1e5b45`), sand
+  (`#c9a46a`) and beige boxes, instead of the dark teal theme. Tokens in `app/globals.css`; the
+  sand is a new `brand-accent` colour. The site now opens in the light theme for everyone (new
+  theme storage key); the dark theme stays behind the switch, retuned to the same pine and sand.
+- Logo "Ocular": a house seen through a telescope's eyepiece, with sand sight marks
+  (`components/layout/Logo.tsx`). Also the favicon (`app/icon.svg`, replacing `favicon.ico`),
+  the share-link preview image (now light) and the header of both PDF reports, whose colours
+  follow the palette. The sign-in email button is pine green.
+- Typeface: Instrument Sans (was Geist), with geometric text rendering so small semibold text
+  keeps its spacing on Linux.
+
 **The site says "tu"; an owners' banner on the home page (2026-10-17)**
 
 - Decided by the owner: the whole site now addresses the reader informally ("tu": "Cola o

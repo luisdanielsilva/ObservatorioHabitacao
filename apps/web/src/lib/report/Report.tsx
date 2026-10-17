@@ -6,6 +6,7 @@ import type {
   ScenarioResult,
 } from "@observatorio-habitacao/engine";
 import {
+  Circle,
   Document,
   Font,
   G,
@@ -13,6 +14,7 @@ import {
   Line,
   Link,
   Page,
+  Path,
   Rect,
   StyleSheet,
   Svg,
@@ -199,20 +201,49 @@ Font.registerHyphenationCallback((word) => [word]);
 
 /** Colours and styles shared with the seller's report (ValuationReport). */
 export const C = {
-  text: "#111827",
-  muted: "#6b7280",
-  line: "#e5e7eb",
-  brand: "#0e7c7b",
+  text: "#17211d",
+  muted: "#5a6760",
+  line: "#e2dacb",
+  brand: "#1e5b45",
+  brandAccent: "#c9a46a",
   bad: "#b91c1c",
   good: "#15803d",
 };
+
+/** The logo ("Ocular": a house in a telescope's eyepiece) and the name, for the PDF header. */
+export function PdfBrand() {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <Svg width={18} height={18} viewBox="0 0 32 32">
+        <Circle cx={16} cy={16} r={11} stroke={C.brand} strokeWidth={2.4} fill="none" />
+        <Path
+          d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5"
+          stroke={C.brandAccent}
+          strokeWidth={2.8}
+          strokeLinecap="round"
+        />
+        <Path
+          d="M10.5 18 16 13l5.5 5M12 17v5.5h8V17"
+          stroke={C.brand}
+          strokeWidth={2.4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </Svg>
+      <Text style={s.brand}>
+        Observatório <Text style={s.brandAccent}>Habitação</Text>
+      </Text>
+    </View>
+  );
+}
 
 export const s = StyleSheet.create({
   page: { padding: 36, fontSize: 9, color: C.text, fontFamily: "Helvetica" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     marginBottom: 14,
     borderBottomWidth: 2,
     borderBottomColor: C.brand,
@@ -360,9 +391,7 @@ export function ScenarioReport({
     >
       <Page size="A4" style={s.page} wrap>
         <View style={s.header} fixed>
-          <Text style={s.brand}>
-            Observatório <Text style={s.brandAccent}>Habitação</Text>
-          </Text>
+          <PdfBrand />
           <Text style={s.muted}>{pdfSafe(labels.generated)}</Text>
         </View>
 
@@ -953,7 +982,7 @@ function SaleSection({
 const WF = { width: 523, height: 150, top: 14, bottom: 24, stepsWidth: 172, gap: 8 };
 
 /** One shade per 5 % step of the sale price, lighter to darker as the price rises. */
-const STEP_SHADES = ["#a7dcd9", "#6cc0bb", "#349f9a", "#0e7c7b"];
+const STEP_SHADES = ["#b9d3c6", "#7fae97", "#3f8466", "#1e5b45"];
 
 /**
  * A deal's money as two charts that read as one. On the left, the waterfall: each flow (initial

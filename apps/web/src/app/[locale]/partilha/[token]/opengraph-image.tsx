@@ -47,26 +47,41 @@ export default async function Image({
         flexDirection: "column",
         justifyContent: "space-between",
         padding: 64,
-        background: "#11171d",
-        color: "#f3f4f6",
+        background: "#f5f0e6",
+        color: "#17211d",
         fontFamily: "sans-serif",
       }}
     >
-      <div style={{ display: "flex", fontSize: 40, fontWeight: 700 }}>
-        Observatório&nbsp;<span style={{ color: "#4fd1c5" }}>Habitação</span>
+      <div
+        style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 40, fontWeight: 700 }}
+      >
+        <svg
+          width="56"
+          height="56"
+          viewBox="0 0 32 32"
+          fill="none"
+          strokeWidth="2.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="16" cy="16" r="11" stroke="#1e5b45" />
+          <path d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5" stroke="#c9a46a" strokeWidth="2.6" />
+          <path d="M10.5 18 16 13l5.5 5M12 17v5.5h8V17" stroke="#1e5b45" />
+        </svg>
+        Observatório&nbsp;<span style={{ color: "#1e5b45" }}>Habitação</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={{ display: "flex", fontSize: 58, fontWeight: 700, lineHeight: 1.1 }}>
           {shared ? shared.scenario.name.slice(0, 70) : t("ogNoResults")}
         </div>
-        <div style={{ display: "flex", fontSize: 34, color: "#4fd1c5" }}>
+        <div style={{ display: "flex", fontSize: 34, color: "#1e5b45" }}>
           {evaluated.length > 0 ? evaluated.map((o) => ts(o.kind)).join(" · ") : t("ogNoResults")}
         </div>
       </div>
       <div style={{ display: "flex", gap: 56 }}>
         {figures.map(([label, value]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 24, color: "#9ca3af" }}>{label}</span>
+            <span style={{ fontSize: 24, color: "#5a6760" }}>{label}</span>
             <span style={{ fontSize: 44, fontWeight: 700 }}>{value}</span>
           </div>
         ))}

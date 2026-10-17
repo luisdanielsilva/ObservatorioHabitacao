@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Instrument_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { Footer } from "@/components/layout/Footer";
@@ -12,7 +12,7 @@ import { routing } from "@/i18n/routing";
 import { siteUrl } from "@/lib/urls";
 import "../globals.css";
 
-const sans = Geist({ variable: "--font-sans", subsets: ["latin"] });
+const sans = Instrument_Sans({ variable: "--font-sans", subsets: ["latin"] });
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export function generateStaticParams() {
@@ -56,8 +56,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         <NextIntlClientProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
             enableSystem={false}
+            // A new key since the light "Pinhal" look (2026-10-17): everyone starts light again.
+            storageKey="theme-pinhal"
             disableTransitionOnChange
           >
             <TooltipProvider delayDuration={150}>

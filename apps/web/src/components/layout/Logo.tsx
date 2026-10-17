@@ -1,31 +1,37 @@
 /**
- * Observatório Habitação mark: an eye whose iris is a rising bar chart. Placeholder until the
- * brand work.
+ * Observatório Habitação mark ("Ocular"): a house seen through a telescope's eyepiece, with the
+ * sight marks in sand. The same drawing is the favicon (app/icon.svg), the share image and the
+ * PDF header.
  */
 export function Logo({ className }: { className?: string }) {
   return (
-    <span
-      className={`inline-flex items-center gap-2 font-semibold tracking-tight ${className ?? ""}`}
-    >
-      <svg viewBox="0 0 32 32" aria-hidden="true" className="size-7 text-primary">
-        <path
-          d="M2 16c3.5-6.5 8.5-10 14-10s10.5 3.5 14 10c-3.5 6.5-8.5 10-14 10S5.5 22.5 2 16Z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="16" r="6.5" fill="currentColor" opacity="0.18" />
-        <path
-          d="M12.5 19.5v-2.5M16 19.5v-5M19.5 19.5v-7.5"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-        />
-      </svg>
+    <span className={`inline-flex items-center gap-2 font-semibold ${className ?? ""}`}>
+      <LogoMark className="size-7" />
       <span className="text-lg">
         Observatório <span className="text-primary">Habitação</span>
       </span>
     </span>
+  );
+}
+
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      strokeWidth="2.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="16" cy="16" r="11" className="stroke-primary" />
+      <path
+        d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5"
+        className="stroke-brand-accent"
+        strokeWidth="2.6"
+      />
+      <path d="M10.5 18 16 13l5.5 5M12 17v5.5h8V17" className="stroke-primary" />
+    </svg>
   );
 }

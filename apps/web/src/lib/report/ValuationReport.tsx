@@ -1,7 +1,7 @@
 import { Document, Link, Page, Text, View } from "@react-pdf/renderer";
 import type { Formatter } from "@/lib/format";
 import type { Valuation } from "@/lib/valuation/estimate";
-import { C, KeyValues, s, type Row } from "./Report";
+import { C, KeyValues, PdfBrand, s, type Row } from "./Report";
 import { pdfSafe } from "./text";
 
 /** Everything the seller's report shows, already worded in the report's language. */
@@ -59,9 +59,7 @@ export function ValuationReport({
     >
       <Page size="A4" style={s.page} wrap>
         <View style={s.header} fixed>
-          <Text style={s.brand}>
-            Observatório <Text style={s.brandAccent}>Habitação</Text>
-          </Text>
+          <PdfBrand />
           <Text style={s.muted}>{pdfSafe(c.generated)}</Text>
         </View>
 

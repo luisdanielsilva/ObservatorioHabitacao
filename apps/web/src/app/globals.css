@@ -24,6 +24,8 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-positive: var(--positive);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
   --color-warning: var(--warning);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -51,76 +53,83 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.5 0.1 190);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* "Pinhal": white page, deep pine green, sand and beige. */
+  --background: #ffffff;
+  --foreground: #17211d;
+  --card: #f8f4ec;
+  --card-foreground: #17211d;
+  --popover: #ffffff;
+  --popover-foreground: #17211d;
+  --primary: #1e5b45;
+  --primary-foreground: #ffffff;
+  --secondary: #f0e9dc;
+  --secondary-foreground: #17211d;
+  --muted: #f0e9dc;
+  --muted-foreground: #5a6760;
+  --accent: #ebe2d0;
+  --accent-foreground: #17211d;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.6 0.1 190);
-  --chart-1: oklch(0.52 0.1 190);
-  --chart-2: oklch(0.62 0.15 55);
-  --chart-3: oklch(0.52 0.18 295);
-  --chart-4: oklch(0.55 0.14 245);
-  --chart-5: oklch(0.55 0.02 260);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --positive: oklch(0.5 0.13 150);
-  --warning: oklch(0.6 0.14 70);
+  --border: #e2dacb;
+  --input: #d8cebb;
+  --ring: #2f7a5e;
+  /* The sand of the logo's sight marks; also for small highlights. */
+  --brand-accent: #c9a46a;
+  --brand-accent-foreground: #7a5a26;
+  --chart-1: #1e5b45;
+  --chart-2: #a97c35;
+  --chart-3: #7a4e8c;
+  --chart-4: #3f6a9a;
+  --chart-5: #7a776c;
+  --radius: 0.75rem;
+  --sidebar: #f5f0e6;
+  --sidebar-foreground: #17211d;
+  --sidebar-primary: #1e5b45;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebe2d0;
+  --sidebar-accent-foreground: #17211d;
+  --sidebar-border: #e2dacb;
+  --sidebar-ring: #2f7a5e;
+  --positive: #2e7d4f;
+  --warning: #a8701a;
 }
 
+/* Dark: the same pine and sand by night, for those who choose it with the theme switch. */
 .dark {
-  --background: oklch(0.165 0.012 235);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0.014 235);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0.014 235);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.76 0.12 185);
-  --primary-foreground: oklch(0.18 0.03 200);
-  --secondary: oklch(0.27 0.014 235);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.27 0.014 235);
-  --muted-foreground: oklch(0.72 0.01 235);
-  --accent: oklch(0.29 0.016 235);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #111a16;
+  --foreground: #eef1ec;
+  --card: #18241f;
+  --card-foreground: #eef1ec;
+  --popover: #18241f;
+  --popover-foreground: #eef1ec;
+  --primary: #8cc4a8;
+  --primary-foreground: #0f2a1f;
+  --secondary: #22302a;
+  --secondary-foreground: #eef1ec;
+  --muted: #22302a;
+  --muted-foreground: #a6b2ab;
+  --accent: #283830;
+  --accent-foreground: #eef1ec;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.66 0.1 185);
-  --chart-1: oklch(0.76 0.12 185);
-  --chart-2: oklch(0.8 0.14 75);
-  --chart-3: oklch(0.74 0.15 295);
-  --chart-4: oklch(0.74 0.12 245);
-  --chart-5: oklch(0.7 0.02 260);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --ring: #6fae90;
+  --brand-accent: #d9b77e;
+  --brand-accent-foreground: #e6cc9f;
+  --chart-1: #8cc4a8;
+  --chart-2: #d9b77e;
+  --chart-3: #c7a3d6;
+  --chart-4: #9dbbe0;
+  --chart-5: #b3b0a5;
+  --sidebar: #18241f;
+  --sidebar-foreground: #eef1ec;
+  --sidebar-primary: #8cc4a8;
+  --sidebar-primary-foreground: #0f2a1f;
+  --sidebar-accent: #283830;
+  --sidebar-accent-foreground: #eef1ec;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --positive: oklch(0.77 0.15 150);
-  --warning: oklch(0.82 0.14 80);
+  --sidebar-ring: #6fae90;
+  --positive: #7fcf9b;
+  --warning: #e3b765;
 }
 
 @layer base {
@@ -129,6 +138,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Instrument Sans at small sizes: without it, Linux browsers leave a gap after "t". */
+    text-rendering: geometricPrecision;
   }
   html {
     @apply font-sans;
