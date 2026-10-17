@@ -9,7 +9,7 @@ import {
 import { getDb } from "@/lib/db";
 import { entitlementsFor } from "@/lib/entitlements";
 import { FEATURES } from "@/lib/features";
-import { getCurrentUser } from "@/lib/session";
+import { getMember } from "@/lib/session";
 import { estimateValue } from "@/lib/valuation/estimate";
 import { ineBase } from "@/lib/valuation/ine";
 import { CONFIDENCE, MODEL_VERSION } from "@/lib/valuation/model";
@@ -30,7 +30,7 @@ export async function saveValuation(input: {
   state: unknown;
 }): Promise<SaveValuationResult> {
   if (!FEATURES.sell) return { status: "error" };
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "signin" };
   if (JSON.stringify(input.state ?? null).length > MAX_STATE_BYTES) return { status: "invalid" };
 

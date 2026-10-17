@@ -12,6 +12,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { signOut } from "@/auth";
 import { getDb } from "@/lib/db";
+import { parseProfile, type ProfileError } from "@/lib/profile";
 import { removeScenarioPhotos } from "@/lib/photos";
 import { getCurrentUser } from "@/lib/session";
 import { withBasePath } from "@/lib/basePath";
@@ -34,18 +35,27 @@ export async function deleteSavedValuation(id: number): Promise<boolean> {
   return ok;
 }
 
-export type SettingsState = { status: "idle" | "saved" | "error" };
+export type SettingsState = {
+  status: "idle" | "saved" | "invalid" | "error";
+  errors?: ProfileError[];
+  /** What was typed, put back after an error (React clears the form after an action). */
+  values?: { name: string; phone: string; birthDate: string };
+};
 
 export async function saveSettings(_prev: SettingsState, form: FormData): Promise<SettingsState> {
   const user = await getCurrentUser();
   if (!user) return { status: "error" };
   const db = getDb();
-  const name =
-    String(form.get("name") ?? "")
-      .trim()
-      .slice(0, 120) || null;
+  const values = {
+    name: String(form.get("name") ?? ""),
+    phone: String(form.get("phone") ?? ""),
+    birthDate: String(form.get("birthDate") ?? ""),
+  };
+  // Name, phone and date of birth as on the profile page; emptying phone or date deletes them.
+  const parsed = parseProfile(values);
+  if (!parsed.ok) return { status: "invalid", errors: parsed.errors, values };
   const locale = form.get("locale") === "en" ? "en" : "pt";
-  updateProfile(db, user.id, { name, locale });
+  updateProfile(db, user.id, { ...parsed.profile, locale });
 
   // Consents are logged only when they change, keeping a meaningful history.
   const current = getConsents(db, user.id);

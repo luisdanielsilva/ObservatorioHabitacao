@@ -252,7 +252,11 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
         </CardHeader>
         <CardContent>
           <SettingsForm
-            name={profile.name}
+            profile={{
+              name: profile.name ?? "",
+              phone: profile.phone ?? "",
+              birthDate: profile.birthDate ?? "",
+            }}
             locale={profile.locale}
             consents={{ marketing: consents.marketing, partners: consents.partners }}
           />

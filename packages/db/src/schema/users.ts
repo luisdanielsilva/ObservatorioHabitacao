@@ -11,7 +11,9 @@ import { listings } from "./listings";
 
 /**
  * Users. The id, name, email, emailVerified and image columns follow the Auth.js adapter
- * schema (WBS 6.1); role, plan and locale are Observatório Habitação's own.
+ * schema (WBS 6.1); role, plan and locale are Observatório Habitação's own. Phone and birth
+ * date are optional (issue #7, given with consent); profileCompletedAt is set when the user
+ * fills in the profile after their first sign-in, which saving and PDFs require.
  */
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -19,6 +21,10 @@ export const users = sqliteTable("users", {
   name: text("name"),
   emailVerified: integer("email_verified", { mode: "timestamp_ms" }),
   image: text("image"),
+  phone: text("phone"),
+  /** YYYY-MM-DD. */
+  birthDate: text("birth_date"),
+  profileCompletedAt: text("profile_completed_at"),
   role: text("role", { enum: ["user", "admin"] })
     .notNull()
     .default("user"),

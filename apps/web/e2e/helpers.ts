@@ -86,6 +86,16 @@ export async function signInWithLink(page: Page, email: string, log: string) {
     })
     .toBe(true);
   await page.goto(link!);
+  await completeProfileIfAsked(page);
+}
+
+/** After the first sign-in the profile is asked for (issue #7): the name alone is enough. */
+export async function completeProfileIfAsked(page: Page) {
+  await page.waitForURL((url) => !url.pathname.includes("/api/auth"));
+  if (!/\/conta\/perfil/.test(page.url())) return;
+  await page.getByLabel("Nome").fill("Teste E2E");
+  await page.getByRole("button", { name: "Guardar e continuar" }).click();
+  await page.waitForURL((url) => !url.pathname.includes("/conta/perfil"));
 }
 
 /** From the results: save the scenario, signing in when asked. */

@@ -16,7 +16,7 @@ import {
   removePhotoFile,
   writePhotoFile,
 } from "@/lib/photos";
-import { getCurrentUser } from "@/lib/session";
+import { getMember } from "@/lib/session";
 import { withBasePath } from "@/lib/basePath";
 
 export interface PhotoInfo {
@@ -62,7 +62,7 @@ export async function GET(
   _request: NextRequest,
   { params }: RouteContext<"/api/scenarios/[id]/photos">,
 ) {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return NextResponse.json({ error: "not signed in" }, { status: 401 });
   const scenarioId = await scenarioIdOf(params);
   const db = getDb();
@@ -83,7 +83,7 @@ export async function POST(
   request: NextRequest,
   { params }: RouteContext<"/api/scenarios/[id]/photos">,
 ) {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return NextResponse.json<UploadResponse>({ status: "signin" }, { status: 401 });
   const scenarioId = await scenarioIdOf(params);
   if (!scenarioId)

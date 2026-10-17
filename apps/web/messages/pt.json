@@ -830,9 +830,9 @@
     "trendSeries": "Mediana do INE"
   },
   "signIn": {
-    "title": "Entrar",
+    "title": "Entra ou cria a tua conta",
     "text": "As contas do Observatório Habitação (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase.",
-    "intro": "Entra para guardar cenários, exportar relatórios e partilhar análises. Sem palavra-passe: enviamos um link para o teu email.",
+    "intro": "A conta é gratuita: guarda os teus cenários e exporta relatórios PDF. Sem palavra-passe: enviamos um link para o teu email.",
     "email": "Email",
     "submit": "Enviar link de acesso",
     "google": "Continuar com Google",
@@ -851,11 +851,10 @@
     "contactsTitle": "Contactos",
     "contactsText": "Para questões sobre o Observatório Habitação, contacta-nos por email. O endereço será publicado antes do lançamento.",
     "privacyTitle": "Política de privacidade",
-    "privacyText": "Tratamos apenas os dados necessários para prestar o serviço, nos termos do RGPD. Os pedidos de contacto são usados apenas para responder ao pedido. Podes pedir o acesso, a retificação ou o apagamento dos teus dados a qualquer momento.",
     "termsTitle": "Termos e condições",
     "termsText": "Os cálculos do Observatório Habitação são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "O Observatório Habitação usa apenas cookies essenciais (idioma e tema). Não usamos cookies de análise ou publicidade."
+    "cookiesText": "O Observatório Habitação usa apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade."
   },
   "account": {
     "title": "A minha conta",
@@ -910,7 +909,8 @@
     "valuations": "Avaliações de venda",
     "newValuation": "Nova avaliação",
     "noValuations": "Ainda não guardaste nenhuma avaliação.",
-    "confirmDeleteValuation": "Apagar a avaliação «{name}»?"
+    "confirmDeleteValuation": "Apagar a avaliação «{name}»?",
+    "settingsInvalid": "Corrige os campos assinalados."
   },
   "share": {
     "pdf": "PDF",
@@ -1336,5 +1336,188 @@
       "garage": "sem garagem",
       "balcony": "sem varanda"
     }
+  },
+  "profile": {
+    "title": "Completa o teu perfil",
+    "intro": "A tua conta gratuita está criada ({email}). Falta só o teu nome; o telefone e a data de nascimento são opcionais.",
+    "benefits": {
+      "save": "Guarda os teus cenários e avaliações e volta a eles quando quiseres",
+      "pdf": "Exporta relatórios PDF com todas as contas do negócio",
+      "anywhere": "Abre-os em qualquer dispositivo, com o mesmo email"
+    },
+    "fields": {
+      "name": "Nome",
+      "phone": "Telefone",
+      "birthDate": "Data de nascimento"
+    },
+    "optional": "opcional",
+    "help": {
+      "name": "Como queres que te tratemos.",
+      "phone": "Só para te contactarmos sobre os teus pedidos ou sobre funcionalidades que te possam interessar.",
+      "birthDate": "Ajuda-nos a adaptar o Observatório a ti. As contas são para maiores de 16 anos."
+    },
+    "errors": {
+      "name": "Escreve o teu nome.",
+      "phone": "Este número não parece válido. Usa algarismos, com o indicativo se quiseres (ex.: +351 912 345 678).",
+      "birthDate": "Esta data não é válida.",
+      "tooYoung": "As contas são só para maiores de {age} anos."
+    },
+    "notice": "Ao indicares o telefone e a data de nascimento, autorizas-nos a usá-los para estes fins. Podes alterá-los ou apagá-los quando quiseres, na tua conta. Sabe mais na <link>política de privacidade</link>.",
+    "submit": "Guardar e continuar"
+  },
+  "privacy": {
+    "updated": "Última atualização: 17 de outubro de 2026",
+    "intro": "Esta política explica que dados pessoais o Observatório Habitação recolhe, para que os usa, durante quanto tempo os guarda e como podes exercer os teus direitos, nos termos do Regulamento Geral sobre a Proteção de Dados (RGPD, Regulamento (UE) 2016/679) e da Lei n.º 58/2019.",
+    "purposeHead": {
+      "purpose": "Finalidade",
+      "data": "Dados",
+      "basis": "Fundamento (art. 6.º RGPD)"
+    },
+    "purposes": [
+      {
+        "purpose": "Criar e gerir a tua conta e enviar-te os links de acesso",
+        "data": "Email, nome",
+        "basis": "Execução do contrato (al. b)"
+      },
+      {
+        "purpose": "Guardar cenários e avaliações, gerar relatórios PDF e links de partilha",
+        "data": "O que introduzes, fotografias",
+        "basis": "Execução do contrato (al. b)"
+      },
+      {
+        "purpose": "Contactar-te sobre os teus pedidos e propor-te funcionalidades adequadas ao teu perfil",
+        "data": "Telefone, data de nascimento",
+        "basis": "Consentimento (al. a), só se os indicares"
+      },
+      {
+        "purpose": "Responder a pedidos de contacto, de avaliação ou de apoio à venda",
+        "data": "Nome, email, telefone, mensagem",
+        "basis": "Diligências pré-contratuais a teu pedido (al. b)"
+      },
+      {
+        "purpose": "Enviar-te novidades e dicas por email",
+        "data": "Email, nome",
+        "basis": "Consentimento (al. a), que dás e retiras na conta"
+      },
+      {
+        "purpose": "Partilhar um pedido com parceiros (crédito, advogados, vistorias)",
+        "data": "Os dados do pedido",
+        "basis": "Consentimento (al. a), caso a caso"
+      },
+      {
+        "purpose": "Proteger o site e evitar abusos",
+        "data": "Endereço IP, registos técnicos",
+        "basis": "Interesse legítimo (al. f)"
+      },
+      {
+        "purpose": "Cumprir obrigações legais",
+        "data": "Os que a lei exigir",
+        "basis": "Obrigação legal (al. c)"
+      }
+    ],
+    "sections": [
+      {
+        "id": "responsavel",
+        "title": "Quem é responsável pelos teus dados",
+        "paragraphs": [
+          "O responsável pelo tratamento é [nome da entidade], NIF [número], com sede em [morada]. Para qualquer questão sobre os teus dados, escreve para [email de contacto]."
+        ]
+      },
+      {
+        "id": "dados",
+        "title": "Que dados recolhemos",
+        "items": [
+          "Conta: o teu email (para entrares com um link, sem palavra-passe) e o teu nome.",
+          "Perfil, se quiseres: telefone e data de nascimento.",
+          "O que guardas: cenários, avaliações de venda, fotografias que carregas, links de anúncios que analisas e as definições da conta.",
+          "Pedidos de contacto: o nome, o email, o telefone e a mensagem que nos envias.",
+          "Dados técnicos: o cookie de sessão, o endereço IP (para limitar abusos, como pedidos repetidos de links de acesso) e registos técnicos do servidor.",
+          "Se entrares com o Google: o nome, o email e a fotografia de perfil que o Google partilha connosco."
+        ],
+        "paragraphs": [
+          "Não pedimos dados sensíveis (como saúde, religião ou origem étnica). Não precisas de conta para usar as calculadoras."
+        ]
+      },
+      {
+        "id": "finalidades",
+        "title": "Para que usamos os dados e com que fundamento",
+        "table": true,
+        "paragraphs": [
+          "Não vendemos os teus dados nem os usamos para publicidade de terceiros. Não tomamos decisões automatizadas com efeitos jurídicos sobre ti: as estimativas do site são cálculos que tu pedes."
+        ]
+      },
+      {
+        "id": "partilha",
+        "title": "Com quem partilhamos",
+        "paragraphs": [
+          "Usamos prestadores de serviços (subcontratantes) que tratam dados só por nossa conta e segundo as nossas instruções:"
+        ],
+        "items": [
+          "Alojamento do site e da base de dados: [fornecedor de alojamento].",
+          "Envio de emails (links de acesso e relatórios): Resend.",
+          "Entrada com o Google, se a escolheres: Google."
+        ],
+        "after": [
+          "Só partilhamos dados com parceiros (crédito, advogados, vistorias) quando o pedes. Podemos ainda ter de os comunicar a autoridades, quando a lei o exige."
+        ]
+      },
+      {
+        "id": "transferencias",
+        "title": "Transferências para fora da UE",
+        "paragraphs": [
+          "Alguns prestadores podem tratar dados fora do Espaço Económico Europeu (por exemplo, nos Estados Unidos). Nesses casos, a transferência faz-se com as garantias do RGPD: uma decisão de adequação da Comissão Europeia (como o Quadro de Proteção de Dados UE-EUA) ou cláusulas contratuais-tipo."
+        ]
+      },
+      {
+        "id": "conservacao",
+        "title": "Durante quanto tempo guardamos os dados",
+        "items": [
+          "Conta, perfil, cenários, avaliações e fotografias: enquanto tiveres conta. Quando a apagas, são apagados.",
+          "Telefone e data de nascimento: até os apagares na conta, ou apagares a conta.",
+          "Pedidos de contacto: o tempo necessário para lhes dar seguimento. Se apagares a conta, ficam anonimizados.",
+          "Análises de anúncios: quando apagas a conta, deixam de estar ligadas a ti.",
+          "Sessão: 5 dias. Links de acesso: 1 hora. Registos para limitar pedidos: 1 hora.",
+          "Cópias de segurança: são substituídas ao fim de cerca de duas semanas.",
+          "Dados que a lei nos obrigue a guardar: pelo prazo legal."
+        ]
+      },
+      {
+        "id": "direitos",
+        "title": "Os teus direitos",
+        "paragraphs": [
+          "Tens direito a aceder aos teus dados, a retificá-los e a apagá-los, a limitar o tratamento ou a opor-te a ele, a recebê-los num formato portátil e a retirar o consentimento a qualquer momento, sem afetar o tratamento feito até aí.",
+          "Na tua conta podes, sem nos contactares, alterar o nome, o telefone e a data de nascimento, gerir os consentimentos, descarregar todos os teus dados e apagar a conta. Para o resto, escreve para [email de contacto]: respondemos no prazo de um mês.",
+          "Se achares que não tratamos bem os teus dados, podes apresentar reclamação à Comissão Nacional de Proteção de Dados (CNPD, www.cnpd.pt)."
+        ]
+      },
+      {
+        "id": "idade",
+        "title": "Idade mínima",
+        "paragraphs": [
+          "As contas são para maiores de 16 anos. Se souberes que uma pessoa com menos de 16 anos criou uma conta, avisa-nos para a apagarmos."
+        ]
+      },
+      {
+        "id": "seguranca",
+        "title": "Segurança",
+        "paragraphs": [
+          "Entras sem palavra-passe, com links de uso único válidos durante 1 hora. As ligações ao site são cifradas (HTTPS), o acesso à base de dados é restrito e os pedidos repetidos são limitados. Nenhum sistema é infalível: se houver uma violação de dados que te afete, avisamos-te e à CNPD, nos termos da lei."
+        ]
+      },
+      {
+        "id": "cookies",
+        "title": "Cookies",
+        "paragraphs": [
+          "Usamos apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade."
+        ]
+      },
+      {
+        "id": "alteracoes",
+        "title": "Alterações a esta política",
+        "paragraphs": [
+          "Se mudarmos esta política, atualizamos a data no topo. Se a mudança for importante, avisamos-te por email."
+        ]
+      }
+    ]
   }
 }

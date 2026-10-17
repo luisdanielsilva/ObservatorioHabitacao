@@ -18,6 +18,8 @@ declare module "next-auth" {
       image?: string | null;
       role: "user" | "admin";
       plan: "free" | "premium";
+      /** The profile asked for after the first sign-in is filled in (issue #7). */
+      profileComplete: boolean;
     };
   }
 }
@@ -74,10 +76,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   callbacks: {
     session({ session, user }) {
-      const u = user as typeof user & { role: "user" | "admin"; plan: "free" | "premium" };
+      const u = user as typeof user & {
+        role: "user" | "admin";
+        plan: "free" | "premium";
+        profileCompletedAt: string | null;
+      };
       session.user.id = u.id;
       session.user.role = u.role;
       session.user.plan = u.plan;
+      session.user.profileComplete = Boolean(u.profileCompletedAt);
       return session;
     },
   },

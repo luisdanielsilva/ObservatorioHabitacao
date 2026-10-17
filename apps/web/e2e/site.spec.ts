@@ -155,6 +155,18 @@ test("methodology page explains the metrics and has a FAQ", async ({ page }) => 
   await expect(page.getByRole("heading", { level: 1, name: "How we calculate" })).toBeVisible();
 });
 
+test("privacy policy: the data, purposes, legal bases and rights", async ({ page }) => {
+  await page.goto("/privacidade");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Política de privacidade" }),
+  ).toBeVisible();
+  for (const name of ["Que dados recolhemos", "Os teus direitos", "Idade mínima"]) {
+    await expect(page.getByRole("heading", { level: 2, name: new RegExp(name) })).toBeVisible();
+  }
+  await expect(page.getByRole("cell", { name: "Telefone, data de nascimento" })).toBeVisible();
+  await expect(page.getByText(/CNPD, www\.cnpd\.pt/)).toBeVisible();
+});
+
 test.describe("phone layout", () => {
   test.use({ viewport: { width: 375, height: 800 } });
   for (const path of [
@@ -163,6 +175,7 @@ test.describe("phone layout", () => {
     ...(FEATURES.prices ? ["/precos", "/precos/lisboa/cascais"] : []),
     "/metodologia",
     "/entrar",
+    "/privacidade",
   ]) {
     test(`no horizontal scroll on ${path}`, async ({ page }) => {
       await page.goto(path);

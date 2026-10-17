@@ -70,9 +70,26 @@ export function setConsent(db: Db, userId: string, purpose: ConsentPurpose, gran
 export function updateProfile(
   db: Db,
   userId: string,
-  profile: { name?: string | null; locale?: "pt" | "en" },
+  profile: {
+    name?: string | null;
+    locale?: "pt" | "en";
+    phone?: string | null;
+    birthDate?: string | null;
+  },
 ) {
   db.update(users).set(profile).where(eq(users.id, userId)).run();
+}
+
+/** Saves the profile asked for after the first sign-in and marks it as filled in. */
+export function completeProfile(
+  db: Db,
+  userId: string,
+  profile: { name: string; phone: string | null; birthDate: string | null },
+) {
+  db.update(users)
+    .set({ ...profile, profileCompletedAt: new Date().toISOString() })
+    .where(eq(users.id, userId))
+    .run();
 }
 
 /**

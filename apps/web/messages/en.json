@@ -830,9 +830,9 @@
     "trendSeries": "INE median"
   },
   "signIn": {
-    "title": "Sign in",
+    "title": "Sign in or create your account",
     "text": "Observatório Habitação accounts (saved scenarios, PDF reports and alerts) come in a later phase.",
-    "intro": "Sign in to save scenarios, export reports and share analyses. No password: we email you a sign-in link.",
+    "intro": "The account is free: save your scenarios and export PDF reports. No password: we email you a link.",
     "email": "Email",
     "submit": "Email me a sign-in link",
     "google": "Continue with Google",
@@ -851,11 +851,10 @@
     "contactsTitle": "Contacts",
     "contactsText": "For questions about Observatório Habitação, contact us by email. The address will be published before launch.",
     "privacyTitle": "Privacy policy",
-    "privacyText": "We only process the data needed to provide the service, under the GDPR. Contact requests are used only to answer them. You can ask to access, correct or delete your data at any time.",
     "termsTitle": "Terms and conditions",
     "termsText": "Observatório Habitação's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "Observatório Habitação only uses essential cookies (language and theme). We do not use analytics or advertising cookies."
+    "cookiesText": "Observatório Habitação only uses essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies."
   },
   "account": {
     "title": "My account",
@@ -910,7 +909,8 @@
     "valuations": "Sale valuations",
     "newValuation": "New valuation",
     "noValuations": "You have not saved any valuation yet.",
-    "confirmDeleteValuation": "Delete the valuation “{name}”?"
+    "confirmDeleteValuation": "Delete the valuation “{name}”?",
+    "settingsInvalid": "Fix the fields marked."
   },
   "share": {
     "pdf": "PDF",
@@ -1336,5 +1336,188 @@
       "garage": "no garage",
       "balcony": "no balcony"
     }
+  },
+  "profile": {
+    "title": "Complete your profile",
+    "intro": "Your free account is set up ({email}). We only need your name; phone and date of birth are optional.",
+    "benefits": {
+      "save": "Save your scenarios and valuations and come back to them whenever you like",
+      "pdf": "Export PDF reports with all the figures of the deal",
+      "anywhere": "Open them on any device, with the same email"
+    },
+    "fields": {
+      "name": "Name",
+      "phone": "Phone",
+      "birthDate": "Date of birth"
+    },
+    "optional": "optional",
+    "help": {
+      "name": "How you would like us to address you.",
+      "phone": "Only to contact you about your requests or about features that may interest you.",
+      "birthDate": "Helps us tailor Observatório Habitação to you. Accounts are for people aged 16 or over."
+    },
+    "errors": {
+      "name": "Enter your name.",
+      "phone": "This number doesn't look valid. Use digits, with the country code if you like (e.g. +351 912 345 678).",
+      "birthDate": "This date is not valid.",
+      "tooYoung": "Accounts are only for people aged {age} or over."
+    },
+    "notice": "By giving your phone and date of birth, you allow us to use them for these purposes. You can change or delete them at any time in your account. Learn more in the <link>privacy policy</link>.",
+    "submit": "Save and continue"
+  },
+  "privacy": {
+    "updated": "Last updated: 17 October 2026",
+    "intro": "This policy explains what personal data Observatório Habitação collects, what it is used for, how long it is kept and how you can exercise your rights, under the General Data Protection Regulation (GDPR, Regulation (EU) 2016/679) and Portuguese Law 58/2019.",
+    "purposeHead": {
+      "purpose": "Purpose",
+      "data": "Data",
+      "basis": "Legal basis (GDPR art. 6)"
+    },
+    "purposes": [
+      {
+        "purpose": "Creating and managing your account and sending you sign-in links",
+        "data": "Email, name",
+        "basis": "Performance of a contract (b)"
+      },
+      {
+        "purpose": "Saving scenarios and valuations, producing PDF reports and share links",
+        "data": "What you enter, photos",
+        "basis": "Performance of a contract (b)"
+      },
+      {
+        "purpose": "Contacting you about your requests and offering features suited to your profile",
+        "data": "Phone, date of birth",
+        "basis": "Consent (a), only if you give them"
+      },
+      {
+        "purpose": "Answering contact, valuation or sales support requests",
+        "data": "Name, email, phone, message",
+        "basis": "Steps at your request before a contract (b)"
+      },
+      {
+        "purpose": "Sending you news and tips by email",
+        "data": "Email, name",
+        "basis": "Consent (a), given and withdrawn in your account"
+      },
+      {
+        "purpose": "Sharing a request with partners (mortgage, lawyers, surveys)",
+        "data": "The request details",
+        "basis": "Consent (a), case by case"
+      },
+      {
+        "purpose": "Protecting the site and preventing abuse",
+        "data": "IP address, technical logs",
+        "basis": "Legitimate interest (f)"
+      },
+      {
+        "purpose": "Meeting legal obligations",
+        "data": "Whatever the law requires",
+        "basis": "Legal obligation (c)"
+      }
+    ],
+    "sections": [
+      {
+        "id": "responsavel",
+        "title": "Who is responsible for your data",
+        "paragraphs": [
+          "The controller is [entity name], tax number [number], registered at [address]. For any question about your data, write to [contact email]."
+        ]
+      },
+      {
+        "id": "dados",
+        "title": "What data we collect",
+        "items": [
+          "Account: your email (to sign in with a link, without a password) and your name.",
+          "Profile, if you wish: phone and date of birth.",
+          "What you save: scenarios, sale valuations, photos you upload, listing links you analyse and your account settings.",
+          "Contact requests: the name, email, phone and message you send us.",
+          "Technical data: the session cookie, your IP address (to limit abuse, such as repeated sign-in link requests) and server logs.",
+          "If you sign in with Google: the name, email and profile picture Google shares with us."
+        ],
+        "paragraphs": [
+          "We don't ask for sensitive data (such as health, religion or ethnic origin). You don't need an account to use the calculators."
+        ]
+      },
+      {
+        "id": "finalidades",
+        "title": "What we use the data for, and on what basis",
+        "table": true,
+        "paragraphs": [
+          "We don't sell your data or use it for third-party advertising. We make no automated decisions with legal effects on you: the site's estimates are calculations you ask for."
+        ]
+      },
+      {
+        "id": "partilha",
+        "title": "Who we share it with",
+        "paragraphs": [
+          "We use service providers (processors) who handle data only on our behalf and on our instructions:"
+        ],
+        "items": [
+          "Hosting of the site and database: [hosting provider].",
+          "Sending emails (sign-in links and reports): Resend.",
+          "Sign-in with Google, if you choose it: Google."
+        ],
+        "after": [
+          "We only share data with partners (mortgage, lawyers, surveys) when you ask us to. We may also have to disclose it to authorities when the law requires."
+        ]
+      },
+      {
+        "id": "transferencias",
+        "title": "Transfers outside the EU",
+        "paragraphs": [
+          "Some providers may process data outside the European Economic Area (for example, in the United States). In those cases the transfer relies on GDPR safeguards: a European Commission adequacy decision (such as the EU-US Data Privacy Framework) or standard contractual clauses."
+        ]
+      },
+      {
+        "id": "conservacao",
+        "title": "How long we keep data",
+        "items": [
+          "Account, profile, scenarios, valuations and photos: while you have an account. When you delete it, they are deleted.",
+          "Phone and date of birth: until you delete them in your account, or delete the account.",
+          "Contact requests: as long as needed to follow them up. If you delete your account, they are anonymised.",
+          "Listing analyses: when you delete your account, they are no longer linked to you.",
+          "Session: 5 days. Sign-in links: 1 hour. Rate-limit records: 1 hour.",
+          "Backups: replaced after about two weeks.",
+          "Data the law requires us to keep: for the legal period."
+        ]
+      },
+      {
+        "id": "direitos",
+        "title": "Your rights",
+        "paragraphs": [
+          "You have the right to access, correct and delete your data, to restrict or object to its processing, to receive it in a portable format and to withdraw consent at any time, without affecting processing done before.",
+          "In your account you can, without contacting us, change your name, phone and date of birth, manage your consents, download all your data and delete the account. For anything else, write to [contact email]: we reply within one month.",
+          "If you think we are not handling your data properly, you can complain to the Portuguese data protection authority (CNPD, www.cnpd.pt)."
+        ]
+      },
+      {
+        "id": "idade",
+        "title": "Minimum age",
+        "paragraphs": [
+          "Accounts are for people aged 16 or over. If you know that someone under 16 has created an account, tell us so we can delete it."
+        ]
+      },
+      {
+        "id": "seguranca",
+        "title": "Security",
+        "paragraphs": [
+          "You sign in without a password, with single-use links valid for 1 hour. Connections to the site are encrypted (HTTPS), access to the database is restricted and repeated requests are limited. No system is infallible: if a data breach affects you, we will tell you and the CNPD, as the law requires."
+        ]
+      },
+      {
+        "id": "cookies",
+        "title": "Cookies",
+        "paragraphs": [
+          "We only use essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies."
+        ]
+      },
+      {
+        "id": "alteracoes",
+        "title": "Changes to this policy",
+        "paragraphs": [
+          "If we change this policy, we update the date at the top. If the change is significant, we will let you know by email."
+        ]
+      }
+    ]
   }
 }

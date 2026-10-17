@@ -14,7 +14,7 @@ import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { entitlementsFor } from "@/lib/entitlements";
 import { renderScenarioPdf, reportFilename } from "@/lib/report/render";
-import { getCurrentUser } from "@/lib/session";
+import { getMember } from "@/lib/session";
 
 export interface Sharing {
   /** The read-only link's token; null when the link is off. */
@@ -25,7 +25,7 @@ export interface Sharing {
 
 /** The scenario's sharing settings, or undefined if it is not the user's. */
 export async function getSharing(id: number): Promise<Sharing | undefined> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return undefined;
   const scenario = getScenario(getDb(), id, user.id);
   return scenario ? { token: scenario.shareToken, photos: scenario.sharePhotos } : undefined;
@@ -36,7 +36,7 @@ export async function setSharePhotos(
   id: number,
   photos: boolean,
 ): Promise<{ photos: boolean } | undefined> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return undefined;
   const result = setScenarioSharePhotos(getDb(), id, user.id, photos);
   return result === undefined ? undefined : { photos: result };
@@ -50,7 +50,7 @@ export async function setSharing(
   id: number,
   shared: boolean,
 ): Promise<{ token: string | null } | undefined> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return undefined;
   const token = setScenarioSharing(getDb(), id, user.id, shared);
   return token === undefined ? undefined : { token };
@@ -67,7 +67,7 @@ export async function emailReport(
   to: string,
   locale: AppLocale,
 ): Promise<EmailReportResult> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "error" };
   if (!entitlementsFor(user.plan).pdfReports) return { status: "unavailable" };
   const address = z.email().max(200).safeParse(to.trim());

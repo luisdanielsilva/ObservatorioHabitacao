@@ -7,6 +7,7 @@ import {
   listUserLeads,
   setConsent,
   updateProfile,
+  completeProfile,
 } from "./account";
 import { createDb, migrateDb, type Db } from "./client";
 import { createScenario } from "./scenarios";
@@ -58,6 +59,22 @@ describe("account", () => {
       name: "Ana S.",
       locale: "en",
     });
+  });
+
+  it("completes the profile with phone and birth date, and exports them", () => {
+    completeProfile(db, "ana", {
+      name: "Ana Silva",
+      phone: "+351 912 345 678",
+      birthDate: "1990-05-01",
+    });
+    const user = db.select().from(users).where(eq(users.id, "ana")).get()!;
+    expect(user).toMatchObject({
+      name: "Ana Silva",
+      phone: "+351 912 345 678",
+      birthDate: "1990-05-01",
+    });
+    expect(user.profileCompletedAt).toBeTruthy();
+    expect(exportUserData(db, "ana")!.user).toMatchObject({ phone: "+351 912 345 678" });
   });
 
   it("exports the user's data without credentials", () => {

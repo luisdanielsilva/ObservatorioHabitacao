@@ -13,6 +13,19 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**Free accounts with a profile, and the privacy policy (2026-10-17, issue #7)**
+
+- After the first sign-in, "Completa o teu perfil" (`/conta/perfil`) asks for the name
+  (required), phone and date of birth (optional, with consent; 16 or over). Saving, sharing,
+  photos and PDFs need it (`getMember` in `lib/session.ts`); sign-in goes through it and on to
+  where the user was. Editable, and deletable, in Conta; included in the data export.
+- Migration `0007_user_profile` (users: phone, birth_date, profile_completed_at). Existing
+  accounts are asked for the profile once.
+- `/privacidade` is a full RGPD policy (pt/en), still marked as a draft. To fill in before
+  launch: the controller (name, NIF, address), the contact email and the hosting provider;
+  "backups replaced after about two weeks" assumes a daily backup (BACKUP_KEEP 14).
+- Issue #8 (animated map) closed by the owner: the home page's static map is enough.
+
 **Home page led by questions, over a map of Portugal (2026-10-17, issue #4)**
 
 - Chosen by the owner (design B): the hero asks the question for the visitor's situation, picked

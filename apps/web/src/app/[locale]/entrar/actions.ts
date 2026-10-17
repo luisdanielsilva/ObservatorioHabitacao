@@ -22,10 +22,21 @@ import { withBasePath } from "@/lib/basePath";
 const EMAIL_LIMIT = { requests: 20, windowSeconds: 3600 };
 const IP_LIMIT = { requests: 20, windowSeconds: 3600 };
 
+/**
+ * Where Auth.js sends the user after signing in: the profile page (issue #7), which goes on to
+ * `voltar` at once when the profile is already filled in. Auth.js redirects to this address as
+ * it is, so it needs the base path.
+ */
+async function afterSignIn(voltar: FormDataEntryValue | null) {
+  const locale = await getLocale();
+  const prefix = locale === "pt" ? "" : `/${locale}`;
+  const returnTo = safeReturnTo(voltar, `${prefix}/conta`);
+  return withBasePath(`${prefix}/conta/perfil?voltar=${encodeURIComponent(returnTo)}`);
+}
+
 export async function signInWithEmail(form: FormData) {
   const email = String(form.get("email") ?? "").trim();
-  // Auth.js redirects to this address as it is: it needs the base path.
-  const redirectTo = withBasePath(safeReturnTo(form.get("voltar"), "/conta"));
+  const redirectTo = await afterSignIn(form.get("voltar"));
   const locale = await getLocale();
 
   const db = getDb();
@@ -57,6 +68,6 @@ export async function signInWithEmail(form: FormData) {
 }
 
 export async function signInWithGoogle(form: FormData) {
-  const redirectTo = withBasePath(safeReturnTo(form.get("voltar"), "/conta"));
+  const redirectTo = await afterSignIn(form.get("voltar"));
   await signIn("google", { redirectTo });
 }

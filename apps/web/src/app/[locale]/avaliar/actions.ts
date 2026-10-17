@@ -18,7 +18,7 @@ import { entitlementsFor } from "@/lib/entitlements";
 import { runCalculator } from "@/lib/calculator/run";
 import { normaliseState } from "@/lib/calculator/state";
 import { propertySnapshot, summariseOutput } from "@/lib/calculator/summary";
-import { getCurrentUser, type CurrentUser } from "@/lib/session";
+import { getMember, type CurrentUser } from "@/lib/session";
 import { localizedUrl } from "@/lib/urls";
 
 export type SaveResult =
@@ -31,7 +31,7 @@ const MAX_STATE_BYTES = 100_000;
  * The state is normalised and the results recalculated on the server, never trusted as sent.
  */
 export async function saveScenario(input: ScenarioInput): Promise<SaveResult> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "signin" };
   return save(user, input);
 }
@@ -84,7 +84,7 @@ export type ShareResult =
  * shared is always what the user sees. The link stays the same across later saves.
  */
 export async function shareScenario(input: ScenarioInput): Promise<ShareResult> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "signin" };
   return share(user, input);
 }
@@ -108,7 +108,7 @@ export async function emailScenarioLink(
   input: ScenarioInput,
   locale: AppLocale,
 ): Promise<EmailLinkResult> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "signin" };
   if (!user.email) return { status: "error" };
 
@@ -136,7 +136,7 @@ export async function emailScenarioLink(
 }
 
 export async function duplicateSavedScenario(id: number, name: string): Promise<SaveResult> {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return { status: "signin" };
   const db = getDb();
   if (countScenarios(db, user.id) >= entitlementsFor(user.plan).maxSavedScenarios) {

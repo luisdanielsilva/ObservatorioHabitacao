@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect as nextRedirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { googleEnabled } from "@/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, redirect } from "@/i18n/navigation";
 import { asLocale, initPageLocale } from "@/i18n/locale";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, profileHref } from "@/lib/session";
 import { safeReturnTo } from "@/lib/returnTo";
 import { signInWithEmail, signInWithGoogle } from "./actions";
 
@@ -31,7 +32,10 @@ export default async function SignInPage({ params, searchParams }: PageProps<"/[
   const prefix = locale === "pt" ? "" : `/${locale}`;
   const returnTo = safeReturnTo(first(query.voltar), `${prefix}/conta`);
 
-  if (await getCurrentUser()) redirect({ href: "/conta", locale });
+  // Already signed in: back to where they were going, through the profile if it's missing.
+  const user = await getCurrentUser();
+  if (user && !user.profileComplete) redirect({ href: profileHref(returnTo), locale });
+  if (user) nextRedirect(returnTo);
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">

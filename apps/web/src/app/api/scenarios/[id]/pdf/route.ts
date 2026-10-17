@@ -4,11 +4,11 @@ import { getDb } from "@/lib/db";
 import { entitlementsFor } from "@/lib/entitlements";
 import { reportLocale } from "@/lib/report/locale";
 import { pdfResponse, renderScenarioPdf, reportFilename } from "@/lib/report/render";
-import { getCurrentUser } from "@/lib/session";
+import { getMember } from "@/lib/session";
 
 /** PDF report of a saved scenario, with its photos, for its owner (WBS 6.3.3). */
 export async function GET(request: Request, { params }: RouteContext<"/api/scenarios/[id]/pdf">) {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return NextResponse.json({ error: "not signed in" }, { status: 401 });
   if (!entitlementsFor(user.plan).pdfReports) {
     return NextResponse.json({ error: "not included in your plan" }, { status: 403 });

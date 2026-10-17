@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
 import { photoFilePath, removePhotoFile } from "@/lib/photos";
-import { getCurrentUser } from "@/lib/session";
+import { getMember } from "@/lib/session";
 
 type Context = RouteContext<"/api/scenarios/[id]/photos/[photoId]">;
 
@@ -16,7 +16,7 @@ const idsOf = async (params: Context["params"]) => {
 
 /** A photo of a saved scenario, for its owner. */
 export async function GET(_request: NextRequest, { params }: Context) {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return new NextResponse(null, { status: 401 });
   const ids = await idsOf(params);
   const row = ids ? getPhoto(getDb(), ids.scenarioId, ids.photo, user.id) : undefined;
@@ -36,7 +36,7 @@ export async function GET(_request: NextRequest, { params }: Context) {
 }
 
 export async function DELETE(_request: NextRequest, { params }: Context) {
-  const user = await getCurrentUser();
+  const user = await getMember();
   if (!user) return NextResponse.json({ error: "not signed in" }, { status: 401 });
   const ids = await idsOf(params);
   const row = ids ? deletePhoto(getDb(), ids.scenarioId, ids.photo, user.id) : undefined;

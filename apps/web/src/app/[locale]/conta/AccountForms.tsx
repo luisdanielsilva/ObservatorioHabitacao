@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { selectClass } from "@/components/shared/AreaPicker";
+import { ProfileFields } from "@/components/shared/ProfileFields";
 import {
   deleteMyAccount,
   deleteSavedScenario,
@@ -59,11 +60,11 @@ export function DeleteValuationButton({ id, name }: { id: number; name: string }
 }
 
 export function SettingsForm({
-  name,
+  profile,
   locale,
   consents,
 }: {
-  name: string | null;
+  profile: { name: string; phone: string; birthDate: string };
   locale: "pt" | "en";
   consents: { marketing: boolean; partners: boolean };
 }) {
@@ -72,18 +73,13 @@ export function SettingsForm({
     status: "idle",
   });
   return (
-    <form action={action} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="name">{t("name")}</Label>
-          <Input
-            id="name"
-            name="name"
-            defaultValue={name ?? ""}
-            maxLength={120}
-            autoComplete="name"
-          />
-        </div>
+    <form action={action} className="space-y-4" noValidate>
+      <div className="max-w-md space-y-4">
+        <ProfileFields
+          key={JSON.stringify(state)}
+          errors={state.errors ?? []}
+          defaults={state.values ?? profile}
+        />
         <div className="space-y-1.5">
           <Label htmlFor="locale">{t("language")}</Label>
           <select id="locale" name="locale" defaultValue={locale} className={selectClass}>
@@ -114,6 +110,7 @@ export function SettingsForm({
         </Button>
         <span className="text-sm text-muted-foreground" aria-live="polite">
           {state.status === "saved" && t("settingsSaved")}
+          {state.status === "invalid" && t("settingsInvalid")}
         </span>
       </div>
     </form>
