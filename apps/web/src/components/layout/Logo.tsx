@@ -1,20 +1,22 @@
 /**
  * Observatório Habitação mark ("Ocular"): a house seen through a telescope's eyepiece, with the
  * sight marks in sand. The same drawing is the favicon (app/icon.svg), the share image and the
- * PDF header.
+ * PDF header. `onDark` is the footer's version: white and sand on deep pine.
  */
-export function Logo({ className }: { className?: string }) {
+export function Logo({ className, onDark }: { className?: string; onDark?: boolean }) {
   return (
     <span className={`inline-flex items-center gap-2 font-semibold ${className ?? ""}`}>
-      <LogoMark className="size-7" />
-      <span className="text-lg">
-        Observatório <span className="text-primary">Habitação</span>
+      <LogoMark className="size-7" onDark={onDark} />
+      <span className={`text-lg ${onDark ? "text-white" : ""}`}>
+        Observatório{" "}
+        <span className={onDark ? "text-brand-accent" : "text-primary"}>Habitação</span>
       </span>
     </span>
   );
 }
 
-export function LogoMark({ className }: { className?: string }) {
+export function LogoMark({ className, onDark }: { className?: string; onDark?: boolean }) {
+  const line = onDark ? "stroke-white" : "stroke-primary";
   return (
     <svg
       viewBox="0 0 32 32"
@@ -25,13 +27,13 @@ export function LogoMark({ className }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="16" cy="16" r="11" className="stroke-primary" />
+      <circle cx="16" cy="16" r="11" className={line} />
       <path
         d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5"
         className="stroke-brand-accent"
         strokeWidth="2.6"
       />
-      <path d="M10.5 18 16 13l5.5 5M12 17v5.5h8V17" className="stroke-primary" />
+      <path d="M10.5 18 16 13l5.5 5M12 17v5.5h8V17" className={line} />
     </svg>
   );
 }

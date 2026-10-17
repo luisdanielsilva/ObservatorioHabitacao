@@ -32,7 +32,8 @@ test("the home page link box opens Avaliar anúncio and reads the link", async (
   // The box is in the first screen, with the supported sites underneath.
   const box = page.getByRole("textbox", { name: "Link do anúncio" });
   await expect(box).toBeInViewport();
-  await expect(page.getByText("Idealista.pt e Imovirtual.com suportados")).toBeVisible();
+  await expect(page.getByText("Idealista.pt", { exact: true })).toBeVisible();
+  await expect(page.getByText("Imovirtual.com", { exact: true })).toBeVisible();
 
   const listing = "https://www.imovirtual.com/pt/anuncio/t2-matosinhos-ID1";
   await box.fill(listing);

@@ -20,6 +20,11 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+      {/* The brand stripe: pine, sand and moss. */}
+      <div
+        aria-hidden
+        className="h-1 bg-[linear-gradient(90deg,var(--primary)_0_60%,var(--brand-accent)_60%_80%,var(--moss)_80%)]"
+      />
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
         <Link
           href="/"

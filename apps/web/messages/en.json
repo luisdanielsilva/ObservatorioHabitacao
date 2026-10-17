@@ -44,7 +44,7 @@
   },
   "home": {
     "eyebrow": "Real estate investment in Portugal",
-    "title": "Know whether a property is worth it before you commit",
+    "title": "Know whether a property <mark>is worth it</mark> before you commit",
     "subtitle": "Paste the listing link. Our AI reads the property details; then choose the deal and see costs, taxes and returns.",
     "scenariosTitle": "Four strategies, side by side",
     "howTitle": "How it works",
@@ -66,7 +66,7 @@
     "manualLink": "No link? Enter the details by hand",
     "sellBanner": {
       "eyebrow": "For homeowners",
-      "title": "What is my home worth?",
+      "title": "What is <em>my home</em> worth?",
       "subtitle": "Find out in a minute, from the INE median for your area and similar listings. And see what you keep after the agency's commission, IRS and the mortgage.",
       "pills": {
         "free": "Free",
@@ -75,6 +75,40 @@
       },
       "cta": "Value my home",
       "evaluateLink": "Seen a listing? Check if the price is fair"
+    },
+    "factsLabel": "What we calculate",
+    "facts": {
+      "1v": "4",
+      "1": "strategies compared side by side",
+      "2v": "IMT · Stamp duty · IRS",
+      "2": "with the current rates and brackets",
+      "3v": "INE",
+      "3": "sale and rent medians per parish",
+      "4v": "40 years",
+      "4": "default loan term, up to 50"
+    },
+    "scenarioTags": {
+      "flip": "Profit and IRR",
+      "longTermRental": "Cash flow",
+      "shortTermRental": "By season",
+      "contractAssignment": "Return on deposit"
+    },
+    "example": {
+      "title": "What a result looks like",
+      "text": "A Vender example: a 2-bedroom flat of 100 m² in Arroios, Lisbon, 3rd floor without a lift, with 3 similar listings.",
+      "range": "Range from {low} to {high}, likely value {likely}",
+      "trend": "INE sale median in Arroios",
+      "trendValue": "{value} · {change} in a year",
+      "from": "Q1 2024",
+      "to": "Q1 2026",
+      "split": "Of {total}: {you} is yours, {bank} goes to the bank, {commission} in commission and {irs} in IRS.",
+      "legend": {
+        "you": "Yours",
+        "bank": "Bank",
+        "commission": "Commission",
+        "irs": "IRS"
+      },
+      "cta": "Try it with your home"
     }
   },
   "scenarios": {

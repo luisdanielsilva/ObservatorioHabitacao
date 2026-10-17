@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useRouter } from "@/i18n/navigation";
 
+/** The listing sites the reader supports, shown as chips under the box. */
+const SITES = [
+  { name: "Idealista.pt", dot: "bg-chart-1" },
+  { name: "Imovirtual.com", dot: "bg-brand-accent" },
+] as const;
+
 /**
  * The home page's main action: paste a listing link and go straight to Avaliar anúncio, which
  * reads it. Manual entry is offered underneath.
@@ -20,7 +26,7 @@ export function LinkBox() {
   return (
     <div className="space-y-3">
       <form
-        className="flex flex-col gap-2 rounded-2xl border bg-card p-2 shadow-lg shadow-primary/5 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 sm:flex-row"
+        className="flex flex-col gap-2 rounded-2xl border-2 border-primary bg-background p-2 shadow-[0_0_0_6px_var(--mint),0_20px_40px_-26px_var(--pine-deep)] focus-within:shadow-[0_0_0_6px_var(--brand-accent),0_20px_40px_-26px_var(--pine-deep)] sm:flex-row"
         onSubmit={(e) => {
           e.preventDefault();
           const link = url.trim();
@@ -51,13 +57,23 @@ export function LinkBox() {
           {t("evaluate")} <ArrowRight />
         </Button>
       </form>
-      <div className="flex flex-col gap-1 px-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-        <p id={`${id}-supported`} className="text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-sm">
+        <p id={`${id}-supported`} className="sr-only">
           {t("supported")}
         </p>
+        {SITES.map((site) => (
+          <span
+            key={site.name}
+            aria-hidden
+            className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 font-medium"
+          >
+            <span className={`size-2 rounded-full ${site.dot}`} />
+            {site.name}
+          </span>
+        ))}
         <Link
           href={{ pathname: "/avaliar", query: { manual: "1" } }}
-          className="font-medium text-primary underline-offset-4 hover:underline"
+          className="ml-1 font-semibold text-primary underline decoration-brand-accent decoration-2 underline-offset-4 hover:decoration-primary"
         >
           {t("manualLink")}
         </Link>

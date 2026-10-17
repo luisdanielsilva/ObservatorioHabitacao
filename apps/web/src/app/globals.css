@@ -26,6 +26,12 @@
   --color-positive: var(--positive);
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-sand-soft: var(--sand-soft);
+  --color-pine-deep: var(--pine-deep);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-moss: var(--moss);
+  --color-moss-soft: var(--moss-soft);
   --color-warning: var(--warning);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -75,6 +81,13 @@
   /* The sand of the logo's sight marks; also for small highlights. */
   --brand-accent: #c9a46a;
   --brand-accent-foreground: #7a5a26;
+  /* Colour accents on the same base: a soft sand, a deep pine for bands, mint and moss tints. */
+  --sand-soft: #f2e8d3;
+  --pine-deep: #123b2c;
+  --mint: #dcebe2;
+  --mint-soft: #eef5f0;
+  --moss: #5f7d3c;
+  --moss-soft: #e7eedb;
   --chart-1: #1e5b45;
   --chart-2: #a97c35;
   --chart-3: #7a4e8c;
@@ -115,6 +128,12 @@
   --ring: #6fae90;
   --brand-accent: #d9b77e;
   --brand-accent-foreground: #e6cc9f;
+  --sand-soft: #3a3121;
+  --pine-deep: #0b2a1f;
+  --mint: #1f3a2e;
+  --mint-soft: #16261f;
+  --moss: #a9c486;
+  --moss-soft: #263021;
   --chart-1: #8cc4a8;
   --chart-2: #d9b77e;
   --chart-3: #c7a3d6;

@@ -20,8 +20,10 @@ export function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-        active ? "text-primary" : "text-muted-foreground",
+        "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        active
+          ? "bg-mint font-semibold text-pine-deep dark:text-primary"
+          : "text-muted-foreground hover:bg-mint-soft hover:text-primary",
         mobile && "text-base",
       )}
     >

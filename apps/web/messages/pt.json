@@ -44,7 +44,7 @@
   },
   "home": {
     "eyebrow": "Investimento imobiliário em Portugal",
-    "title": "Descobre se um imóvel vale a pena antes de avançar",
+    "title": "Descobre se um imóvel <mark>vale a pena</mark> antes de avançar",
     "subtitle": "Cola o link do anúncio. A nossa IA lê os dados do imóvel; depois escolhe o negócio e vê custos, impostos e rentabilidade.",
     "scenariosTitle": "Quatro estratégias, lado a lado",
     "howTitle": "Como funciona",
@@ -66,7 +66,7 @@
     "manualLink": "Não tens link? Preenche os dados à mão",
     "sellBanner": {
       "eyebrow": "Para proprietários",
-      "title": "Quanto vale a minha casa?",
+      "title": "Quanto vale a <em>minha casa</em>?",
       "subtitle": "Descobre num minuto, com base na mediana do INE da tua zona e em anúncios semelhantes. E vê quanto te fica no bolso depois da comissão, do IRS e do crédito.",
       "pills": {
         "free": "Gratuito",
@@ -75,6 +75,40 @@
       },
       "cta": "Avaliar a minha casa",
       "evaluateLink": "Viste um anúncio? Vê se o preço é justo"
+    },
+    "factsLabel": "O que calculamos",
+    "facts": {
+      "1v": "4",
+      "1": "estratégias comparadas lado a lado",
+      "2v": "IMT · Selo · IRS",
+      "2": "com as taxas e os escalões em vigor",
+      "3v": "INE",
+      "3": "medianas de venda e de renda por freguesia",
+      "4v": "40 anos",
+      "4": "prazo do crédito por omissão, até 50"
+    },
+    "scenarioTags": {
+      "flip": "Lucro e TIR",
+      "longTermRental": "Cash flow",
+      "shortTermRental": "Por época",
+      "contractAssignment": "Retorno do sinal"
+    },
+    "example": {
+      "title": "Assim fica um resultado",
+      "text": "Exemplo de Vender: um T2 de 100 m² em Arroios, Lisboa, 3.º andar sem elevador, com 3 anúncios semelhantes.",
+      "range": "Intervalo de {low} a {high}, valor provável {likely}",
+      "trend": "Mediana de venda do INE em Arroios",
+      "trendValue": "{value} · {change} num ano",
+      "from": "1.º trim. 2024",
+      "to": "1.º trim. 2026",
+      "split": "De {total}: {you} ficam para ti, {bank} para o banco, {commission} de comissão e {irs} de IRS.",
+      "legend": {
+        "you": "Para ti",
+        "bank": "Banco",
+        "commission": "Comissão",
+        "irs": "IRS"
+      },
+      "cta": "Experimenta com a tua casa"
     }
   },
   "scenarios": {

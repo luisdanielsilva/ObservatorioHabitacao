@@ -4,6 +4,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 /**
  * "Entrar" or "Conta", decided in the browser so that pages stay statically rendered
@@ -21,7 +22,7 @@ function Inner({ className }: { className?: string }) {
   const t = useTranslations("signIn");
   const { status } = useSession();
   return (
-    <Button asChild size="sm" variant="outline" className={className}>
+    <Button asChild size="sm" className={cn("rounded-full px-4", className)}>
       <Link href={status === "authenticated" ? "/conta" : "/entrar"}>
         {status === "authenticated" ? t("account") : t("title")}
       </Link>

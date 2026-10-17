@@ -13,6 +13,22 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**More colour on the home page (2026-10-17)**
+
+- Chosen by the owner from a numbered mockup (all nine kept), on the same pine, sand and beige
+  base plus mint and moss tints (new tokens `sand-soft`, `pine-deep`, `mint`, `mint-soft`,
+  `moss`, `moss-soft`, light and dark):
+  - Every page: a pine/sand/moss stripe above the header, menu as pills (current page in mint),
+    a green "Entrar", and a deep pine footer with the logo in white and sand.
+  - Home page: hero on beige fading to white with sand contour lines, the eyepiece large in the
+    background and "vale a pena" underlined in sand; the link box framed in pine with a mint
+    halo and the supported sites as chips; a deep pine strip with what is calculated; each
+    strategy in its own colour (top stripe, icon tile, label); the owners' banner with a sand
+    button, sand highlight, ticked pills and the eyepiece as a watermark; a fixed Vender example
+    ("Assim fica um resultado", `components/home/HomeExample.tsx`: range bar, asking price and
+    €/m² tiles, INE trend, money split and total), shown while Vender is on; the steps joined
+    by a dotted sand line.
+
 **New look: "Pinhal" palette, "Ocular" logo, Instrument Sans (2026-10-17)**
 
 - Chosen by the owner from four proposals: a white page with deep pine green (`#1e5b45`), sand

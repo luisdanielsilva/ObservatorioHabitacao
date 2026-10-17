@@ -14,28 +14,30 @@ export async function Footer() {
   ] as const;
 
   return (
-    <footer className="mt-16 border-t">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 md:grid-cols-[1fr_auto]">
+    <footer className="mt-16 bg-pine-deep text-[#d7e3db]">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-11 md:grid-cols-[1fr_auto]">
         <div className="space-y-3">
-          <Logo />
-          <p className="max-w-md text-sm text-muted-foreground">{t("disclaimer")}</p>
-          <p className="text-sm text-muted-foreground">{t("apps")}</p>
-          <p className="text-xs text-muted-foreground">{t("dataSources")}</p>
+          <Logo onDark />
+          <p className="max-w-md text-sm">{t("disclaimer")}</p>
+          <p className="text-xs opacity-75">{t("dataSources")}</p>
         </div>
         <nav aria-label={t("about")} className="flex flex-col gap-2 text-sm md:items-end">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="rounded-sm underline-offset-4 hover:text-brand-accent hover:underline focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:outline-none"
             >
               {l.label}
             </Link>
           ))}
-          <span className="pt-2 text-xs text-muted-foreground">
-            {t("rights", { year: new Date().getFullYear() })}
-          </span>
         </nav>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 px-4 py-4 text-xs opacity-70">
+          <span>{t("rights", { year: new Date().getFullYear() })}</span>
+          <span>{t("apps")}</span>
+        </div>
       </div>
     </footer>
   );
