@@ -3,6 +3,7 @@
 import {
   deleteAccount,
   deleteScenario,
+  deleteValuation,
   getConsents,
   scenarioIdsOfUser,
   setConsent,
@@ -21,6 +22,14 @@ export async function deleteSavedScenario(id: number): Promise<boolean> {
   const ok = deleteScenario(getDb(), id, user.id);
   // The photo rows went with the scenario; remove their files too.
   if (ok) await removeScenarioPhotos(id);
+  revalidatePath("/[locale]/conta", "page");
+  return ok;
+}
+
+export async function deleteSavedValuation(id: number): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) return false;
+  const ok = deleteValuation(getDb(), id, user.id);
   revalidatePath("/[locale]/conta", "page");
   return ok;
 }

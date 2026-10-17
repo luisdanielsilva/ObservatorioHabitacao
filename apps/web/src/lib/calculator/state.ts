@@ -32,7 +32,17 @@ export interface Comparable {
   location: string;
   /** A Google Maps link to it (see lib/mapsLink), which also gives its distance to the property. */
   mapsUrl: string;
+  /** Floor of an apartment: 0 is the ground floor (rés-do-chão). */
+  floor: number | null;
+  /** Whether it has each feature; `null` when the listing does not say. */
+  features: Record<Feature, boolean | null>;
 }
+
+/** Features whose absence lowers a property's value (see lib/valuation/model). */
+export const FEATURES = ["elevator", "garage", "balcony"] as const;
+export type Feature = (typeof FEATURES)[number];
+/** Floors offered in the forms: ground floor to "10 or above". */
+export const MAX_FLOOR = 10;
 
 /** At least this many similar listings for a fair comparison; at most MAX_COMPARABLES. */
 export const MIN_COMPARABLES = 3;
@@ -294,9 +304,7 @@ export function normaliseState(raw: unknown): CalculatorState {
   state.listingPhotos = listingPhotos(source.listingPhotos);
   state.address = state.address.slice(0, 300);
   state.mapsUrl = state.mapsUrl.slice(0, 2000);
-  state.comparables = (Array.isArray(source.comparables) ? source.comparables : [])
-    .slice(0, MAX_COMPARABLES)
-    .map(normaliseComparable);
+  state.comparables = normaliseComparables(source.comparables);
   return state;
 }
 
@@ -312,8 +320,20 @@ export function emptyComparable(overrides: Partial<Comparable> = {}): Comparable
     askingPrice: null,
     location: "",
     mapsUrl: "",
+    floor: null,
+    features: { elevator: null, garage: null, balcony: null },
     ...overrides,
   };
+}
+
+/** A floor as stored: a whole number from 0 (ground floor) to MAX_FLOOR, or null. */
+export function normaliseFloor(v: unknown): number | null {
+  return typeof v === "number" && Number.isInteger(v) && v >= 0 ? Math.min(MAX_FLOOR, v) : null;
+}
+
+/** Similar listings from untrusted JSON, at most MAX_COMPARABLES. */
+export function normaliseComparables(raw: unknown): Comparable[] {
+  return (Array.isArray(raw) ? raw : []).slice(0, MAX_COMPARABLES).map(normaliseComparable);
 }
 
 function normaliseComparable(raw: unknown): Comparable {
@@ -336,5 +356,12 @@ function normaliseComparable(raw: unknown): Comparable {
     askingPrice: amount(source.askingPrice),
     location: text(source.location, 200),
     mapsUrl: text(source.mapsUrl, 2000),
+    floor: normaliseFloor(source.floor),
+    features: Object.fromEntries(
+      FEATURES.map((k) => {
+        const v = (source.features as Record<string, unknown> | undefined)?.[k];
+        return [k, typeof v === "boolean" ? v : null];
+      }),
+    ) as Comparable["features"],
   };
 }

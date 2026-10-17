@@ -6,11 +6,34 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 235 unit tests (64 engine, 92 db, 79 web) and 34 end-to-end tests (Playwright, Chromium;
-sign-in and photo tests need `E2E_SERVER_LOG`), all passing. Safari/WebKit cannot run on the
+Tests: 257 unit tests (64 engine, 94 db, 99 web) and 36 end-to-end tests (Playwright, Chromium;
+sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
+passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
+
+**Vender is back, as the seller's valuation (2026-10-17)**
+
+- `/vender` ("Quanto vale a sua casa?") replaces the dormant sales-support request: in four
+  steps (the property, similar listings, the sale, the result) the seller sees the likely value,
+  a range, a confidence level, a suggested asking price and the INE median's trend for the
+  area. "Vender" is in the menu again (`FEATURES.sell`); "Preços" stays dormant.
+- The value: the INE sale median of the parish (or the nearest area with one), blended with the
+  similar listings' median when there are 3 or more (50 %; 70 % with 5 or more). Each listing is
+  first brought to a standard property: its asking price less a 10 % negotiation margin, and its
+  condition, lift (by floor), garage and balcony evened out; details a listing leaves blank are
+  taken as the seller's. "Como calculámos" shows each step. Every assumption is in
+  `lib/valuation/model.ts` (version `v1-2026-10`, saved with each valuation) and needs review
+  against real sales data.
+- With the sale's details (optional): "Quanto fica para si" deducts the agency's commission with
+  VAT, the IRS on the gain (purchase price corrected by the inflation coefficient, Portaria
+  n.º 382/2025/1, to update each November), the loan still owed and the early-repayment fee.
+- Signed in, a valuation is saved under a name, listed in `/conta` (open, delete) and has a PDF
+  report; it counts against the same limit as saved scenarios, is in the data export and is
+  deleted with the account. The estimate is recalculated on the server when saved. Drafts are
+  kept in the browser. Migration 0006 adds `valuations.name` and `updated_at`.
+- The similar-listings section is shared with Avaliar anúncio, which is unchanged.
 
 **Renamed to Observatório Habitação; code on GitHub (2026-10-17)**
 

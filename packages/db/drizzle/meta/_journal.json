@@ -43,6 +43,13 @@
       "when": 1791843882185,
       "tag": "0005_scenario_share_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792232734217,
+      "tag": "0006_valuation_name",
+      "breakpoints": true
     }
   ]
 }

@@ -329,8 +329,8 @@ export function Calculator({
               onAddDeal={addDeal}
               comparables={
                 <ComparablesSection
-                  state={state}
-                  update={update}
+                  subject={state}
+                  onChange={(comparables) => update({ comparables })}
                   locationOf={(areaId) =>
                     findAreaChain(tree, areaId)
                       .slice(1)

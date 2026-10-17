@@ -26,11 +26,14 @@ export function TrendChart({
   summary,
   points,
   color,
+  seriesName = title,
 }: {
   title: string;
   summary: string;
   points: TrendPoint[];
   color: string;
+  /** The value's name in the tooltip, when the title is too long for it. */
+  seriesName?: string;
 }) {
   const f = useFormat();
   return (
@@ -57,14 +60,17 @@ export function TrendChart({
               tickFormatter={(v: number) => f.number(v, v < 100 ? 1 : 0)}
             />
             <Tooltip
+              // Wraps on a narrow screen instead of reaching past the page.
+              wrapperStyle={{ maxWidth: "75%" }}
               contentStyle={{
+                whiteSpace: "normal",
                 background: "var(--popover)",
                 border: "1px solid var(--border)",
                 borderRadius: 8,
                 color: "var(--popover-foreground)",
               }}
               labelStyle={{ color: "var(--muted-foreground)" }}
-              formatter={(v) => [f.euroPerM2(Number(v)), title]}
+              formatter={(v) => [f.euroPerM2(Number(v)), seriesName]}
             />
             <Line
               type="monotone"

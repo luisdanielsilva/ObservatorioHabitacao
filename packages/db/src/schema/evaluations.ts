@@ -32,9 +32,13 @@ export const valuations = sqliteTable(
     /** 0–1. */
     confidence: real("confidence").notNull(),
     modelVersion: text("model_version").notNull(),
+    /** Shown in the account (Vender: "Apartamento T2 em Arroios"). */
+    name: text("name").notNull().default(""),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(datetime('now'))`),
+    /** Set on each save (a column added later cannot default to the current time). */
+    updatedAt: text("updated_at"),
   },
   (t) => [index("valuations_user_idx").on(t.userId)],
 );

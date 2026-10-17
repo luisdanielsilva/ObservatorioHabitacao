@@ -13,23 +13,26 @@ import {
   compareListings,
   siteName,
   type ComparableRow,
+  type ComparableSubject,
   type ComparablesSummary,
 } from "@/lib/calculator/comparables";
 import { hasTypology } from "@/lib/calculator/flow";
 import {
   CONDITIONS,
   emptyComparable,
+  FEATURES,
   MAX_COMPARABLES,
+  MAX_FLOOR,
   MIN_COMPARABLES,
   PROPERTY_TYPES,
   type CalculatorState,
   type Comparable,
   type Condition,
 } from "@/lib/calculator/state";
+import { FEATURE_LABEL, floorLabel } from "@/lib/calculator/labels";
 import { mapsUrlForPoint } from "@/lib/mapsLink";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
-import type { Update } from "./Calculator";
 import { FieldLabel, NumberField, SelectField } from "./fields";
 
 type Status =
@@ -45,19 +48,26 @@ type Status =
  * Similar listings to compare the asking price with (Negócios semelhantes). The user pastes a
  * listing's link, which is read for them like the property's own, or adds one by hand for sites
  * that cannot be read; the details can be corrected. Later, listings found automatically fill
- * the same list.
+ * the same list. Used by Avaliar anúncio (against the asking price) and by Vender (to value the
+ * seller's property, which shows its own summary).
  */
 export function ComparablesSection({
-  state,
-  update,
+  subject,
+  onChange,
   locationOf,
   locale,
+  intro,
+  showSummary = true,
 }: {
-  state: CalculatorState;
-  update: Update;
+  /** The property the listings are compared with, and its own listing link if any. */
+  subject: ComparableSubject & { url?: string };
+  onChange: (comparables: Comparable[]) => void;
   /** "Parish, municipality" for an area id found by the link reader. */
   locationOf: (areaId: number) => string;
   locale: string;
+  intro?: string;
+  /** The verdict against the asking price (Avaliar anúncio). */
+  showSummary?: boolean;
 }) {
   const t = useTranslations("comparables");
   const te = useTranslations("evaluate");
@@ -66,11 +76,12 @@ export function ComparablesSection({
   const [status, setStatus] = useState<Status>("idle");
   // The listing open for editing, by position.
   const [editing, setEditing] = useState<number | null>(null);
+  const state = subject;
   const list = state.comparables;
   const full = list.length >= MAX_COMPARABLES;
   const summary = compareListings(state);
 
-  const setList = (next: Comparable[]) => update({ comparables: next });
+  const setList = onChange;
   const add = (c: Comparable, edit: boolean) => {
     setList([...list, c]);
     if (edit) setEditing(list.length);
@@ -80,7 +91,7 @@ export function ComparablesSection({
     const link = url.trim();
     if (!link) return;
     if (full) return setStatus("full");
-    if (sameListing(link, state.url)) return setStatus("same");
+    if (state.url && sameListing(link, state.url)) return setStatus("same");
     if (list.some((c) => sameListing(link, c.url))) return setStatus("duplicate");
     setStatus("reading");
     try {
@@ -151,10 +162,12 @@ export function ComparablesSection({
         <h3 id={`${id}-title`} className="font-semibold">
           {t("title")}
         </h3>
-        <p className="text-sm text-muted-foreground">{t("intro", { min: MIN_COMPARABLES })}</p>
+        <p className="text-sm text-muted-foreground">
+          {intro ?? t("intro", { min: MIN_COMPARABLES })}
+        </p>
       </div>
 
-      {list.length > 0 && <ComparablesSummaryBox summary={summary} />}
+      {showSummary && list.length > 0 && <ComparablesSummaryBox summary={summary} />}
 
       {list.length > 0 && (
         <ol className="space-y-2">
@@ -361,6 +374,8 @@ export function ComparableLine({
     mark(differs("type") || differs("bedrooms"), `${te(`types.${c.propertyType}`)}${typology}`),
     c.areaM2 !== null ? mark(differs("area"), `${f.number(c.areaM2)} m²`) : null,
     c.condition ? mark(differs("condition"), te(`conditions.${c.condition}`)) : null,
+    c.floor !== null ? floorLabel(c.floor, t) : null,
+    ...FEATURES.filter((k) => c.features[k] === false).map((k) => t(`without.${k}`)),
   ].filter(Boolean);
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
@@ -482,6 +497,28 @@ function ComparableFields({
         ]}
         onChange={(condition) => set({ condition: condition || null })}
       />
+      {value.propertyType === "apartamento" && (
+        <FloorField
+          value={value.floor}
+          onChange={(floor) => set({ floor })}
+          unknownLabel={t("conditionUnknown")}
+        />
+      )}
+      {FEATURES.map((k) => (
+        <SelectField<"" | "yes" | "no">
+          key={k}
+          label={te(FEATURE_LABEL[k])}
+          value={value.features[k] === null ? "" : value.features[k] ? "yes" : "no"}
+          options={[
+            { value: "", label: t("conditionUnknown") },
+            { value: "yes", label: t("yes") },
+            { value: "no", label: t("no") },
+          ]}
+          onChange={(v) =>
+            set({ features: { ...value.features, [k]: v === "" ? null : v === "yes" } })
+          }
+        />
+      ))}
       <div className="space-y-1.5">
         <FieldLabel htmlFor={`${id}-location`}>{t("location")}</FieldLabel>
         <Input
@@ -520,6 +557,39 @@ function ComparableFields({
         </p>
       </div>
     </div>
+  );
+}
+
+/** An apartment's floor: ground floor to "10 or above", or not known. */
+export function FloorField({
+  value,
+  onChange,
+  unknownLabel,
+  required,
+  invalid,
+}: {
+  value: number | null;
+  onChange: (floor: number | null) => void;
+  unknownLabel: string;
+  required?: boolean;
+  invalid?: boolean;
+}) {
+  const t = useTranslations("comparables");
+  return (
+    <SelectField
+      label={t("floor")}
+      required={required}
+      invalid={invalid}
+      value={value ?? -1}
+      options={[
+        { value: -1, label: unknownLabel },
+        ...Array.from({ length: MAX_FLOOR + 1 }, (_, n) => ({
+          value: n,
+          label: floorLabel(n, t),
+        })),
+      ]}
+      onChange={(n) => onChange(n < 0 ? null : n)}
+    />
   );
 }
 

@@ -3,6 +3,7 @@ import {
   listScenarios,
   listUserAnalyses,
   listUserLeads,
+  listValuations,
   users,
 } from "@observatorio-habitacao/db";
 import type { ScenarioKind } from "@observatorio-habitacao/engine";
@@ -22,7 +23,13 @@ import { getDb } from "@/lib/db";
 import { createFormatter } from "@/lib/format";
 import { requireUser } from "@/lib/session";
 import { signOutAction } from "./actions";
-import { DeleteAccountForm, DeleteScenarioButton, SettingsForm } from "./AccountForms";
+import {
+  DeleteAccountForm,
+  DeleteScenarioButton,
+  DeleteValuationButton,
+  SettingsForm,
+} from "./AccountForms";
+import { FEATURES } from "@/lib/features";
 import { withBasePath } from "@/lib/basePath";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +52,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
 
   const profile = db.select().from(users).where(eq(users.id, user.id)).get()!;
   const scenarios = listScenarios(db, user.id);
+  const valuations = FEATURES.sell ? listValuations(db, user.id) : [];
   const analyses = listUserAnalyses(db, user.id);
   const requests = listUserLeads(db, user.id, user.email);
   const consents = getConsents(db, user.id);
@@ -122,6 +130,61 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
           )}
         </CardContent>
       </Card>
+
+      {FEATURES.sell && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-4">
+            <CardTitle>{t("valuations")}</CardTitle>
+            <Button asChild size="sm">
+              <Link href="/vender">
+                <Plus />
+                {t("newValuation")}
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {valuations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("noValuations")}</p>
+            ) : (
+              <ul className="divide-y">
+                {valuations.map((v) => (
+                  <li key={v.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={{ pathname: "/vender", query: { avaliacao: String(v.id) } }}
+                        className="font-medium hover:underline"
+                      >
+                        {v.name || t("valuations")}
+                      </Link>
+                      <p className="text-xs text-muted-foreground">
+                        {t("updated", { date: date(v.updatedAt ?? v.createdAt) })} ·{" "}
+                        {f.euro(v.likely)} ({f.euro(v.low)} – {f.euro(v.high)})
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <Button asChild size="sm" variant="ghost">
+                        <a
+                          href={withBasePath(`/api/valuations/${v.id}/pdf?lang=${locale}`)}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          PDF
+                        </a>
+                      </Button>
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={{ pathname: "/vender", query: { avaliacao: String(v.id) } }}>
+                          {t("open")}
+                        </Link>
+                      </Button>
+                      <DeleteValuationButton id={v.id} name={v.name} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-8 md:grid-cols-2">
         <Card>

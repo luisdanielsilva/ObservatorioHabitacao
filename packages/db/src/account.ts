@@ -9,6 +9,7 @@ import {
   scenarios,
   sessions,
   users,
+  valuations,
 } from "./schema";
 
 /** Requests the user sent: by account, or by the email they used before signing up. */
@@ -105,6 +106,7 @@ export function exportUserData(db: Db, userId: string) {
       .where(eq(scenarios.userId, userId))
       .all(),
     analyses: db.select().from(analyses).where(eq(analyses.userId, userId)).all(),
+    valuations: db.select().from(valuations).where(eq(valuations.userId, userId)).all(),
     requests: db
       .select()
       .from(leads)
@@ -116,7 +118,8 @@ export function exportUserData(db: Db, userId: string) {
 /**
  * Deletes the account (RGPD art. 17). Scenarios (with their photo rows), consents, sessions
  * and linked accounts are deleted with it (foreign-key cascade; the caller removes the photo
- * files); analyses are kept anonymised; requests sent to the team are anonymised, since the
+ * files), and so are saved valuations (they describe the user's own home); analyses are kept
+ * anonymised; requests sent to the team are anonymised, since the
  * person asked to be forgotten.
  */
 export function deleteAccount(db: Db, userId: string): boolean {
@@ -127,6 +130,7 @@ export function deleteAccount(db: Db, userId: string): boolean {
       .set({ name: null, email: null, phone: null, message: null, payload: null, userId: null })
       .where(or(eq(leads.userId, userId), eq(leads.email, user.email)))
       .run();
+    tx.delete(valuations).where(eq(valuations.userId, userId)).run();
     tx.delete(sessions).where(eq(sessions.userId, userId)).run();
     tx.delete(users).where(eq(users.id, userId)).run();
   });

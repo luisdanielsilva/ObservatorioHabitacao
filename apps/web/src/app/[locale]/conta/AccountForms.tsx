@@ -12,6 +12,7 @@ import { selectClass } from "@/components/shared/AreaPicker";
 import {
   deleteMyAccount,
   deleteSavedScenario,
+  deleteSavedValuation,
   saveSettings,
   type DeleteState,
   type SettingsState,
@@ -29,6 +30,26 @@ export function DeleteScenarioButton({ id, name }: { id: number; name: string })
       onClick={() => {
         if (confirm(t("confirmDelete", { name })))
           start(async () => void (await deleteSavedScenario(id)));
+      }}
+    >
+      <Trash2 />
+      {t("delete")}
+    </Button>
+  );
+}
+
+export function DeleteValuationButton({ id, name }: { id: number; name: string }) {
+  const t = useTranslations("account");
+  const [pending, start] = useTransition();
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={pending}
+      aria-label={`${t("delete")}: ${name}`}
+      onClick={() => {
+        if (confirm(t("confirmDeleteValuation", { name })))
+          start(async () => void (await deleteSavedValuation(id)));
       }}
     >
       <Trash2 />

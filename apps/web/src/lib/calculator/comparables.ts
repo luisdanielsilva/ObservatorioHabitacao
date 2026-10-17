@@ -42,7 +42,13 @@ export interface ComparablesSummary {
 /** An area that differs by more than this share counts as different. */
 const AREA_TOLERANCE = 0.25;
 
-export function compareListings(state: CalculatorState): ComparablesSummary {
+/** What the comparison reads from the property: Avaliar anúncio's state or a seller's property. */
+export type ComparableSubject = Pick<
+  CalculatorState,
+  "askingPrice" | "areaM2" | "mapsUrl" | "propertyType" | "bedrooms" | "condition" | "comparables"
+>;
+
+export function compareListings(state: ComparableSubject): ComparablesSummary {
   const pricePerM2 = perM2(state.askingPrice, state.areaM2);
   const home = pointFromMapsUrl(state.mapsUrl);
   const rows = state.comparables.map((c): ComparableRow => {

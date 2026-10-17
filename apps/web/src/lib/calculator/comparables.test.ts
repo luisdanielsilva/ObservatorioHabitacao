@@ -101,6 +101,8 @@ describe("normaliseState: comparables", () => {
           askingPrice: 250_000,
           location: "Braga",
           mapsUrl: "https://www.google.com/maps?q=41.5,-8.4",
+          floor: 3,
+          features: { elevator: false, garage: true, balcony: "yes" },
           evil: "<script>",
         },
         { source: "auto", propertyType: "castle", bedrooms: 1.5, areaM2: -3, askingPrice: "1" },
@@ -117,6 +119,8 @@ describe("normaliseState: comparables", () => {
       askingPrice: 250_000,
       location: "Braga",
       mapsUrl: "https://www.google.com/maps?q=41.5,-8.4",
+      floor: 3,
+      features: { elevator: false, garage: true, balcony: null },
     });
     expect(state.comparables[1]).toEqual(emptyComparable({ source: "auto" }));
     expect(state.comparables[2]).toEqual(emptyComparable());

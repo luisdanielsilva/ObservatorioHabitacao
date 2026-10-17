@@ -197,7 +197,8 @@ export const REPORT_METRICS: { key: MetricKey; format: "euro" | "percent" | "yea
 // Lines break between words only: no "reg-isto" or "Arrenda-mento".
 Font.registerHyphenationCallback((word) => [word]);
 
-const C = {
+/** Colours and styles shared with the seller's report (ValuationReport). */
+export const C = {
   text: "#111827",
   muted: "#6b7280",
   line: "#e5e7eb",
@@ -206,7 +207,7 @@ const C = {
   good: "#15803d",
 };
 
-const s = StyleSheet.create({
+export const s = StyleSheet.create({
   page: { padding: 36, fontSize: 9, color: C.text, fontFamily: "Helvetica" },
   header: {
     flexDirection: "row",
@@ -294,7 +295,7 @@ const s = StyleSheet.create({
 /** A label and its value; a link makes the value open it, a total is in bold like in tables. */
 export type Row = [label: string, value: string, options?: { href?: string; total?: boolean }];
 
-function KeyValues({ rows }: { rows: Row[] }) {
+export function KeyValues({ rows }: { rows: Row[] }) {
   return (
     <View>
       {rows.map(([k, v, options]) => (

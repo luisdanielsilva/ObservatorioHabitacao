@@ -13,8 +13,8 @@ import { ThemeToggle } from "./ThemeToggle";
 export async function Header() {
   const t = await getTranslations("nav");
   const links = [
-    ...(FEATURES.sell ? [{ href: "/vender", label: t("sell") }] : []),
     { href: "/avaliar", label: t("evaluate") },
+    ...(FEATURES.sell ? [{ href: "/vender", label: t("sell") }] : []),
     ...(FEATURES.prices ? [{ href: "/precos", label: t("prices") }] : []),
   ];
 

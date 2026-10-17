@@ -418,7 +418,13 @@ export function MarketReference({
 }
 
 /** Optional Google Maps link to the property, with a check and a link to open it. */
-function MapsLinkField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function MapsLinkField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
   const t = useTranslations("evaluate");
   const id = useId();
   const link = googleMapsUrl(value);
