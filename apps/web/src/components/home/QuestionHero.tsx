@@ -46,27 +46,25 @@ export function QuestionHero({ showSell }: { showSell: boolean }) {
   }
 
   return (
-    <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
+    <div className="relative grid items-center gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
       <div
         role="tabpanel"
         id={`${id}-panel`}
         aria-labelledby={`${id}-${current}`}
         className="min-w-0 lg:flex lg:min-h-[27rem] lg:flex-col lg:justify-center"
       >
-        <p className="inline-flex items-center gap-2 rounded-full bg-sand-soft px-3 py-1.5 text-xs font-semibold tracking-[0.14em] text-brand-accent-foreground uppercase">
+        <p className="inline-flex items-center gap-2 self-start rounded-full bg-sand-soft px-3 py-1.5 text-xs font-semibold tracking-[0.14em] text-brand-accent-foreground uppercase">
           <span className="size-1.5 rounded-full bg-primary" aria-hidden />
           {t("situationsEyebrow")}
         </p>
         {/* key: the text fades in again when the situation changes. */}
         <div key={current} className="animate-in fade-in slide-in-from-bottom-1 duration-300">
-          <div className="lg:flex lg:min-h-[11.5rem] lg:flex-col lg:justify-end">
-            <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-              {t.rich(`situations.${current}.question`, {
-                mark: (chunks) => <Underlined>{chunks}</Underlined>,
-              })}
-            </h1>
-          </div>
-          <p className="mt-4 max-w-xl text-lg text-muted-foreground text-pretty lg:min-h-[3.2em]">
+          <h1 className="mt-5 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+            {t.rich(`situations.${current}.question`, {
+              mark: (chunks) => <Underlined>{chunks}</Underlined>,
+            })}
+          </h1>
+          <p className="mt-4 max-w-xl text-lg text-muted-foreground text-pretty">
             {t(`situations.${current}.answer`)}
           </p>
           <div className="mt-7">
@@ -110,7 +108,7 @@ export function QuestionHero({ showSell }: { showSell: boolean }) {
               onClick={() => setCurrent(key)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={cn(
-                "grid w-full grid-cols-[auto_1fr] items-center gap-2.5 rounded-2xl border bg-background/80 p-3 text-left lg:grid-cols-[auto_1fr_auto] lg:gap-3.5 lg:p-4 backdrop-blur-[2px] transition focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none",
+                "grid w-full grid-cols-[auto_1fr] items-center gap-2.5 rounded-2xl border bg-background/85 p-3 text-left transition lg:grid-cols-[auto_1fr_auto] lg:gap-3.5 lg:p-4 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none",
                 selected
                   ? "border-2 border-primary p-[11px] shadow-[0_0_0_5px_var(--mint)] lg:p-[15px]"
                   : "hover:border-primary/50",
