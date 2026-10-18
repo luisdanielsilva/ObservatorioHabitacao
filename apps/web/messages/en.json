@@ -173,7 +173,79 @@
     "contactTitle": "Need help or have an idea?",
     "contactText": "Tell us what isn't working or what you'd like to see in Observatório Habitação.",
     "contactSupport": "Get help",
-    "contactFeature": "Suggest a feature"
+    "contactFeature": "Suggest a feature",
+    "report": {
+      "eyebrow": "The report",
+      "title": "If you are investing, you take the figures away in a <mark>PDF report</mark>",
+      "text": "Every listing you evaluate gives a report with all the figures of the deal: the property against the market, the purchase and yearly costs, the profit of each strategy and the IRS on the gain. This is the one for the Braga example: two strategies make money, two don't.",
+      "contents": "What the report contains",
+      "pageShort": "p. {pages}",
+      "see": "See",
+      "chapters": {
+        "market": {
+          "title": "The property and the market",
+          "text": "Price per m² against INE and similar listings"
+        },
+        "results": {
+          "title": "Purchase, financing and results",
+          "text": "Profit, IRR and cash flow of each deal, side by side"
+        },
+        "summary": {
+          "title": "Money summary",
+          "text": "What comes in and goes out, after the loan and taxes"
+        },
+        "deals": {
+          "title": "One page per deal",
+          "text": "Resale, long-term rental, short-term rental and assignment: lowest price without a loss, and IRS"
+        }
+      },
+      "open": "See the example report",
+      "openLabel": "See the example report, {pages} pages",
+      "download": "Download the PDF ({pages} pages, {kb} KB)",
+      "downloadShort": "Download PDF",
+      "badge": "{pages} pages · See",
+      "callouts": {
+        "market": "Property vs. market",
+        "profit": "Profit of each deal",
+        "costs": "Costs and taxes"
+      },
+      "caption": "Example: a one-bedroom flat in Braga, €260,000, four deals compared.",
+      "viewerTitle": "Example report · one-bedroom in Braga",
+      "pageOf": "Page {page} of {pages}",
+      "pageTitle": "Page {page} · {title}",
+      "pagesLabel": "Pages",
+      "close": "Close",
+      "pages": {
+        "1": {
+          "title": "The property and the market",
+          "alt": "Page 1: photos of the flat in Braga, the property details, market values, the INE reference and four similar listings with their price per square metre."
+        },
+        "2": {
+          "title": "Purchase, financing and results",
+          "alt": "Page 2: the purchase with a loan, the results table of the four deals, and the purchase and yearly costs."
+        },
+        "3": {
+          "title": "Money summary",
+          "alt": "Page 3: the money coming in and going out in each deal, from the initial payment to the result at the end of the period."
+        },
+        "4": {
+          "title": "Buy and resell",
+          "alt": "Page 4: for the resale, the lowest sale price without a loss, the chart from the initial payment to the result, and the IRS on the gain."
+        },
+        "5": {
+          "title": "Long-term rental",
+          "alt": "Page 5: for the rental, the lowest sale price without a loss and the chart with rents, costs, loan payments and IRS."
+        },
+        "6": {
+          "title": "Short-term rental",
+          "alt": "Page 6: for the short-term rental, the lowest sale price at the end of the period, the chart and the IRS on the gain."
+        },
+        "7": {
+          "title": "Assignment of the purchase contract",
+          "alt": "Page 7: for the contract assignment, the lowest assignment price without a loss, the profit and the IRS."
+        }
+      }
+    }
   },
   "scenarios": {
     "flip": "Buy and resell",

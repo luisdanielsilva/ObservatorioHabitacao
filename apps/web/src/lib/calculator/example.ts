@@ -43,7 +43,7 @@ export function exampleState(areaId: number | null): CalculatorState {
     extras: { garage: false, elevator: true, balcony: true, pool: false },
     deals: ["flip", "longTermRental", "shortTermRental", "contractAssignment"],
     marketValue: 275_000,
-    resaleValue: 295_000,
+    resaleValue: 320_000,
     monthlyRent: 950,
     nightlyRate: { high: 95, mid: 75, low: 55 },
     occupancy: { high: 0.85, mid: 0.65, low: 0.45 },

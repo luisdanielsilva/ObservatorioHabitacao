@@ -25,3 +25,17 @@ export function reportFilename(name: string): string {
     .slice(0, 60);
   return `observatorio-habitacao-${slug || "cenario"}.pdf`;
 }
+
+/**
+ * A chart bar's label on one line, or on two (split at the space nearest the middle) when it
+ * would be wider than its slot and run into the next one: with many bars, "IRS mais-valia" did.
+ * Widths are estimated for Helvetica, about 0.52 em a character.
+ */
+export function labelLines(label: string, slot: number, fontSize: number): string[] {
+  if (label.length * fontSize * 0.52 <= slot - 2 || !label.includes(" ")) return [label];
+  const middle = label.length / 2;
+  const at = [...label.matchAll(/ /g)]
+    .map((m) => m.index)
+    .reduce((a, b) => (Math.abs(b - middle) < Math.abs(a - middle) ? b : a));
+  return [label.slice(0, at), label.slice(at + 1)];
+}

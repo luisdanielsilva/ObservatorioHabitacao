@@ -13,6 +13,20 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**The report on the home page (2026-10-18, issue #9)**
+
+- Between "Assim fica um resultado" and "Como funciona": the example's PDF report as fanned
+  pages, what each page has, a viewer with all 7 pages (Esc closes, focus returns) and the PDF to
+  download, in pt and en (`components/home/ReportPreview.tsx`).
+- The pages are made from the development example (T1 in Braga, with the listing's photos) by
+  `node scripts/report-preview.mjs` with the dev server on: it reads the dev-only
+  `/api/dev/example-report` (404 in production) and writes `public/relatorio-exemplo/` and
+  `components/home/reportPreview.ts`. Run it again when the report or the example changes.
+- The example's resale price after works is now 320 000 €: resale and contract assignment make
+  money, the two rentals don't.
+- The PDF's waterfall labels go on two lines when they don't fit ("IRS mais-valia" ran into
+  "Empréstimo").
+
 **Donations (2026-10-18, issue #1)**
 
 - "Apoiar o Observatório, se quiseres" at the bottom of the home page (`#apoiar`, linked from the

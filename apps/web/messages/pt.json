@@ -173,7 +173,79 @@
     "contactTitle": "Precisas de ajuda ou tens uma ideia?",
     "contactText": "Diz-nos o que não funciona ou o que gostavas de ver no Observatório Habitação.",
     "contactSupport": "Pedir ajuda",
-    "contactFeature": "Sugerir uma funcionalidade"
+    "contactFeature": "Sugerir uma funcionalidade",
+    "report": {
+      "eyebrow": "O relatório",
+      "title": "Se estás a investir, levas as contas num <mark>relatório PDF</mark>",
+      "text": "Cada avaliação de um anúncio dá um relatório com todas as contas do negócio: o imóvel face ao mercado, os custos de compra e de cada ano, o lucro de cada estratégia e o IRS sobre a mais-valia. Este é o do exemplo de Braga: duas estratégias dão lucro, duas não.",
+      "contents": "O que tem o relatório",
+      "pageShort": "p. {pages}",
+      "see": "Ver",
+      "chapters": {
+        "market": {
+          "title": "O imóvel e o mercado",
+          "text": "Preço por m² face ao INE e a anúncios semelhantes"
+        },
+        "results": {
+          "title": "Compra, financiamento e resultados",
+          "text": "Lucro, TIR e cash flow de cada negócio, lado a lado"
+        },
+        "summary": {
+          "title": "Resumo do dinheiro",
+          "text": "O que entra e sai, depois do empréstimo e dos impostos"
+        },
+        "deals": {
+          "title": "Uma página por negócio",
+          "text": "Revenda, arrendamento, AL e cessão: preço mínimo sem prejuízo e IRS"
+        }
+      },
+      "open": "Ver o relatório de exemplo",
+      "openLabel": "Ver o relatório de exemplo, {pages} páginas",
+      "download": "Descarregar o PDF ({pages} páginas, {kb} KB)",
+      "downloadShort": "Descarregar PDF",
+      "badge": "{pages} páginas · Ver",
+      "callouts": {
+        "market": "Imóvel face ao mercado",
+        "profit": "Lucro de cada negócio",
+        "costs": "Custos e impostos"
+      },
+      "caption": "Exemplo: T1 em Braga, 260 000 €, quatro negócios comparados.",
+      "viewerTitle": "Relatório de exemplo · T1 em Braga",
+      "pageOf": "Página {page} de {pages}",
+      "pageTitle": "Página {page} · {title}",
+      "pagesLabel": "Páginas",
+      "close": "Fechar",
+      "pages": {
+        "1": {
+          "title": "O imóvel e o mercado",
+          "alt": "Página 1: fotografias do T1 em Braga, os dados do imóvel, os valores de mercado, a referência do INE e quatro anúncios semelhantes com o preço por metro quadrado."
+        },
+        "2": {
+          "title": "Compra, financiamento e resultados",
+          "alt": "Página 2: a compra com empréstimo, a tabela de resultados dos quatro negócios e os custos de aquisição e anuais."
+        },
+        "3": {
+          "title": "Resumo do dinheiro",
+          "alt": "Página 3: o dinheiro que entra e sai em cada negócio, do pagamento inicial ao resultado no fim do período."
+        },
+        "4": {
+          "title": "Comprar e revender",
+          "alt": "Página 4: na revenda, o preço mínimo de venda sem prejuízo, o gráfico do pagamento inicial ao resultado e o IRS sobre a mais-valia."
+        },
+        "5": {
+          "title": "Arrendamento",
+          "alt": "Página 5: no arrendamento, o preço mínimo de venda sem prejuízo e o gráfico com rendas, custos, prestações e IRS."
+        },
+        "6": {
+          "title": "Alojamento local",
+          "alt": "Página 6: no alojamento local, o preço mínimo de venda no fim do período, o gráfico e o IRS sobre a mais-valia."
+        },
+        "7": {
+          "title": "Cessão de posição contratual",
+          "alt": "Página 7: na cessão da posição contratual, o preço mínimo da cessão sem prejuízo, o lucro e o IRS."
+        }
+      }
+    }
   },
   "scenarios": {
     "flip": "Comprar e revender",

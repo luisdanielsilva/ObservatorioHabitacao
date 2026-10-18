@@ -3,6 +3,7 @@ import { DonateSection } from "@/components/donate/DonateSection";
 import { DistrictMap } from "@/components/home/DistrictMap";
 import { HomeExample } from "@/components/home/HomeExample";
 import { QuestionHero } from "@/components/home/QuestionHero";
+import { ReportPreview } from "@/components/home/ReportPreview";
 import { SellBanner } from "@/components/home/SellBanner";
 import { getTranslations } from "next-intl/server";
 import { initPageLocale } from "@/i18n/locale";
@@ -132,6 +133,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       </div>
 
       {FEATURES.sell && <HomeExample />}
+
+      <ReportPreview />
 
       <div className="mx-auto max-w-6xl px-4">
         <section aria-labelledby="how" className="py-14">

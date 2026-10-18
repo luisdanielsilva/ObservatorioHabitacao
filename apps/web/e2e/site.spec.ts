@@ -212,6 +212,26 @@ test("donations: the Portuguese widget on the home page, reached from the footer
   await expect(section.getByRole("button", { name: "Doar 10 €" })).toBeVisible();
 });
 
+test("home page: the example report, page by page, and its PDF", async ({ page }) => {
+  await page.goto("/");
+  const section = page.locator("section[aria-labelledby=report]");
+  await expect(section.getByRole("heading", { name: /relatório PDF/ })).toBeVisible();
+
+  // An entry of the contents opens the viewer at its page; Esc closes it.
+  await section.getByRole("button", { name: /Resumo do dinheiro/ }).click();
+  const viewer = page.getByRole("dialog", { name: /Relatório de exemplo/ });
+  await expect(viewer).toBeVisible();
+  await expect(viewer.getByText("Página 3 de 7")).toBeVisible();
+  await expect(viewer.getByRole("img", { name: /^Página 3:/ })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(viewer).toBeHidden();
+  await expect(section.getByRole("button", { name: /Resumo do dinheiro/ })).toBeFocused();
+
+  const pdf = section.getByRole("link", { name: /Descarregar o PDF \(7 páginas/ });
+  const response = await page.request.get((await pdf.getAttribute("href"))!);
+  expect(response.headers()["content-type"]).toBe("application/pdf");
+});
+
 test.describe("phone layout", () => {
   test.use({ viewport: { width: 375, height: 800 } });
   for (const path of [

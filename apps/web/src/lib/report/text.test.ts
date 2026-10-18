@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pdfSafe, reportFilename } from "./text";
+import { labelLines, pdfSafe, reportFilename } from "./text";
 
 describe("pdfSafe", () => {
   it("keeps Portuguese text, the euro sign and m²", () => {
@@ -26,5 +26,18 @@ describe("reportFilename", () => {
     );
     expect(reportFilename("«»")).toBe("observatorio-habitacao-cenario.pdf");
     expect(reportFilename('a"b\nc')).toBe("observatorio-habitacao-a-b-c.pdf");
+  });
+});
+
+describe("labelLines", () => {
+  it("keeps a label that fits on one line", () => {
+    expect(labelLines("Venda", 38, 6.5)).toEqual(["Venda"]);
+  });
+  it("splits a long label at the space nearest the middle", () => {
+    expect(labelLines("IRS mais-valia", 38, 6.5)).toEqual(["IRS", "mais-valia"]);
+    expect(labelLines("Lucro ao preço indicado", 38, 6.5)).toEqual(["Lucro ao preço", "indicado"]);
+  });
+  it("leaves a single long word alone", () => {
+    expect(labelLines("Empréstimo", 20, 6.5)).toEqual(["Empréstimo"]);
   });
 });

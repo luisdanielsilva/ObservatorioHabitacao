@@ -43,7 +43,7 @@ import {
   waterfallBars,
 } from "./breakdown";
 import type { ReportData } from "./data";
-import { pdfSafe } from "./text";
+import { labelLines, pdfSafe } from "./text";
 
 /**
  * The scenario report (WBS 6.3.3), rendered server-side with React-PDF. All text is passed in
@@ -238,6 +238,9 @@ export function PdfBrand() {
   );
 }
 
+/** The waterfall bars' labels, in pt. */
+const WF_LABEL_SIZE = 6.5;
+
 export const s = StyleSheet.create({
   page: { padding: 36, fontSize: 9, color: C.text, fontFamily: "Helvetica" },
   header: {
@@ -304,7 +307,7 @@ export const s = StyleSheet.create({
   good: { color: C.good },
   waterfall: { marginTop: 8 },
   wfValue: { fontSize: 7 },
-  wfLabel: { fontSize: 6.5 },
+  wfLabel: { fontSize: WF_LABEL_SIZE },
   wfStep: { fontSize: 6.5 },
   cmpHead: { fontSize: 7.5 },
   cmpCell: { fontSize: 7.5 },
@@ -1099,15 +1102,20 @@ function WaterfallChart({
             >
               {pdfSafe(value(bar))}
             </Text>
-            <Text
-              x={slot * i + slot / 2}
-              y={WF.height - 4}
-              textAnchor="middle"
-              style={s.wfLabel}
-              fill={bar.key === "total" ? C.text : C.muted}
-            >
-              {pdfSafe(labels.breakdown.short[bar.key])}
-            </Text>
+            {labelLines(labels.breakdown.short[bar.key], slot, WF_LABEL_SIZE).map(
+              (line, n, lines) => (
+                <Text
+                  key={n}
+                  x={slot * i + slot / 2}
+                  y={WF.height - 4 - (lines.length - 1 - n) * 7.5}
+                  textAnchor="middle"
+                  style={s.wfLabel}
+                  fill={bar.key === "total" ? C.text : C.muted}
+                >
+                  {pdfSafe(line)}
+                </Text>
+              ),
+            )}
           </G>
         );
       })}
