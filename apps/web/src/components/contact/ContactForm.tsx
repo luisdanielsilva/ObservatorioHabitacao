@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Lightbulb, LifeBuoy } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useActionState, useId, useState } from "react";
+import { startTransition, useActionState, useId, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +41,6 @@ export function ContactForm({
     );
   }
 
-  const values = "values" in state ? state.values : undefined;
   const wrong = new Set("fields" in state ? state.fields : []);
   const field = (
     name: "name" | "email" | "title" | "description",
@@ -69,7 +68,16 @@ export function ContactForm({
   );
 
   return (
-    <form action={action} className="space-y-5" noValidate key={JSON.stringify(state)}>
+    // Submitted by hand rather than through `action`, so React doesn't reset what was typed.
+    <form
+      className="space-y-5"
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startTransition(() => action(data));
+      }}
+    >
       <fieldset>
         <legend className="mb-2 text-sm font-medium">{t("fields.type")}</legend>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -110,19 +118,13 @@ export function ContactForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         {field("name", (p) => (
-          <Input
-            {...p}
-            defaultValue={values?.name ?? defaults.name}
-            maxLength={80}
-            autoComplete="name"
-            required
-          />
+          <Input {...p} defaultValue={defaults.name} maxLength={80} autoComplete="name" required />
         ))}
         {field("email", (p) => (
           <Input
             {...p}
             type="email"
-            defaultValue={values?.email ?? defaults.email}
+            defaultValue={defaults.email}
             maxLength={120}
             autoComplete="email"
             required
@@ -130,18 +132,11 @@ export function ContactForm({
         ))}
       </div>
       {field("title", (p) => (
-        <Input
-          {...p}
-          defaultValue={values?.title ?? ""}
-          maxLength={120}
-          placeholder={t(`types.${type}.titlePlaceholder`)}
-          required
-        />
+        <Input {...p} maxLength={120} placeholder={t(`types.${type}.titlePlaceholder`)} required />
       ))}
       {field("description", (p) => (
         <textarea
           {...p}
-          defaultValue={values?.description ?? ""}
           maxLength={4000}
           rows={6}
           placeholder={t(`types.${type}.descriptionPlaceholder`)}

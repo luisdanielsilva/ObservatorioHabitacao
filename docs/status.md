@@ -13,6 +13,19 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**Donations (2026-10-18, issue #1)**
+
+- "Apoiar o Observatório, se quiseres" at the bottom of the home page (`#apoiar`, linked from the
+  footer): 2, 5 or 10 € through Stripe's embedded checkout, no name or email asked
+  (`components/donate/`). A Portuguese version of the SingleUseApps donation widget on the same
+  API (license-service `POST /api/checkout/donation`, label "Observatorio Habitacao").
+- Works only from origins in license-service's `ALLOWED_ORIGINS` (the preview's
+  www.singleuseapps.com yes, the dev server no; add the site's own domain when it moves).
+- The Stripe key is the **test** key (as in donate-widget.js): no real money until license-service
+  and both widgets switch to live keys. CSP allows js.stripe.com and *.stripe.com.
+- Privacy policy and cookies page mention Stripe. The contact form no longer loses text typed
+  right after an error (submitted by hand, without React's form reset).
+
 **Contact and suggestions (2026-10-18, issue #3)**
 
 - `/contactos` is one form, as on DupSweep and Portfolio Tracker: "Pedir ajuda" or "Sugerir uma

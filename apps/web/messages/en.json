@@ -25,7 +25,8 @@
     "apps": "iOS and Android apps coming soon",
     "rights": "© {year} Observatório Habitação",
     "disclaimer": "Results are estimates and do not constitute financial or tax advice.",
-    "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI"
+    "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI",
+    "donate": "Support us"
   },
   "common": {
     "comingSoon": "Coming soon",
@@ -858,7 +859,7 @@
     "termsTitle": "Terms and conditions",
     "termsText": "Observatório Habitação's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "Observatório Habitação only uses essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies."
+    "cookiesText": "Observatório Habitação only uses essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies. If you donate, Stripe's payment form uses its own cookies, needed for the payment and fraud prevention."
   },
   "account": {
     "title": "My account",
@@ -1464,7 +1465,8 @@
         "items": [
           "Hosting of the site and database: [hosting provider].",
           "Sending emails (sign-in links and reports): Resend.",
-          "Sign-in with Google, if you choose it: Google."
+          "Sign-in with Google, if you choose it: Google.",
+          "Donations, if you choose to make one: Stripe, which handles the payment. We don't receive your card details or email."
         ],
         "after": [
           "We only share data with partners (mortgage, lawyers, surveys) when you ask us to. We may also have to disclose it to authorities when the law requires."
@@ -1517,7 +1519,7 @@
         "id": "cookies",
         "title": "Cookies",
         "paragraphs": [
-          "We only use essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies."
+          "We only use essential cookies: the session (when you sign in), language and theme. We use no analytics or advertising cookies. If you donate, Stripe's payment form uses its own cookies, needed for the payment and fraud prevention."
         ]
       },
       {
@@ -1565,5 +1567,15 @@
     "privacy": "We only use these details to reply to you. More in the <link>privacy policy</link>.",
     "sentTitle": "Request sent",
     "sentText": "Thank you! We have your message and will reply by email as soon as we can."
+  },
+  "donate": {
+    "title": "Support Observatório, if you like",
+    "text": "<b>This buys you nothing.</b> It is only a way to help cover the server and the data if Observatório Habitação has been useful to you.",
+    "note": "Handled by Stripe. No account needed, and Observatório Habitação never sees or stores your card details, or your email: a donation has nothing to deliver.",
+    "thanks": "Thank you! That genuinely helps. Nothing else is needed from you.",
+    "amount": "Amount",
+    "button": "Donate €{amount}",
+    "opening": "Opening checkout…",
+    "error": "Could not open the checkout. Nothing has been charged. Try again in a moment."
   }
 }

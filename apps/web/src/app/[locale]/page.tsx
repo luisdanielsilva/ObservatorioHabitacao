@@ -1,4 +1,5 @@
 import { ArrowRight, LifeBuoy, Lightbulb } from "lucide-react";
+import { DonateSection } from "@/components/donate/DonateSection";
 import { DistrictMap } from "@/components/home/DistrictMap";
 import { HomeExample } from "@/components/home/HomeExample";
 import { QuestionHero } from "@/components/home/QuestionHero";
@@ -195,6 +196,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             </Button>
           </div>
         </section>
+
+        <DonateSection />
       </div>
     </>
   );

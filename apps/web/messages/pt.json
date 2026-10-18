@@ -25,7 +25,8 @@
     "apps": "Aplicações iOS e Android brevemente",
     "rights": "© {year} Observatório Habitação",
     "disclaimer": "Os resultados apresentados são estimativas e não constituem aconselhamento financeiro ou fiscal.",
-    "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI"
+    "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI",
+    "donate": "Apoiar"
   },
   "common": {
     "comingSoon": "Brevemente",
@@ -858,7 +859,7 @@
     "termsTitle": "Termos e condições",
     "termsText": "Os cálculos do Observatório Habitação são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
     "cookiesTitle": "Cookies",
-    "cookiesText": "O Observatório Habitação usa apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade."
+    "cookiesText": "O Observatório Habitação usa apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade. Se fizeres um donativo, o formulário de pagamento da Stripe usa os seus próprios cookies, necessários ao pagamento e à prevenção de fraude."
   },
   "account": {
     "title": "A minha conta",
@@ -1464,7 +1465,8 @@
         "items": [
           "Alojamento do site e da base de dados: [fornecedor de alojamento].",
           "Envio de emails (links de acesso e relatórios): Resend.",
-          "Entrada com o Google, se a escolheres: Google."
+          "Entrada com o Google, se a escolheres: Google.",
+          "Donativos, se quiseres fazer um: Stripe, que trata o pagamento. Não recebemos os dados do cartão nem o email."
         ],
         "after": [
           "Só partilhamos dados com parceiros (crédito, advogados, vistorias) quando o pedes. Podemos ainda ter de os comunicar a autoridades, quando a lei o exige."
@@ -1517,7 +1519,7 @@
         "id": "cookies",
         "title": "Cookies",
         "paragraphs": [
-          "Usamos apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade."
+          "Usamos apenas cookies essenciais: a sessão (quando entras), o idioma e o tema. Não usamos cookies de análise nem de publicidade. Se fizeres um donativo, o formulário de pagamento da Stripe usa os seus próprios cookies, necessários ao pagamento e à prevenção de fraude."
         ]
       },
       {
@@ -1565,5 +1567,15 @@
     "privacy": "Usamos estes dados só para te responder. Mais na <link>política de privacidade</link>.",
     "sentTitle": "Pedido enviado",
     "sentText": "Obrigado! Recebemos a tua mensagem e respondemos por email assim que possível."
+  },
+  "donate": {
+    "title": "Apoiar o Observatório, se quiseres",
+    "text": "<b>Não compras nada com isto.</b> É só uma forma de ajudar a pagar o servidor e os dados, se o Observatório Habitação te foi útil.",
+    "note": "Tratado pela Stripe. Não precisas de conta, e o Observatório Habitação nunca vê nem guarda os dados do teu cartão, nem o teu email: um donativo não tem nada para entregar.",
+    "thanks": "Obrigado! Ajuda mesmo. Não precisas de fazer mais nada.",
+    "amount": "Valor",
+    "button": "Doar {amount} €",
+    "opening": "A abrir o pagamento…",
+    "error": "Não foi possível abrir o pagamento. Nada foi cobrado. Tenta novamente daqui a pouco."
   }
 }

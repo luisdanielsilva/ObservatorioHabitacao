@@ -8,6 +8,7 @@ export async function Footer() {
     { href: "/sobre", label: t("about") },
     { href: "/metodologia", label: t("methodology") },
     { href: "/contactos", label: t("contacts") },
+    { href: "/#apoiar", label: t("donate") },
     { href: "/privacidade", label: t("privacy") },
     { href: "/termos", label: t("terms") },
     { href: "/cookies", label: t("cookies") },

@@ -196,6 +196,22 @@ test("contact: a suggestion from the home page, checked, then sent", async ({ pa
   await expect(page.getByRole("heading", { name: "Pedido enviado" })).toBeVisible();
 });
 
+test("donations: the Portuguese widget on the home page, reached from the footer", async ({
+  page,
+}) => {
+  await page.goto("/contactos");
+  await page.getByRole("contentinfo").getByRole("link", { name: "Apoiar" }).click();
+  await expect(page).toHaveURL(/\/#apoiar$/);
+  const section = page.locator("#apoiar");
+  await expect(section.getByRole("heading", { name: /Apoiar o Observatório/ })).toBeVisible();
+  await expect(section.getByRole("button", { name: "5 €", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await section.getByRole("button", { name: "10 €", exact: true }).click();
+  await expect(section.getByRole("button", { name: "Doar 10 €" })).toBeVisible();
+});
+
 test.describe("phone layout", () => {
   test.use({ viewport: { width: 375, height: 800 } });
   for (const path of [

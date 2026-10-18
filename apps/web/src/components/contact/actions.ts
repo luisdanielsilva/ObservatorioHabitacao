@@ -27,8 +27,6 @@ export type ContactState =
   | {
       status: "invalid" | "limit" | "error";
       fields?: Field[];
-      /** What was typed, put back after an error (React clears the form after an action). */
-      values?: Record<string, string>;
     };
 
 /**
@@ -48,15 +46,15 @@ export async function sendContactRequest(
   const parsed = Request.safeParse(values);
   if (!parsed.success) {
     const fields = [...new Set(parsed.error.issues.map((i) => i.path[0] as Field))];
-    return { status: "invalid", fields, values };
+    return { status: "invalid", fields };
   }
 
   const db = getDb();
   const ip = clientIp(await headers());
   const byIp = rateLimit(db, `contact:ip:${ip}`, IP_LIMIT.requests, IP_LIMIT.windowSeconds);
-  if (!byIp.allowed) return { status: "limit", values };
+  if (!byIp.allowed) return { status: "limit" };
   const all = rateLimit(db, "contact:all", ALL_LIMIT.requests, ALL_LIMIT.windowSeconds);
-  if (!all.allowed) return { status: "limit", values };
+  if (!all.allowed) return { status: "limit" };
 
   const user = await getCurrentUser();
   const r = parsed.data;
@@ -72,7 +70,7 @@ export async function sendContactRequest(
     });
   } catch (error) {
     console.error("contact request not saved:", error);
-    return { status: "error", values };
+    return { status: "error" };
   }
 
   // The request is saved; an email that fails is logged, and the team still sees it in Pedidos.
