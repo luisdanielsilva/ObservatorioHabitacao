@@ -40,6 +40,15 @@ VPS (system libraries need sudo), so Safari is untested.
 - Privacy policy and cookies page mention Stripe. The contact form no longer loses text typed
   right after an error (submitted by hand, without React's form reset).
 
+**Other questions, as a bento grid (2026-10-18)**
+
+- "Outras perguntas a que respondemos" on the home page is a 12-column grid (7+5, 4+4+4, 12;
+  two columns on tablets, one on phones). Each card names its tool and shows a small example
+  of the answer; the cards have no links (neither tool can open on a given topic), the header's
+  "Avaliar anúncio" and "Vender" buttons are the only actions.
+- Questions, texts (pt and en) and example figures are in `components/home/otherQuestions.ts`;
+  the figures are illustrative, not calculated. `otherQuestions.test.ts` checks they add up.
+
 **Contact and suggestions (2026-10-18, issue #3)**
 
 - `/contactos` is one form, as on DupSweep and Portfolio Tracker: "Pedir ajuda" or "Sugerir uma

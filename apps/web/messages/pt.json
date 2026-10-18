@@ -143,33 +143,7 @@
     },
     "questions": {
       "title": "Outras perguntas a que respondemos",
-      "text": "Cada pergunta leva à parte do site que a responde.",
-      "items": {
-        "pricey": {
-          "q": "Este anúncio está caro?",
-          "a": "Compara o preço por m² com a mediana do INE e com anúncios semelhantes que juntares."
-        },
-        "strategy": {
-          "q": "Rende mais arrendar, revender ou fazer alojamento local?",
-          "a": "Os quatro negócios lado a lado: lucro, TIR, rentabilidade e cash flow."
-        },
-        "costs": {
-          "q": "Quanto pago de IMT, Imposto do Selo e escritura?",
-          "a": "Os custos de compra calculados, com crédito ou sem crédito, para habitação própria ou investimento."
-        },
-        "breakEven": {
-          "q": "A que preço posso vender sem perder dinheiro?",
-          "a": "O preço mínimo sem prejuízo e quanto ganhas a cada subida de 5 %."
-        },
-        "gainTax": {
-          "q": "Quanto pago de IRS se vender com lucro?",
-          "a": "A mais-valia explicada linha a linha, com a correção pela inflação e os escalões."
-        },
-        "proceeds": {
-          "q": "Quanto fica para mim depois de vender?",
-          "a": "Do preço de venda tiramos a comissão, o IRS e o crédito em dívida."
-        }
-      }
+      "text": "Cada pergunta com um exemplo da resposta. Valores ilustrativos."
     },
     "contactTitle": "Precisas de ajuda ou tens uma ideia?",
     "contactText": "Diz-nos o que não funciona ou o que gostavas de ver no Observatório Habitação.",

@@ -167,6 +167,23 @@ test("privacy policy: the data, purposes, legal bases and rights", async ({ page
   await expect(page.getByText(/CNPD, www\.cnpd\.pt/)).toBeVisible();
 });
 
+test("home page: other questions, each with an illustrative answer", async ({ page }) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: "Outras perguntas a que respondemos" });
+  await expect(section.getByText("Valores ilustrativos.", { exact: false })).toBeVisible();
+  await expect(section.getByRole("heading", { level: 3 })).toHaveCount(6);
+  await expect(section.getByRole("link", { name: "Avaliar anúncio" })).toHaveAttribute(
+    "href",
+    /\/avaliar$/,
+  );
+  await expect(section.getByRole("link", { name: "Vender" })).toHaveAttribute("href", /\/vender$/);
+  // The cards are information only; the example amounts are text.
+  await expect(section.getByRole("link")).toHaveCount(2);
+  for (const text of ["€ 3 420/m²", "€ 9 800", "€ 224 700", "€ 42 600", "€ 187 000"]) {
+    await expect(section.getByText(text, { exact: true }).first()).toBeVisible();
+  }
+});
+
 test("contact: a suggestion opened in place on the home page, checked, then sent", async ({
   page,
 }) => {

@@ -3,6 +3,7 @@ import { ContactBox } from "@/components/contact/ContactBox";
 import { DonateSection } from "@/components/donate/DonateSection";
 import { DistrictMap } from "@/components/home/DistrictMap";
 import { HomeExample } from "@/components/home/HomeExample";
+import { OtherQuestions } from "@/components/home/OtherQuestions";
 import { QuestionHero } from "@/components/home/QuestionHero";
 import { ReportPreview } from "@/components/home/ReportPreview";
 import { SellBanner } from "@/components/home/SellBanner";
@@ -11,48 +12,6 @@ import { initPageLocale } from "@/i18n/locale";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { FEATURES } from "@/lib/features";
-
-/** "Outras perguntas": each question in a colour of the palette, linked to what answers it. */
-const QUESTIONS = [
-  {
-    key: "pricey",
-    href: "/avaliar",
-    colour: "text-primary bg-mint",
-    hover: "hover:border-primary",
-  },
-  {
-    key: "strategy",
-    href: "/avaliar",
-    colour: "text-moss bg-moss-soft",
-    hover: "hover:border-moss",
-  },
-  {
-    key: "costs",
-    href: "/avaliar",
-    colour: "text-brand-accent-foreground bg-sand-soft",
-    hover: "hover:border-brand-accent",
-  },
-  {
-    key: "breakEven",
-    href: "/avaliar",
-    colour: "text-pine-deep bg-secondary dark:text-primary",
-    hover: "hover:border-pine-deep",
-  },
-  {
-    key: "gainTax",
-    href: "/vender",
-    colour: "text-brand-accent-foreground bg-sand-soft",
-    hover: "hover:border-brand-accent",
-    sell: true,
-  },
-  {
-    key: "proceeds",
-    href: "/vender",
-    colour: "text-primary bg-mint",
-    hover: "hover:border-primary",
-    sell: true,
-  },
-] as const;
 
 const FACTS = [1, 2, 3, 4] as const;
 const STEP_COLOURS = [
@@ -66,7 +25,6 @@ const STEP_COLOURS = [
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   await initPageLocale(params);
   const t = await getTranslations("home");
-  const tn = await getTranslations("nav");
 
   return (
     <>
@@ -93,39 +51,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       </section>
 
       <div className="mx-auto max-w-6xl px-4">
-        <section aria-labelledby="questions" className="py-14">
-          <h2 id="questions" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            {t("questions.title")}
-          </h2>
-          <p className="mt-2 max-w-2xl text-muted-foreground">{t("questions.text")}</p>
-          <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {QUESTIONS.filter((q) => FEATURES.sell || !("sell" in q)).map((q) => (
-              <li key={q.key} className="min-w-0">
-                <Link
-                  href={q.href}
-                  className={`flex h-full flex-col gap-2.5 rounded-2xl border bg-background p-5 transition hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${q.hover}`}
-                >
-                  <span
-                    aria-hidden
-                    className={`grid size-9 place-items-center rounded-lg text-lg font-bold ${q.colour}`}
-                  >
-                    ?
-                  </span>
-                  <h3 className="text-lg leading-snug font-semibold">
-                    {t(`questions.items.${q.key}.q`)}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{t(`questions.items.${q.key}.a`)}</p>
-                  <span
-                    className={`mt-auto inline-flex items-center gap-1.5 pt-1 text-sm font-semibold ${q.colour.split(" ")[0]}`}
-                  >
-                    {q.href === "/vender" ? tn("sell") : tn("evaluate")}
-                    <ArrowRight className="size-4" aria-hidden />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <OtherQuestions showSell={FEATURES.sell} />
 
         {FEATURES.sell && (
           <div className="pb-14">
