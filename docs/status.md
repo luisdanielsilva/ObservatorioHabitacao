@@ -13,6 +13,18 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
 
+**Contact and suggestions (2026-10-18, issue #3)**
+
+- `/contactos` is one form, as on DupSweep and Portfolio Tracker: "Pedir ajuda" or "Sugerir uma
+  funcionalidade", name, email, subject, description (`components/contact/`). Linked from the
+  footer and from a box at the bottom of the home page (`?tipo=sugestao` opens on suggestions).
+- Kept as a lead (types `support`, `feature`; subject in the payload) for Pedidos in the
+  back-office and "Pedidos enviados" in Conta; emailed to `CONTACT_EMAIL_TO` (or the first of
+  `ADMIN_EMAILS`) with Reply-To the sender. 5 a day per IP, 30 a day in all; honeypot field.
+- The preview has neither the Resend key nor `CONTACT_EMAIL_TO`: requests show in
+  `/admin/pedidos` only. e2e `clearRateLimits()` (better-sqlite3, dev dependency) resets limits.
+- Issue #4 closed (design B live).
+
 **Free accounts with a profile, and the privacy policy (2026-10-17, issue #7)**
 
 - After the first sign-in, "Completa o teu perfil" (`/conta/perfil`) asks for the name

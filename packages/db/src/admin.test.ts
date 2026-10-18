@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  createContactRequest,
   getDashboardStats,
   getLead,
   jobsSummary,
@@ -104,6 +105,23 @@ describe("leads", () => {
     });
     expect(updateLead(db, lead.id, { assigneeId: "ana" })).toBe(false);
     expect(updateLead(db, 999, { status: "won" })).toBe(false);
+  });
+});
+
+describe("contact requests", () => {
+  it("are kept as new leads with the title, listed by type", () => {
+    const id = createContactRequest(db, {
+      type: "feature",
+      userId: null,
+      name: "Rui",
+      email: "rui@example.pt",
+      title: "Mapa de rendas",
+      message: "Gostava de ver as rendas por freguesia.",
+    });
+    const { lead } = getLead(db, id)!;
+    expect(lead).toMatchObject({ type: "feature", status: "new", contactConsent: true });
+    expect(lead.payload).toEqual({ title: "Mapa de rendas" });
+    expect(listLeads(db, { type: "feature" }).map((l) => l.id)).toEqual([id]);
   });
 });
 

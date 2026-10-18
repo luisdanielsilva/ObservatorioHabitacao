@@ -72,6 +72,8 @@ export default async function LeadPage({ params }: PageProps<"/[locale]/admin/pe
             )}
             {field(t("leads.area"), areaName)}
             {field(t("leads.consent"), lead.contactConsent ? t("leads.yes") : t("leads.no"))}
+            {typeof lead.payload?.title === "string" &&
+              field(t("leads.subject"), lead.payload.title)}
             {field(
               t("leads.message"),
               lead.message && <span className="whitespace-pre-wrap">{lead.message}</span>,

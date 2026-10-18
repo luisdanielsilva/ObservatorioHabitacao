@@ -10,7 +10,7 @@ export const leads = sqliteTable(
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
     type: text("type", {
-      enum: ["valuation", "sales_support", "negotiation", "partner"],
+      enum: ["valuation", "sales_support", "negotiation", "partner", "support", "feature"],
     }).notNull(),
     status: text("status", { enum: ["new", "contacted", "qualified", "won", "lost"] })
       .notNull()

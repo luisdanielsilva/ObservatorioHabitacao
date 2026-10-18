@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { FEATURES } from "../src/lib/features";
-import { expectNoHorizontalScroll, field, watchProblems } from "./helpers";
+import { clearRateLimits, expectNoHorizontalScroll, field, watchProblems } from "./helpers";
 
 test("home page in Portuguese and English, with the language switch", async ({ page }) => {
   const problems = watchProblems(page);
@@ -167,6 +167,35 @@ test("privacy policy: the data, purposes, legal bases and rights", async ({ page
   await expect(page.getByText(/CNPD, www\.cnpd\.pt/)).toBeVisible();
 });
 
+test("contact: a suggestion from the home page, checked, then sent", async ({ page }) => {
+  clearRateLimits("contact:");
+  await page.goto("/");
+  await page.getByRole("link", { name: "Sugerir uma funcionalidade" }).click();
+  await expect(page).toHaveURL(/\/contactos\?tipo=sugestao/);
+  await expect(page.getByRole("heading", { level: 1, name: "Contacto e sugestões" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Sugerir uma funcionalidade/ })).toBeChecked();
+
+  await page.getByRole("button", { name: "Enviar" }).click();
+  await expect(page.getByText("Escreve o teu nome.")).toBeVisible();
+  await expect(page.getByText(/Escreve um email válido/)).toBeVisible();
+
+  await page.getByLabel("Nome").fill("Rui Teste");
+  await page.getByLabel("Email").fill("rui@example.pt");
+  await page.getByLabel("Assunto").fill("Comparar dois imóveis");
+  await page.getByLabel("Descrição").fill("curta");
+  await page.getByRole("button", { name: "Enviar" }).click();
+  await expect(page.getByText(/Descreve o pedido/)).toBeVisible();
+  // What was typed is kept, and the suggestion is still chosen.
+  await expect(page.getByLabel("Assunto")).toHaveValue("Comparar dois imóveis");
+  await expect(page.getByRole("radio", { name: /Sugerir uma funcionalidade/ })).toBeChecked();
+
+  await page
+    .getByLabel("Descrição")
+    .fill("Gostava de ver dois anúncios lado a lado, com as contas.");
+  await page.getByRole("button", { name: "Enviar" }).click();
+  await expect(page.getByRole("heading", { name: "Pedido enviado" })).toBeVisible();
+});
+
 test.describe("phone layout", () => {
   test.use({ viewport: { width: 375, height: 800 } });
   for (const path of [
@@ -176,6 +205,7 @@ test.describe("phone layout", () => {
     "/metodologia",
     "/entrar",
     "/privacidade",
+    "/contactos",
   ]) {
     test(`no horizontal scroll on ${path}`, async ({ page }) => {
       await page.goto(path);

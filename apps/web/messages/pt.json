@@ -18,7 +18,7 @@
   "footer": {
     "about": "Sobre",
     "methodology": "Como calculamos",
-    "contacts": "Contactos",
+    "contacts": "Contacto e sugestões",
     "privacy": "Política de privacidade",
     "terms": "Termos e condições",
     "cookies": "Cookies",
@@ -168,7 +168,11 @@
           "a": "Do preço de venda tiramos a comissão, o IRS e o crédito em dívida."
         }
       }
-    }
+    },
+    "contactTitle": "Precisas de ajuda ou tens uma ideia?",
+    "contactText": "Diz-nos o que não funciona ou o que gostavas de ver no Observatório Habitação.",
+    "contactSupport": "Pedir ajuda",
+    "contactFeature": "Sugerir uma funcionalidade"
   },
   "scenarios": {
     "flip": "Comprar e revender",
@@ -842,14 +846,14 @@
     "error": "Não foi possível entrar. Tenta novamente ou pede um novo link.",
     "terms": "Ao entrar aceitas os termos e condições e a política de privacidade.",
     "signOut": "Sair",
-    "account": "Conta"
+    "account": "Conta",
+    "button": "Entrar"
   },
   "legal": {
     "draft": "Versão provisória. Este texto será revisto antes do lançamento.",
     "aboutTitle": "Sobre o Observatório Habitação",
     "aboutText": "O Observatório Habitação ajuda investidores a avaliar imóveis em Portugal: compara o preço com o mercado e calcula impostos, custos e financiamento para quatro estratégias de investimento.",
     "contactsTitle": "Contactos",
-    "contactsText": "Para questões sobre o Observatório Habitação, contacta-nos por email. O endereço será publicado antes do lançamento.",
     "privacyTitle": "Política de privacidade",
     "termsTitle": "Termos e condições",
     "termsText": "Os cálculos do Observatório Habitação são estimativas baseadas nos valores introduzidos pelo utilizador e em parâmetros fiscais públicos. Não constituem aconselhamento financeiro, fiscal ou jurídico.",
@@ -874,7 +878,9 @@
       "valuation": "Avaliação",
       "sales_support": "Apoio à venda",
       "negotiation": "Negociação",
-      "partner": "Parceiro"
+      "partner": "Parceiro",
+      "support": "Suporte",
+      "feature": "Sugestão"
     },
     "requestStatus": {
       "new": "Recebido",
@@ -1045,7 +1051,9 @@
       "valuation": "Avaliação",
       "sales_support": "Apoio à venda",
       "negotiation": "Negociação",
-      "partner": "Parceiro"
+      "partner": "Parceiro",
+      "support": "Suporte",
+      "feature": "Sugestão"
     },
     "jobStatus": {
       "queued": "Em fila",
@@ -1124,7 +1132,8 @@
       "save": "Guardar",
       "noLeads": "Não há pedidos com estes filtros.",
       "detail": "Pedido n.º {id}",
-      "open": "Abrir"
+      "open": "Abrir",
+      "subject": "Assunto"
     },
     "imports": {
       "title": "Importações de dados",
@@ -1390,7 +1399,7 @@
         "basis": "Consentimento (al. a), só se os indicares"
       },
       {
-        "purpose": "Responder a pedidos de contacto, de avaliação ou de apoio à venda",
+        "purpose": "Responder a pedidos de ajuda, sugestões e pedidos de avaliação ou de apoio à venda",
         "data": "Nome, email, telefone, mensagem",
         "basis": "Diligências pré-contratuais a teu pedido (al. b)"
       },
@@ -1519,5 +1528,42 @@
         ]
       }
     ]
+  },
+  "contact": {
+    "title": "Contacto e sugestões",
+    "intro": "Algo não funciona como esperavas, ou tens uma ideia para o Observatório Habitação? Escreve-nos: os pedidos de ajuda e as sugestões chegam à mesma equipa, e respondemos por email.",
+    "fields": {
+      "type": "O que precisas?",
+      "name": "Nome",
+      "email": "Email",
+      "title": "Assunto",
+      "description": "Descrição"
+    },
+    "types": {
+      "support": {
+        "label": "Pedir ajuda",
+        "hint": "Um erro, uma dúvida ou algo que não funciona",
+        "titlePlaceholder": "Ex.: o PDF não abre",
+        "descriptionPlaceholder": "Conta-nos o que fizeste, o que esperavas e o que aconteceu. Se for um anúncio, cola o link."
+      },
+      "feature": {
+        "label": "Sugerir uma funcionalidade",
+        "hint": "Uma ideia para melhorar o site",
+        "titlePlaceholder": "Ex.: comparar dois imóveis lado a lado",
+        "descriptionPlaceholder": "Descreve a ideia e em que situação te ajudaria."
+      }
+    },
+    "errors": {
+      "name": "Escreve o teu nome.",
+      "email": "Escreve um email válido, para te podermos responder.",
+      "title": "Escreve um assunto (pelo menos 3 caracteres).",
+      "description": "Descreve o pedido (pelo menos 10 caracteres)."
+    },
+    "limit": "Já enviaste vários pedidos hoje. Tenta novamente amanhã.",
+    "error": "Não foi possível enviar o pedido. Tenta novamente daqui a pouco.",
+    "submit": "Enviar",
+    "privacy": "Usamos estes dados só para te responder. Mais na <link>política de privacidade</link>.",
+    "sentTitle": "Pedido enviado",
+    "sentText": "Obrigado! Recebemos a tua mensagem e respondemos por email assim que possível."
   }
 }

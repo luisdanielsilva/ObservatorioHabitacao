@@ -19,7 +19,14 @@ export const generateMetadata = ({
 }: PageProps<"/[locale]/admin/pedidos">): Promise<Metadata> => adminMetadata(params, "leads.title");
 
 const STATUSES = ["new", "contacted", "qualified", "won", "lost"] as const;
-const TYPES = ["valuation", "sales_support", "negotiation", "partner"] as const;
+const TYPES = [
+  "valuation",
+  "sales_support",
+  "negotiation",
+  "partner",
+  "support",
+  "feature",
+] as const;
 const pick = <T extends string>(list: readonly T[], v: unknown): T | undefined =>
   list.find((x) => x === (Array.isArray(v) ? v[0] : v));
 

@@ -1,3 +1,5 @@
+import Database from "better-sqlite3";
+import path from "node:path";
 import { readFileSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
 
@@ -104,4 +106,19 @@ export async function saveSignedIn(page: Page, email: string, log: string) {
   await page.getByRole("link", { name: "Guardar →" }).click();
   await signInWithLink(page, email, log);
   await expect(page).toHaveURL(/cenario=\d+/);
+}
+
+/**
+ * Clears the rate-limit counters starting with `prefix` (e.g. "contact:") in the database the
+ * dev server uses, so tests that send forms can run again on the same day.
+ */
+export function clearRateLimits(prefix: string) {
+  const db = new Database(
+    process.env.DATABASE_PATH ?? path.join(process.cwd(), "../../data/observatorio-habitacao.db"),
+  );
+  try {
+    db.prepare("delete from cache where key like ?").run(`ratelimit:${prefix}%`);
+  } finally {
+    db.close();
+  }
 }

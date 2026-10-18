@@ -24,7 +24,7 @@ function Inner({ className }: { className?: string }) {
   return (
     <Button asChild size="sm" className={cn("rounded-full px-4", className)}>
       <Link href={status === "authenticated" ? "/conta" : "/entrar"}>
-        {status === "authenticated" ? t("account") : t("title")}
+        {status === "authenticated" ? t("account") : t("button")}
       </Link>
     </Button>
   );

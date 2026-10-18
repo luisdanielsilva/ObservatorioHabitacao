@@ -5,6 +5,8 @@ export interface Email {
   subject: string;
   text: string;
   html?: string;
+  /** Where replies go, e.g. the person who wrote through the contact form. */
+  replyTo?: string;
   attachments?: { filename: string; content: Buffer }[];
 }
 
@@ -31,6 +33,7 @@ export async function sendEmail(email: Email): Promise<void> {
       subject: email.subject,
       text: email.text,
       html: email.html,
+      reply_to: email.replyTo,
       attachments: email.attachments?.map((a) => ({
         filename: a.filename,
         content: a.content.toString("base64"),

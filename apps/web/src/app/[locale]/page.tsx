@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LifeBuoy, Lightbulb } from "lucide-react";
 import { DistrictMap } from "@/components/home/DistrictMap";
 import { HomeExample } from "@/components/home/HomeExample";
 import { QuestionHero } from "@/components/home/QuestionHero";
@@ -168,6 +168,33 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             </Button>
           </section>
         )}
+
+        {/* Help or an idea (issue #3), as at the bottom of the other SingleUseApps sites. */}
+        <section
+          aria-labelledby="contact"
+          className="mb-14 flex flex-col gap-5 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+        >
+          <div className="min-w-0">
+            <h2 id="contact" className="text-xl font-semibold tracking-tight">
+              {t("contactTitle")}
+            </h2>
+            <p className="mt-1 max-w-xl text-muted-foreground">{t("contactText")}</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Button asChild>
+              <Link href="/contactos">
+                <LifeBuoy aria-hidden />
+                {t("contactSupport")}
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={{ pathname: "/contactos", query: { tipo: "sugestao" } }}>
+                <Lightbulb aria-hidden />
+                {t("contactFeature")}
+              </Link>
+            </Button>
+          </div>
+        </section>
       </div>
     </>
   );

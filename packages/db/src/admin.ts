@@ -184,6 +184,36 @@ export function verifyParameterSet(db: Db, id: number, verifiedBy: string): bool
 
 // ── Leads / CRM (8.4) ───────────────────────────────────────────────────────
 
+/**
+ * A support request or a feature suggestion from the contact form (issue #3), kept as a lead
+ * so the team follows it up in Pedidos. Asking for an answer is the consent to be contacted.
+ */
+export function createContactRequest(
+  db: Db,
+  request: {
+    type: "support" | "feature";
+    userId: string | null;
+    name: string;
+    email: string;
+    title: string;
+    message: string;
+  },
+): number {
+  return db
+    .insert(leads)
+    .values({
+      type: request.type,
+      userId: request.userId,
+      name: request.name,
+      email: request.email,
+      message: request.message,
+      payload: { title: request.title },
+      contactConsent: true,
+    })
+    .returning({ id: leads.id })
+    .get().id;
+}
+
 export function listLeads(db: Db, filter: { status?: LeadStatus; type?: LeadType } = {}) {
   const conditions = [
     filter.status ? eq(leads.status, filter.status) : undefined,

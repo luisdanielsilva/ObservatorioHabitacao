@@ -18,7 +18,7 @@
   "footer": {
     "about": "About",
     "methodology": "How we calculate",
-    "contacts": "Contacts",
+    "contacts": "Contact and suggestions",
     "privacy": "Privacy policy",
     "terms": "Terms and conditions",
     "cookies": "Cookies",
@@ -168,7 +168,11 @@
           "a": "From the sale price we take the commission, IRS and the mortgage still owed."
         }
       }
-    }
+    },
+    "contactTitle": "Need help or have an idea?",
+    "contactText": "Tell us what isn't working or what you'd like to see in Observatório Habitação.",
+    "contactSupport": "Get help",
+    "contactFeature": "Suggest a feature"
   },
   "scenarios": {
     "flip": "Buy and resell",
@@ -842,14 +846,14 @@
     "error": "We could not sign you in. Try again or ask for a new link.",
     "terms": "By signing in you accept the terms and conditions and the privacy policy.",
     "signOut": "Sign out",
-    "account": "Account"
+    "account": "Account",
+    "button": "Sign in"
   },
   "legal": {
     "draft": "Draft. This text will be reviewed before launch.",
     "aboutTitle": "About Observatório Habitação",
     "aboutText": "Observatório Habitação helps investors evaluate property in Portugal: it compares the price with the market and works out taxes, costs and financing for four investment strategies.",
     "contactsTitle": "Contacts",
-    "contactsText": "For questions about Observatório Habitação, contact us by email. The address will be published before launch.",
     "privacyTitle": "Privacy policy",
     "termsTitle": "Terms and conditions",
     "termsText": "Observatório Habitação's calculations are estimates based on the values entered by the user and on public tax parameters. They are not financial, tax or legal advice.",
@@ -874,7 +878,9 @@
       "valuation": "Valuation",
       "sales_support": "Help selling",
       "negotiation": "Negotiation",
-      "partner": "Partner"
+      "partner": "Partner",
+      "support": "Support",
+      "feature": "Suggestion"
     },
     "requestStatus": {
       "new": "Received",
@@ -1045,7 +1051,9 @@
       "valuation": "Valuation",
       "sales_support": "Help selling",
       "negotiation": "Negotiation",
-      "partner": "Partner"
+      "partner": "Partner",
+      "support": "Support",
+      "feature": "Suggestion"
     },
     "jobStatus": {
       "queued": "Queued",
@@ -1124,7 +1132,8 @@
       "save": "Save",
       "noLeads": "No requests match these filters.",
       "detail": "Request #{id}",
-      "open": "Open"
+      "open": "Open",
+      "subject": "Subject"
     },
     "imports": {
       "title": "Data imports",
@@ -1390,7 +1399,7 @@
         "basis": "Consent (a), only if you give them"
       },
       {
-        "purpose": "Answering contact, valuation or sales support requests",
+        "purpose": "Answering help requests, suggestions, and valuation or sales support requests",
         "data": "Name, email, phone, message",
         "basis": "Steps at your request before a contract (b)"
       },
@@ -1519,5 +1528,42 @@
         ]
       }
     ]
+  },
+  "contact": {
+    "title": "Contact and suggestions",
+    "intro": "Something not working as expected, or an idea for Observatório Habitação? Write to us: help requests and suggestions reach the same team, and we reply by email.",
+    "fields": {
+      "type": "What do you need?",
+      "name": "Name",
+      "email": "Email",
+      "title": "Subject",
+      "description": "Description"
+    },
+    "types": {
+      "support": {
+        "label": "Get help",
+        "hint": "A bug, a question or something that doesn't work",
+        "titlePlaceholder": "E.g. the PDF won't open",
+        "descriptionPlaceholder": "Tell us what you did, what you expected and what happened. If it is about a listing, paste the link."
+      },
+      "feature": {
+        "label": "Suggest a feature",
+        "hint": "An idea to improve the site",
+        "titlePlaceholder": "E.g. compare two properties side by side",
+        "descriptionPlaceholder": "Describe the idea and when it would help you."
+      }
+    },
+    "errors": {
+      "name": "Enter your name.",
+      "email": "Enter a valid email so we can reply.",
+      "title": "Enter a subject (at least 3 characters).",
+      "description": "Describe your request (at least 10 characters)."
+    },
+    "limit": "You have sent several requests today. Try again tomorrow.",
+    "error": "The request could not be sent. Try again in a moment.",
+    "submit": "Send",
+    "privacy": "We only use these details to reply to you. More in the <link>privacy policy</link>.",
+    "sentTitle": "Request sent",
+    "sentText": "Thank you! We have your message and will reply by email as soon as we can."
   }
 }
