@@ -4,6 +4,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { withBasePath } from "@/lib/basePath";
 import { cn } from "@/lib/utils";
 
 /**
@@ -12,7 +13,8 @@ import { cn } from "@/lib/utils";
  */
 export function AccountButton({ className }: { className?: string }) {
   return (
-    <SessionProvider refetchOnWindowFocus={false}>
+    // The session is read from Auth.js under the site's base path (/observatorio-habitacao on the preview).
+    <SessionProvider basePath={withBasePath("/api/auth")} refetchOnWindowFocus={false}>
       <Inner className={className} />
     </SessionProvider>
   );
