@@ -59,6 +59,7 @@ const STEP_COLOURS = [
   "bg-[#2f7a5e] text-sand-soft",
   "bg-brand-accent text-pine-deep",
   "bg-pine-deep text-sand-soft dark:bg-moss dark:text-pine-deep",
+  "bg-moss text-sand-soft dark:bg-[#9cbf7a] dark:text-pine-deep",
 ] as const;
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
@@ -141,14 +142,15 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           <h2 id="how" className="text-2xl font-semibold tracking-tight sm:text-3xl">
             {t("howTitle")}
           </h2>
-          <ol className="relative mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="relative mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {/* The steps' thread, from the first circle to the last. */}
             <span
               aria-hidden
-              className="absolute top-5 right-[calc(25%-2.4rem)] left-5 hidden h-0.5 bg-[repeating-linear-gradient(90deg,var(--brand-accent)_0_8px,transparent_8px_14px)] lg:block"
+              className="absolute top-5 right-[calc(20%-2.4rem)] left-5 hidden h-0.5 bg-[repeating-linear-gradient(90deg,var(--brand-accent)_0_8px,transparent_8px_14px)] lg:block"
             />
-            {([1, 2, 3, 4] as const).map((n, i) => (
-              <li key={n} className="relative space-y-2">
+            {([1, 2, 3, 4, 5] as const).map((n, i) => (
+              // The fifth step, alone on its row of two, spans it.
+              <li key={n} className="relative space-y-2 last:sm:col-span-2 last:lg:col-span-1">
                 <span
                   className={`flex size-10 items-center justify-center rounded-full font-bold shadow-[0_0_0_6px_var(--background)] ${STEP_COLOURS[i]}`}
                 >
