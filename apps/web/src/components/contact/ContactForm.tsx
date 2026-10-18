@@ -1,8 +1,8 @@
 "use client";
 
-import { CheckCircle2, Lightbulb, LifeBuoy } from "lucide-react";
+import { CheckCircle2, ChevronUp, Lightbulb, LifeBuoy } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { startTransition, useActionState, useId, useState } from "react";
+import { startTransition, useActionState, useEffect, useId, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,25 +11,41 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { sendContactRequest, type ContactState } from "./actions";
 
-type Type = "support" | "feature";
+export type ContactType = "support" | "feature";
+type Type = ContactType;
 
 /**
  * Support request or feature suggestion (issue #3), as on the other SingleUseApps sites: type,
  * name, email, title and description. A signed-in user's name and email are filled in.
+ *
+ * Given a `type`, the form has no type picker of its own: whoever shows it chose the type (the
+ * home page's contact box). `onSent` and `onClose` let that box react to a sent request.
  */
 export function ContactForm({
   defaults,
   initialType = "support",
+  type: fixedType,
+  onSent,
+  onClose,
 }: {
   defaults: { name: string; email: string };
   initialType?: Type;
+  type?: Type;
+  onSent?: () => void;
+  onClose?: () => void;
 }) {
   const t = useTranslations("contact");
   const id = useId();
   const [state, action, pending] = useActionState<ContactState, FormData>(sendContactRequest, {
     status: "idle",
   });
-  const [type, setType] = useState<Type>(initialType);
+  const [chosenType, setType] = useState<Type>(initialType);
+  const type = fixedType ?? chosenType;
+  const sent = state.status === "sent";
+
+  useEffect(() => {
+    if (sent) onSent?.();
+  }, [sent, onSent]);
 
   if (state.status === "sent") {
     return (
@@ -37,6 +53,12 @@ export function ContactForm({
         <CheckCircle2 className="size-7 text-primary" aria-hidden />
         <h2 className="mt-3 text-lg font-semibold">{t("sentTitle")}</h2>
         <p className="mt-1 text-muted-foreground">{t("sentText")}</p>
+        {onClose && (
+          <Button type="button" variant="outline" className="mt-4" onClick={onClose}>
+            <ChevronUp aria-hidden />
+            {t("close")}
+          </Button>
+        )}
       </div>
     );
   }
@@ -78,43 +100,47 @@ export function ContactForm({
         startTransition(() => action(data));
       }}
     >
-      <fieldset>
-        <legend className="mb-2 text-sm font-medium">{t("fields.type")}</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {(
-            [
-              ["support", LifeBuoy],
-              ["feature", Lightbulb],
-            ] as const
-          ).map(([value, Icon]) => (
-            <label
-              key={value}
-              className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
-                type === value
-                  ? "border-2 border-primary bg-mint-soft p-[11px]"
-                  : "hover:border-primary/50",
-              )}
-            >
-              <input
-                type="radio"
-                name="type"
-                value={value}
-                checked={type === value}
-                onChange={() => setType(value)}
-                className="sr-only"
-              />
-              <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-              <span>
-                <span className="block font-semibold">{t(`types.${value}.label`)}</span>
-                <span className="block text-sm text-muted-foreground">
-                  {t(`types.${value}.hint`)}
+      {fixedType ? (
+        <input type="hidden" name="type" value={fixedType} />
+      ) : (
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium">{t("fields.type")}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {(
+              [
+                ["support", LifeBuoy],
+                ["feature", Lightbulb],
+              ] as const
+            ).map(([value, Icon]) => (
+              <label
+                key={value}
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+                  type === value
+                    ? "border-2 border-primary bg-mint-soft p-[11px]"
+                    : "hover:border-primary/50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="type"
+                  value={value}
+                  checked={type === value}
+                  onChange={() => setType(value)}
+                  className="sr-only"
+                />
+                <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                <span>
+                  <span className="block font-semibold">{t(`types.${value}.label`)}</span>
+                  <span className="block text-sm text-muted-foreground">
+                    {t(`types.${value}.hint`)}
+                  </span>
                 </span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         {field("name", (p) => (

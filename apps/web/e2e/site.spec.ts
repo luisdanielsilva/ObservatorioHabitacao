@@ -167,33 +167,60 @@ test("privacy policy: the data, purposes, legal bases and rights", async ({ page
   await expect(page.getByText(/CNPD, www\.cnpd\.pt/)).toBeVisible();
 });
 
-test("contact: a suggestion from the home page, checked, then sent", async ({ page }) => {
+test("contact: a suggestion opened in place on the home page, checked, then sent", async ({
+  page,
+}) => {
   clearRateLimits("contact:");
   await page.goto("/");
-  await page.getByRole("link", { name: "Sugerir uma funcionalidade" }).click();
-  await expect(page).toHaveURL(/\/contactos\?tipo=sugestao/);
-  await expect(page.getByRole("heading", { level: 1, name: "Contacto e sugestões" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: /Sugerir uma funcionalidade/ })).toBeChecked();
+  const box = page.getByRole("region", { name: "Precisas de ajuda ou tens uma ideia?" });
+  const suggest = box.getByRole("button", { name: "Sugerir uma funcionalidade" });
+  const help = box.getByRole("button", { name: "Pedir ajuda" });
+  await expect(box.getByLabel("Assunto")).toBeHidden();
 
-  await page.getByRole("button", { name: "Enviar" }).click();
-  await expect(page.getByText("Escreve o teu nome.")).toBeVisible();
-  await expect(page.getByText(/Escreve um email válido/)).toBeVisible();
+  await suggest.click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(suggest).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    box.getByRole("heading", { level: 3, name: "Sugerir uma funcionalidade" }),
+  ).toBeVisible();
+  // The buttons above chose the type: the form has no picker of its own.
+  await expect(box.getByRole("radio")).toHaveCount(0);
 
-  await page.getByLabel("Nome").fill("Rui Teste");
-  await page.getByLabel("Email").fill("rui@example.pt");
-  await page.getByLabel("Assunto").fill("Comparar dois imóveis");
-  await page.getByLabel("Descrição").fill("curta");
-  await page.getByRole("button", { name: "Enviar" }).click();
-  await expect(page.getByText(/Descreve o pedido/)).toBeVisible();
-  // What was typed is kept, and the suggestion is still chosen.
-  await expect(page.getByLabel("Assunto")).toHaveValue("Comparar dois imóveis");
-  await expect(page.getByRole("radio", { name: /Sugerir uma funcionalidade/ })).toBeChecked();
+  await box.getByRole("button", { name: "Enviar" }).click();
+  await expect(box.getByText("Escreve o teu nome.")).toBeVisible();
+  await expect(box.getByText(/Escreve um email válido/)).toBeVisible();
 
-  await page
+  await box.getByLabel("Nome").fill("Rui Teste");
+  await box.getByLabel("Email").fill("rui@example.pt");
+  await box.getByLabel("Assunto").fill("Comparar dois imóveis");
+  await box.getByLabel("Descrição").fill("curta");
+  await box.getByRole("button", { name: "Enviar" }).click();
+  await expect(box.getByText(/Descreve o pedido/)).toBeVisible();
+  await expect(box.getByLabel("Assunto")).toHaveValue("Comparar dois imóveis");
+
+  // Folded away and opened again: what was typed is still there.
+  await suggest.click();
+  await expect(suggest).toHaveAttribute("aria-expanded", "false");
+  await expect(box.getByLabel("Assunto")).toBeHidden();
+  await help.click();
+  await expect(box.getByRole("heading", { level: 3, name: "Pedir ajuda" })).toBeVisible();
+  await expect(box.getByLabel("Assunto")).toHaveValue("Comparar dois imóveis");
+  await suggest.click();
+  await expect(help).toHaveAttribute("aria-expanded", "false");
+
+  await box
     .getByLabel("Descrição")
     .fill("Gostava de ver dois anúncios lado a lado, com as contas.");
-  await page.getByRole("button", { name: "Enviar" }).click();
-  await expect(page.getByRole("heading", { name: "Pedido enviado" })).toBeVisible();
+  await box.getByRole("button", { name: "Enviar" }).click();
+  await expect(box.getByRole("heading", { name: "Pedido enviado" })).toBeVisible();
+  await box.getByRole("button", { name: "Fechar" }).last().click();
+  await expect(suggest).toHaveAttribute("aria-expanded", "false");
+});
+
+test("contact: the Contactos page keeps its own type picker", async ({ page }) => {
+  await page.goto("/contactos?tipo=sugestao");
+  await expect(page.getByRole("heading", { level: 1, name: "Contacto e sugestões" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Sugerir uma funcionalidade/ })).toBeChecked();
 });
 
 test("donations: the Portuguese widget on the home page, reached from the footer", async ({

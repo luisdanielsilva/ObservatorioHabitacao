@@ -1,6 +1,7 @@
 "use server";
 
-import { clientIp, createContactRequest, rateLimit } from "@observatorio-habitacao/db";
+import { clientIp, createContactRequest, rateLimit, users } from "@observatorio-habitacao/db";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
@@ -97,4 +98,16 @@ export async function sendContactRequest(
     }
   }
   return { status: "sent" };
+}
+
+/**
+ * The name and email a signed-in person's request starts with. The home page's contact box asks
+ * for them when it first opens, so the page itself doesn't depend on the session.
+ */
+export async function contactDefaults(): Promise<{ name: string; email: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { name: "", email: "" };
+  const name =
+    getDb().select({ name: users.name }).from(users).where(eq(users.id, user.id)).get()?.name ?? "";
+  return { name, email: user.email ?? "" };
 }

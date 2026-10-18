@@ -37,7 +37,6 @@ export async function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 px-4 py-4 text-xs opacity-70">
           <span>{t("rights", { year: new Date().getFullYear() })}</span>
-          <span>{t("apps")}</span>
         </div>
       </div>
     </footer>

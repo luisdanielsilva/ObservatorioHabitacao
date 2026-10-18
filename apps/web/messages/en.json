@@ -22,7 +22,6 @@
     "privacy": "Privacy policy",
     "terms": "Terms and conditions",
     "cookies": "Cookies",
-    "apps": "iOS and Android apps coming soon",
     "rights": "© {year} Observatório Habitação",
     "disclaimer": "Results are estimates and do not constitute financial or tax advice.",
     "dataSources": "Data: INE (prices and rents) · CAOP © DGT, CC BY 4.0 · Euribor: ECB / EMMI",
@@ -1638,6 +1637,7 @@
     "limit": "You have sent several requests today. Try again tomorrow.",
     "error": "The request could not be sent. Try again in a moment.",
     "submit": "Send",
+    "close": "Close",
     "privacy": "We only use these details to reply to you. More in the <link>privacy policy</link>.",
     "sentTitle": "Request sent",
     "sentText": "Thank you! We have your message and will reply by email as soon as we can."

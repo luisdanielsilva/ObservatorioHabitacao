@@ -44,7 +44,11 @@ VPS (system libraries need sudo), so Safari is untested.
 
 - `/contactos` is one form, as on DupSweep and Portfolio Tracker: "Pedir ajuda" or "Sugerir uma
   funcionalidade", name, email, subject, description (`components/contact/`). Linked from the
-  footer and from a box at the bottom of the home page (`?tipo=sugestao` opens on suggestions).
+  footer (`?tipo=sugestao` opens on suggestions). On the home page, the box "Precisas de ajuda
+  ou tens uma ideia?" opens the same form in place (`ContactBox`): its two buttons choose the
+  type and fold it away again; a signed-in person's name and email come from `contactDefaults()`
+  when it first opens, so the home page doesn't read the session.
+- The footer no longer announces iOS and Android apps.
 - Kept as a lead (types `support`, `feature`; subject in the payload) for Pedidos in the
   back-office and "Pedidos enviados" in Conta; emailed to `CONTACT_EMAIL_TO` (or the first of
   `ADMIN_EMAILS`) with Reply-To the sender. 5 a day per IP, 30 a day in all; honeypot field.

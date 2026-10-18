@@ -22,7 +22,6 @@
     "privacy": "Política de privacidade",
     "terms": "Termos e condições",
     "cookies": "Cookies",
-    "apps": "Aplicações iOS e Android brevemente",
     "rights": "© {year} Observatório Habitação",
     "disclaimer": "Os resultados apresentados são estimativas e não constituem aconselhamento financeiro ou fiscal.",
     "dataSources": "Dados: INE (preços e rendas) · CAOP © DGT, CC BY 4.0 · Euribor: BCE / EMMI",
@@ -1638,6 +1637,7 @@
     "limit": "Já enviaste vários pedidos hoje. Tenta novamente amanhã.",
     "error": "Não foi possível enviar o pedido. Tenta novamente daqui a pouco.",
     "submit": "Enviar",
+    "close": "Fechar",
     "privacy": "Usamos estes dados só para te responder. Mais na <link>política de privacidade</link>.",
     "sentTitle": "Pedido enviado",
     "sentText": "Obrigado! Recebemos a tua mensagem e respondemos por email assim que possível."
