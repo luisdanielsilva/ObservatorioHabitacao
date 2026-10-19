@@ -1,17 +1,35 @@
 # Observatório Habitação — Status
 
-Updated 2026-10-17, against [product-spec.md](product-spec.md) version 2. Known-good restore
+Updated 2026-10-19, against [product-spec.md](product-spec.md) version 2. Known-good restore
 point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its commit).
 
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 274 unit tests (64 engine, 96 db, 114 web) and 37 end-to-end tests (Playwright, Chromium;
+Tests: 280 unit tests (64 engine, 96 db, 120 web) and 46 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-17)
+## Latest changes (2026-10-04 – 2026-10-19)
+
+**The sale price and profit chart, redrawn (2026-10-19, issue #10)**
+
+- Chosen by the owner from a mockup (B for resale, C for the others). Results → each deal's
+  "Preço de venda e lucro" (and the read-only page): the two figures stay; the horizontal bars
+  are replaced.
+  - **Resale:** stacked columns, one per 5 % step from the lowest price without a loss: the
+    loan paid off, the money put in coming back, commission and IRS, and the profit on top
+    (`SaleSplitChart`). A resale whose parts can't be stacked gets the waterfall instead.
+  - **Rentals and contract assignment:** a waterfall from the sale (or assignment) price
+    down to the profit: commission, loan, initial payment, rents, costs, payments, taxes
+    (`SaleWaterfallChart`). Chips choose the price: the steps and the price entered (shown
+    first). Sideways, one row per bar, when the screen is too narrow for the columns.
+- Figures from `lib/calculator/saleChart.ts` (`priceSplit`, `saleWaterfall`, on the same
+  monthly cash flows as the PDF's breakdown). Sale price in blue, profit in green, the rest
+  in neutral greys (`--sale-*` tokens, light and dark). Hover or tap a bar for its values;
+  the steps stay as a list for screen readers.
+- The PDF keeps its own chart (waterfall from the initial payment plus the profit steps).
 
 **Who made the PDF report, and when (2026-10-19, issue #13)**
 

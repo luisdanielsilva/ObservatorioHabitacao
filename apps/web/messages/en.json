@@ -1288,7 +1288,40 @@
       "expected": "Above the price you entered"
     },
     "netProfit": "Net profit",
-    "nearExpected": "≈ the price you entered"
+    "nearExpected": "≈ the price you entered",
+    "split": {
+      "caption": "Each column is a sale price: what pays off the loan, the money you put in coming back, the commission and IRS, and the profit on top.",
+      "loan": "Loan paid off",
+      "ownMoney": "Your money back",
+      "costs": "Commission and IRS",
+      "profit": "Net profit",
+      "short": {
+        "loan": "Loan",
+        "ownMoney": "Money back",
+        "costs": "Commission and IRS",
+        "profit": "Profit"
+      }
+    },
+    "waterfall": {
+      "caption": "From the sale price to the net profit, selling at {price}.",
+      "choose": "Sale price shown",
+      "breakEven": "Lowest",
+      "entered": "Price entered",
+      "bars": {
+        "commission": "Commission",
+        "commissionAssignment": "Commission and costs",
+        "loanPayoff": "Loan",
+        "initial": "Initial payment",
+        "income": "Rents and income",
+        "operatingCosts": "Running costs",
+        "renovation": "Works",
+        "debtService": "Loan payments",
+        "incomeTax": "IRS on rents",
+        "capitalGainsTax": "IRS on the gain",
+        "profit": "Net profit",
+        "loss": "Loss"
+      }
+    }
   },
   "photos": {
     "title": "Property photos",

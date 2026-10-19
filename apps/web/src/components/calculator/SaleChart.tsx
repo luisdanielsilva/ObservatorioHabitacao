@@ -5,14 +5,22 @@ import { useTranslations } from "next-intl";
 import { useDeferredValue, useId, useMemo } from "react";
 import { HelpTip } from "@/components/shared/HelpTip";
 import { nearStep, profitAtSale, saleAnalysis } from "@/lib/calculator/sale";
+import {
+  breakdownAtSale,
+  priceSplit,
+  saleWaterfall,
+  type PriceSplit,
+} from "@/lib/calculator/saleChart";
 import type { CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
 import { cn } from "@/lib/utils";
-import { SCENARIO_COLORS } from "./colors";
+import { SaleSplitChart } from "./SaleSplitChart";
+import { SaleWaterfallChart, type WaterfallOption } from "./SaleWaterfallChart";
 
 /**
  * The lowest sale price without a loss, and how much a higher price earns: the net profit in
- * 5 % steps above that price, as bars.
+ * 5 % steps above that price. Charted (issue #10) for a resale as stacked columns, where each
+ * step's price goes; for the other deals as a waterfall from a chosen price to the profit.
  */
 export function SaleChart({
   deal,
@@ -34,11 +42,51 @@ export function SaleChart({
     [deferred, params, startMonth, deal],
   );
 
+  // Resale: where each step's price goes (stacked columns); the other deals, or a resale whose
+  // parts cannot be stacked: a waterfall from the sale price to the profit, at a chosen price.
+  const chart = useMemo(() => {
+    if (!params || !analysis) return null;
+    const at = (price: number) => breakdownAtSale(deferred, params, startMonth, deal, price);
+    if (deal === "flip" && analysis.steps.length > 0) {
+      const splits = analysis.steps.map((s) => {
+        const b = at(s.price);
+        return b ? priceSplit(s.price, b) : null;
+      });
+      if (splits.every((split) => split !== null)) {
+        return { kind: "split" as const, splits: splits as PriceSplit[] };
+      }
+    }
+    const options: WaterfallOption[] = [];
+    analysis.steps.forEach((s, i) => {
+      const b = at(s.price);
+      if (!b) return;
+      const label =
+        i > 0
+          ? `+${f.number(s.change * 100)}%`
+          : t(analysis.stepsFrom === "breakEven" ? "waterfall.breakEven" : "waterfall.entered");
+      options.push({ label, price: s.price, bars: saleWaterfall(s.price, b) });
+    });
+    // The price entered, when the steps don't start from it: shown first.
+    let initial = 0;
+    const { expected } = analysis;
+    if (expected !== null && analysis.stepsFrom !== "expected") {
+      const b = at(expected);
+      if (b) {
+        options.push({
+          label: t("waterfall.entered"),
+          price: expected,
+          bars: saleWaterfall(expected, b),
+        });
+        initial = options.length - 1;
+      }
+    }
+    return options.length > 0 ? { kind: "waterfall" as const, options, initial } : null;
+  }, [analysis, deferred, params, startMonth, deal, f, t]);
+
   if (!analysis) return null;
   const { breakEven, expected, steps, stepsFrom, years } = analysis;
   const expectedProfit =
     params && expected !== null ? profitAtSale(deferred, params, startMonth, deal, expected) : null;
-  const maxProfit = Math.max(1, ...steps.map((s) => s.profit));
   const near = nearStep(steps, expected);
 
   return (
@@ -75,53 +123,33 @@ export function SaleChart({
       </dl>
 
       {stepsFrom && (
-        <div className="space-y-2">
-          <p id={`${id}-steps`} className="text-xs text-muted-foreground">
-            {t(`stepsCaption.${stepsFrom}`)}
-          </p>
-          <ol aria-labelledby={`${id}-steps`} className="space-y-1.5 text-sm">
+        // The steps as a list for screen readers; the chart below draws them.
+        <div className="sr-only">
+          <p id={`${id}-steps`}>{t(`stepsCaption.${stepsFrom}`)}</p>
+          <ol aria-labelledby={`${id}-steps`}>
             {steps.map((step, i) => (
-              <li
-                key={step.change}
-                // Phones: change, price and profit on a line, the bar under them.
-                className={cn(
-                  "grid grid-cols-[3rem_1fr_auto] items-center gap-x-2 gap-y-1 sm:grid-cols-[3rem_9rem_1fr_7rem]",
-                  i === near && "font-semibold",
-                )}
-              >
-                <span className="text-xs font-normal text-muted-foreground tabular-nums">
-                  {step.change === 0 ? "0%" : `+${f.number(step.change * 100)}%`}
-                </span>
-                <span className="tabular-nums">
-                  {f.euro(step.price)}
-                  {i === near && (
-                    <span className="ml-1 text-xs font-normal text-muted-foreground">
-                      {t("nearExpected")}
-                    </span>
-                  )}
-                </span>
-                <span
-                  aria-hidden
-                  className="order-last col-span-3 h-2 sm:order-none sm:col-span-1 sm:h-4"
-                >
-                  <span
-                    className="block h-full min-w-0.5 rounded-sm"
-                    style={{
-                      width: `${(Math.max(0, step.profit) / maxProfit) * 100}%`,
-                      background: SCENARIO_COLORS[deal],
-                    }}
-                  />
-                </span>
-                <span
-                  className={cn("text-right tabular-nums", step.profit < 0 && "text-destructive")}
-                >
-                  <span className="sr-only">{t("netProfit")}: </span>
-                  {f.euro(step.profit)}
-                </span>
+              <li key={step.change}>
+                {step.change === 0 ? "0%" : `+${f.number(step.change * 100)}%`} {f.euro(step.price)}
+                {i === near && ` (${t("nearExpected")})`}: {t("netProfit")} {f.euro(step.profit)}
               </li>
             ))}
           </ol>
         </div>
+      )}
+
+      {chart?.kind === "split" && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">{t("split.caption")}</p>
+          <SaleSplitChart steps={steps} splits={chart.splits} near={near} />
+        </div>
+      )}
+      {chart?.kind === "waterfall" && (
+        <SaleWaterfallChart
+          key={deal}
+          deal={deal}
+          options={chart.options}
+          initial={chart.initial}
+        />
       )}
     </section>
   );

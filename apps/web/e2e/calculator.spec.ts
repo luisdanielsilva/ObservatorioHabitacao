@@ -209,9 +209,13 @@ test("sale price: lowest price without a loss, and profit in 5 % steps above it"
   await expect(sale.getByText("Lucro ao preço que indicaste (480 000 €)")).toBeVisible();
   const steps = sale.getByRole("list", { name: /em subidas de 5 %/ }).getByRole("listitem");
   await expect(steps).toHaveCount(5);
-  await expect(steps.first()).toContainText(/^0%4\d\d\s\d{3}\s€/);
+  await expect(steps.first()).toContainText(/^0%\s4\d\d\s\d{3}\s€/);
   await expect(steps.last()).toContainText(/^\+20%/);
   await expect(sale.getByRole("slider")).toHaveCount(0);
+  // A resale is charted as stacked columns: where each step's price goes (issue #10).
+  await expect(sale.getByText("Empréstimo a liquidar")).toBeVisible();
+  await expect(sale.getByText("Lucro líquido", { exact: true })).toBeVisible();
+  await expect(sale.getByRole("group", { name: "Preço de venda a mostrar" })).toHaveCount(0);
 
   // Sharing comes after the scenario's name and save; signed out, it asks to sign in first.
   const share = results.getByRole("region", { name: "Partilhar resultados" });
@@ -424,6 +428,21 @@ test("development: a complete example opens at the results", async ({ page }) =>
       .getByText("As 12 fotografias do anúncio são usadas no relatório PDF"),
   ).toBeVisible();
   await expect(results.getByRole("region", { name: "Preço de venda e lucro" })).toBeVisible();
+
+  // The other deals: a waterfall from the sale price to the profit, at the price chosen.
+  await results.getByRole("tab", { name: "Cessão de posição contratual" }).click();
+  const sale = results.getByRole("region", { name: "Preço de venda e lucro" });
+  const prices = sale.getByRole("group", { name: "Preço de venda a mostrar" }).getByRole("button");
+  await expect(prices).toHaveCount(6);
+  await expect(prices.last()).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    sale.getByText("Do preço de venda ao lucro líquido, com a venda a 40 000 €."),
+  ).toBeVisible();
+  await prices.first().click();
+  await expect(prices.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    sale.getByText(/^Do preço de venda ao lucro líquido, com a venda a 27\s066\s€\.$/),
+  ).toBeVisible();
 });
 
 test("the location can have a Google Maps link, checked as it is typed", async ({ page }) => {

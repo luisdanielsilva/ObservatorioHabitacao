@@ -93,6 +93,12 @@
   --chart-3: #7a4e8c;
   --chart-4: #3f6a9a;
   --chart-5: #7a776c;
+  /* The sale chart (issue #10): sale price, profit, and the neutral parts in between. */
+  --sale-price: #3d6fae;
+  --sale-profit: #1f8259;
+  --sale-part-1: #e6e1d6;
+  --sale-part-2: #c8c1b2;
+  --sale-part-3: #9a9485;
   --radius: 0.75rem;
   --sidebar: #f5f0e6;
   --sidebar-foreground: #17211d;
@@ -139,6 +145,11 @@
   --chart-3: #c7a3d6;
   --chart-4: #9dbbe0;
   --chart-5: #b3b0a5;
+  --sale-price: #5d8fd6;
+  --sale-profit: #3aa676;
+  --sale-part-1: #3a443e;
+  --sale-part-2: #56605a;
+  --sale-part-3: #7d867f;
   --sidebar: #18241f;
   --sidebar-foreground: #eef1ec;
   --sidebar-primary: #8cc4a8;

@@ -1288,7 +1288,40 @@
       "expected": "Acima do preço que indicaste"
     },
     "netProfit": "Lucro líquido",
-    "nearExpected": "≈ o preço que indicaste"
+    "nearExpected": "≈ o preço que indicaste",
+    "split": {
+      "caption": "Cada coluna é um preço de venda: o que paga o empréstimo, o dinheiro que puseste e te volta, a comissão e o IRS, e o lucro por cima.",
+      "loan": "Empréstimo a liquidar",
+      "ownMoney": "O teu dinheiro de volta",
+      "costs": "Comissão e IRS",
+      "profit": "Lucro líquido",
+      "short": {
+        "loan": "Empréstimo",
+        "ownMoney": "Dinheiro de volta",
+        "costs": "Comissão e IRS",
+        "profit": "Lucro"
+      }
+    },
+    "waterfall": {
+      "caption": "Do preço de venda ao lucro líquido, com a venda a {price}.",
+      "choose": "Preço de venda a mostrar",
+      "breakEven": "Mínimo",
+      "entered": "Preço indicado",
+      "bars": {
+        "commission": "Comissão",
+        "commissionAssignment": "Comissão e custos",
+        "loanPayoff": "Empréstimo",
+        "initial": "Pagamento inicial",
+        "income": "Rendas e receitas",
+        "operatingCosts": "Custos de exploração",
+        "renovation": "Obras",
+        "debtService": "Prestações",
+        "incomeTax": "IRS das rendas",
+        "capitalGainsTax": "IRS mais-valia",
+        "profit": "Lucro líquido",
+        "loss": "Prejuízo"
+      }
+    }
   },
   "photos": {
     "title": "Fotografias do imóvel",
