@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: RouteContext<"/api/valua
   const valuation = Number.isInteger(id) ? getValuation(getDb(), id, user.id) : undefined;
   if (!valuation) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const pdf = await renderValuationPdf(valuation, reportLocale(request));
+  const pdf = await renderValuationPdf(valuation, reportLocale(request), user);
   if (!pdf) return NextResponse.json({ error: "cannot value" }, { status: 500 });
   return pdfResponse(pdf, reportFilename(valuation.name || "avaliacao"), "inline");
 }

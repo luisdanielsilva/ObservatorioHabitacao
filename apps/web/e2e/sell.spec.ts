@@ -1,5 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoHorizontalScroll, field, signInWithLink, step, watchProblems } from "./helpers";
+import {
+  expectNoHorizontalScroll,
+  field,
+  pdfText,
+  signInWithLink,
+  step,
+  watchProblems,
+} from "./helpers";
 
 const LOG = process.env.E2E_SERVER_LOG;
 
@@ -95,6 +102,7 @@ test("vender: saved to the account, reopened, with its PDF report", async ({ pag
   expect(response.headers()["content-disposition"]).toMatch(
     /^inline; filename="observatorio-habitacao-apartamento-t2-em-arroios\.pdf"$/,
   );
+  expect((await pdfText(await response.body()))[0]).toContain(`por Teste E2E · ${email}`);
 
   // Listed in the account, and opened again at its result.
   await page.goto("/conta");

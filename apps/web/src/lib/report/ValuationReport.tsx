@@ -1,14 +1,14 @@
 import { Document, Link, Page, Text, View } from "@react-pdf/renderer";
 import type { Formatter } from "@/lib/format";
 import type { Valuation } from "@/lib/valuation/estimate";
-import { C, KeyValues, PdfBrand, s, type Row } from "./Report";
+import { C, KeyValues, PdfFooter, PdfHeader, s, type ReportStamp, type Row } from "./Report";
 import { pdfSafe } from "./text";
 
 /** Everything the seller's report shows, already worded in the report's language. */
 export interface ValuationReportContent {
   title: string;
   subtitle: string;
-  generated: string;
+  stamp: ReportStamp;
   property: { title: string; rows: Row[] };
   value: { title: string; likelyLabel: string; confidence: string; rows: Row[]; note: string };
   advice: { title: string; rows: Row[]; points: string[] };
@@ -58,10 +58,7 @@ export function ValuationReport({
       creator="Observatório Habitação"
     >
       <Page size="A4" style={s.page} wrap>
-        <View style={s.header} fixed>
-          <PdfBrand />
-          <Text style={s.muted}>{pdfSafe(c.generated)}</Text>
-        </View>
+        <PdfHeader stamp={c.stamp} />
 
         <Text style={s.h1}>{pdfSafe(c.title)}</Text>
         <Text style={s.muted}>{pdfSafe(c.subtitle)}</Text>
@@ -163,10 +160,7 @@ export function ValuationReport({
 
         <Text style={s.disclaimer}>{pdfSafe(c.disclaimer)}</Text>
 
-        <View style={s.footer} fixed>
-          <Text>observatoriohabitacao.pt</Text>
-          <Text render={({ pageNumber, totalPages }) => pdfSafe(c.page(pageNumber, totalPages))} />
-        </View>
+        <PdfFooter stamp={c.stamp} page={c.page} />
       </Page>
     </Document>
   );

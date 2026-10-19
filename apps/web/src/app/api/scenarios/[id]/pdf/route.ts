@@ -17,7 +17,10 @@ export async function GET(request: Request, { params }: RouteContext<"/api/scena
   const scenario = Number.isInteger(id) ? getScenario(getDb(), id, user.id) : undefined;
   if (!scenario) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const pdf = await renderScenarioPdf(scenario, reportLocale(request), { photos: true });
+  const pdf = await renderScenarioPdf(scenario, reportLocale(request), {
+    photos: true,
+    author: user,
+  });
   if (!pdf) return NextResponse.json({ error: "cannot calculate" }, { status: 500 });
   // Shown in the browser (Ver PDF opens it in a new tab); links with "download" still save it.
   return pdfResponse(pdf, reportFilename(scenario.name), "inline");

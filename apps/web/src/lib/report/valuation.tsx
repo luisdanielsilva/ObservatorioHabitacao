@@ -23,6 +23,7 @@ import { MODEL_VERSION, NEGOTIATION_MARGIN } from "@/lib/valuation/model";
 import { sellerProceeds } from "@/lib/valuation/proceeds";
 import { hasSaleDetails, normaliseValuation } from "@/lib/valuation/state";
 import type { Row } from "./Report";
+import { reportStamp, type ReportAuthor } from "./stamp";
 import { ValuationReport, type ValuationReportContent } from "./ValuationReport";
 
 const SERIES_POINTS = 9;
@@ -34,6 +35,7 @@ const SERIES_POINTS = 9;
 export async function renderValuationPdf(
   row: ValuationRow,
   locale: AppLocale,
+  author: ReportAuthor | null,
 ): Promise<Buffer | undefined> {
   const db = getDb();
   const state = normaliseValuation(row.input);
@@ -140,13 +142,7 @@ export async function renderValuationPdf(
   const content: ValuationReportContent = {
     title: row.name || type(state.propertyType, state.bedrooms),
     subtitle: t("pdfSubtitle"),
-    generated: t("pdfGenerated", {
-      date: new Date().toLocaleDateString(locale === "en" ? "en-IE" : "pt-PT", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-    }),
+    stamp: await reportStamp(locale, author),
     property: {
       title: t("stepProperty"),
       rows: [

@@ -19,6 +19,7 @@ import { googleMapsUrl } from "@/lib/mapsLink";
 import { photoFilePath } from "@/lib/photos";
 import { BREAKDOWN_ROWS, type BreakdownRow } from "./breakdown";
 import { buildReportData, type ReportData } from "./data";
+import { reportStamp, type ReportAuthor } from "./stamp";
 import {
   REPORT_METRICS,
   ScenarioReport,
@@ -30,7 +31,11 @@ import {
 export { reportFilename } from "./text";
 
 /** Translated labels and value rows for a report, in `locale`. */
-export async function reportLabels(data: ReportData, locale: AppLocale): Promise<ReportLabels> {
+export async function reportLabels(
+  data: ReportData,
+  locale: AppLocale,
+  author: ReportAuthor | null = null,
+): Promise<ReportLabels> {
   const t = await getTranslations({ locale, namespace: "share.report" });
   const te = await getTranslations({ locale, namespace: "evaluate" });
   const tm = await getTranslations({ locale, namespace: "metrics" });
@@ -58,7 +63,7 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
 
   return {
     title: t("title"),
-    generated: t("generated", { date: dateFormat.format(new Date()) }),
+    stamp: await reportStamp(locale, author),
     property: t("property"),
     location: t("location"),
     marketReference: te("marketReference"),
@@ -256,16 +261,16 @@ export async function reportLabels(data: ReportData, locale: AppLocale): Promise
 /**
  * Renders the PDF report of a saved scenario, or undefined if it cannot be calculated. The
  * property's photos are private: in the owner's report, and in the shared one only when the
- * owner chose to show them.
+ * owner chose to show them. `author`, the signed-in person it is made for, is named on it.
  */
 export async function renderScenarioPdf(
   scenario: ScenarioRow,
   locale: AppLocale,
-  { photos = false }: { photos?: boolean } = {},
+  { photos = false, author = null }: { photos?: boolean; author?: ReportAuthor | null } = {},
 ): Promise<Buffer | undefined> {
   const data = buildReportData(scenario);
   if (!data) return undefined;
-  const labels = await reportLabels(data, locale);
+  const labels = await reportLabels(data, locale, author);
   return renderToBuffer(
     <ScenarioReport
       data={data}

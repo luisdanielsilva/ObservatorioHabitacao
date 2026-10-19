@@ -82,7 +82,7 @@ export async function emailReport(
   if (sent >= DAILY_LIMIT) return { status: "limit" };
 
   try {
-    const pdf = await renderScenarioPdf(scenario, locale, { photos: true });
+    const pdf = await renderScenarioPdf(scenario, locale, { photos: true, author: user });
     if (!pdf) return { status: "error" };
     const t = await getTranslations({ locale, namespace: "share" });
     await sendEmail({

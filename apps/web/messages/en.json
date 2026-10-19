@@ -871,7 +871,6 @@
     "loading": "Loading the area's data…",
     "disclaimer": "Values are estimates and are neither a bank valuation nor financial or tax advice.",
     "pdfSubtitle": "Sale valuation",
-    "pdfGenerated": "Generated on {date}",
     "pdfValue": "Estimated value",
     "pdfHas": "Has",
     "pdfLacks": "Lacks",
@@ -1001,6 +1000,7 @@
     "report": {
       "title": "Investment report",
       "generated": "Generated on {date}",
+      "generatedBy": "by {who}",
       "property": "Property",
       "location": "Location",
       "marketValues": "Market values entered",

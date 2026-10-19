@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 /** Collects CSP violations and uncaught errors on a page. */
 export function watchProblems(page: Page) {
@@ -121,4 +122,15 @@ export function clearRateLimits(prefix: string) {
   } finally {
     db.close();
   }
+}
+
+/** A PDF's text, page by page, each page's pieces joined by spaces. */
+export async function pdfText(pdf: Buffer): Promise<string[]> {
+  const doc = await getDocument({ data: new Uint8Array(pdf) }).promise;
+  const pages: string[] = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const content = await (await doc.getPage(n)).getTextContent();
+    pages.push(content.items.map((item) => ("str" in item ? item.str : "")).join(" "));
+  }
+  return pages;
 }

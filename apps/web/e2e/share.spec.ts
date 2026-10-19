@@ -5,6 +5,7 @@ import {
   field,
   fillPropertyByHand,
   nextPanel,
+  pdfText,
   saveSignedIn,
   showResults,
   step,
@@ -82,6 +83,16 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
   // The location opens in Google Maps from the PDF.
   expect((await pdf.body()).toString("latin1")).toContain(`/URI (${MAPS})`);
+  // Every page names who made it and when, and links to the site (issue #13).
+  const texts = await pdfText(await pdf.body());
+  for (const text of texts) {
+    expect(text).toMatch(/Gerado em \d{1,2} de \S+ de \d{4}( às|,) \d{2}:\d{2}/);
+    expect(text).toContain(`por Teste E2E · ${email}`);
+    expect(text).toContain("Observatório Habitação ·");
+  }
+  // The footer's site address is a link on every page (besides the map's, above).
+  const links = (await pdf.body()).toString("latin1").match(/\/URI \(https?:\/\/[^)]+\)/g) ?? [];
+  expect(links.filter((l) => !l.includes(MAPS)).length).toBe(texts.length);
 
   // Anyone with the link sees the results, read-only, with the sale chart.
   const visitor = await browser.newPage();
@@ -93,6 +104,13 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
     MAPS,
   );
   await expect(visitor.getByRole("textbox")).toHaveCount(0);
+  // The shared link's PDF never names the owner; a visitor who is not signed in is not named.
+  const token = link.split("/partilha/")[1];
+  const sharedText = await pdfText(
+    await (await visitor.request.get(`/api/partilha/${token}/pdf`)).body(),
+  );
+  expect(sharedText[0]).toMatch(/Gerado em /);
+  expect(sharedText.join(" ")).not.toContain(email);
   await expect(visitor.getByRole("button", { name: "Guardar", exact: true })).toHaveCount(0);
 
   // A change on screen: the link shows the saved version until it is saved again.

@@ -6,12 +6,24 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 257 unit tests (64 engine, 94 db, 99 web) and 37 end-to-end tests (Playwright, Chromium;
+Tests: 274 unit tests (64 engine, 96 db, 114 web) and 37 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-17)
+
+**Who made the PDF report, and when (2026-10-19, issue #13)**
+
+- Every page of both PDF reports (Avaliar anúncio and Vender) has, top right, "Gerado em 19 de
+  outubro de 2026 às 13:18" (Lisbon time) and "por <name> · <email>" of the signed-in person
+  it was made for; the footer has "Observatório Habitação · <site address>" as a link
+  (`NEXT_PUBLIC_SITE_URL`, `/en` for English). Shared header and footer: `PdfHeader`,
+  `PdfFooter` in `lib/report/Report.tsx`; the text from `reportStamp` (`lib/report/stamp.ts`).
+- The PDF behind a read-only link never names the owner: it names whoever downloads it when
+  signed in with a profile, and nobody otherwise. The emailed report names the sender.
+- e2e reads the PDF's text (`pdfText` in `e2e/helpers.ts`, pdfjs-dist) to check it. The home
+  page's report preview was made again.
 
 **The report on the home page (2026-10-18, issue #9)**
 

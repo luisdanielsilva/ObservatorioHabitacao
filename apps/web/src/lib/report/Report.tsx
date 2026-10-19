@@ -49,9 +49,16 @@ import { labelLines, pdfSafe } from "./text";
  * The scenario report (WBS 6.3.3), rendered server-side with React-PDF. All text is passed in
  * already translated; this component only lays it out.
  */
+/** When and by whom the report was made, and the site's address (see `reportStamp`). */
+export interface ReportStamp {
+  generated: string;
+  by: string | null;
+  site: { href: string; label: string };
+}
+
 export interface ReportLabels {
   title: string;
-  generated: string;
+  stamp: ReportStamp;
   property: string;
   location: string;
   marketReference: string;
@@ -238,6 +245,40 @@ export function PdfBrand() {
   );
 }
 
+/** Every page's header: the logo and name, and when and by whom the report was made. */
+export function PdfHeader({ stamp }: { stamp: ReportStamp }) {
+  return (
+    <View style={s.header} fixed>
+      <PdfBrand />
+      <View style={s.stamp}>
+        <Text>{pdfSafe(stamp.generated)}</Text>
+        {stamp.by && <Text>{pdfSafe(stamp.by)}</Text>}
+      </View>
+    </View>
+  );
+}
+
+/** Every page's footer: the site's name and address, and the page number. */
+export function PdfFooter({
+  stamp,
+  page,
+}: {
+  stamp: ReportStamp;
+  page: (page: number, total: number) => string;
+}) {
+  return (
+    <View style={s.footer} fixed>
+      <Text>
+        Observatório Habitação ·{" "}
+        <Link src={stamp.site.href} style={s.link}>
+          {stamp.site.label}
+        </Link>
+      </Text>
+      <Text render={({ pageNumber, totalPages }) => pdfSafe(page(pageNumber, totalPages))} />
+    </View>
+  );
+}
+
 /** The waterfall bars' labels, in pt. */
 const WF_LABEL_SIZE = 6.5;
 
@@ -255,6 +296,7 @@ export const s = StyleSheet.create({
   brand: { fontSize: 16, fontFamily: "Helvetica-Bold" },
   brandAccent: { color: C.brand },
   muted: { color: C.muted },
+  stamp: { color: C.muted, alignItems: "flex-end", gap: 1 },
   h1: { fontSize: 15, fontFamily: "Helvetica-Bold", marginBottom: 2 },
   h2: {
     fontSize: 11,
@@ -393,10 +435,7 @@ export function ScenarioReport({
       creator="Observatório Habitação"
     >
       <Page size="A4" style={s.page} wrap>
-        <View style={s.header} fixed>
-          <PdfBrand />
-          <Text style={s.muted}>{pdfSafe(labels.generated)}</Text>
-        </View>
+        <PdfHeader stamp={labels.stamp} />
 
         <Text style={s.h1}>{pdfSafe(data.name)}</Text>
         <Text style={s.muted}>{pdfSafe(labels.title)}</Text>
@@ -616,12 +655,7 @@ export function ScenarioReport({
           ))}
         </View>
 
-        <View style={s.footer} fixed>
-          <Text>observatoriohabitacao.pt</Text>
-          <Text
-            render={({ pageNumber, totalPages }) => pdfSafe(labels.page(pageNumber, totalPages))}
-          />
-        </View>
+        <PdfFooter stamp={labels.stamp} page={labels.page} />
       </Page>
     </Document>
   );

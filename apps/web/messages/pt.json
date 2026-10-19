@@ -871,7 +871,6 @@
     "loading": "A carregar os dados da zona…",
     "disclaimer": "Os valores são estimativas e não constituem uma avaliação bancária nem aconselhamento financeiro ou fiscal.",
     "pdfSubtitle": "Avaliação para venda",
-    "pdfGenerated": "Gerado em {date}",
     "pdfValue": "Valor estimado",
     "pdfHas": "Tem",
     "pdfLacks": "Não tem",
@@ -1001,6 +1000,7 @@
     "report": {
       "title": "Relatório de investimento",
       "generated": "Gerado em {date}",
+      "generatedBy": "por {who}",
       "property": "Imóvel",
       "location": "Localização",
       "marketValues": "Valores de mercado indicados",
