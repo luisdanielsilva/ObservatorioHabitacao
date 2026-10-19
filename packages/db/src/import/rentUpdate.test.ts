@@ -10,9 +10,9 @@ describe("importRentUpdates", () => {
     await importRentUpdates(db);
     await importRentUpdates(db);
     expect(getLatestReferenceRate(db, RENT_UPDATE_RATE)).toEqual({
-      value: 0.0224,
-      date: "2026-01-01",
-      source: "Aviso n.º 23174/2025/2",
+      value: 0.0256,
+      date: "2027-01-01",
+      source: "Aviso n.º 24199/2026/2",
     });
   });
 });

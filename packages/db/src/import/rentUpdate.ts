@@ -7,13 +7,14 @@ export const RENT_UPDATE_RATE = "rent_update";
 
 /**
  * Rent update coefficients published by INE in the Diário da República, as rates
- * (1.0224 → 0.0224), dated 1 January of the year they apply to. A coefficient counts once its
+ * (1.0256 → 0.0256), dated 1 January of the year they apply to. A coefficient counts once its
  * notice is published (by 30 October of the year before); add new years here.
  */
 export const RENT_UPDATES = [
   { year: 2024, rate: 0.0694, notice: "Aviso n.º 20980-A/2023" },
   { year: 2025, rate: 0.0216, notice: "Aviso n.º 23099/2024/2" },
   { year: 2026, rate: 0.0224, notice: "Aviso n.º 23174/2025/2" },
+  { year: 2027, rate: 0.0256, notice: "Aviso n.º 24199/2026/2" },
 ] as const;
 
 export async function importRentUpdates(db: Db): Promise<ImportCounts> {

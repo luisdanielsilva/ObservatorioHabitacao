@@ -13,6 +13,13 @@ VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-19)
 
+**Rent update coefficient for 2027 (2026-10-19)**
+
+- 1.0256, i.e. 2.56 % (INE, Aviso n.º 24199/2026/2, Diário da República of 1 October 2026),
+  added to `packages/db/src/import/rentUpdate.ts` and imported: the default yearly rent increase
+  of a long-term rental, its help text and the methodology now say 2.56 % for 2027. Saved
+  scenarios keep the increase they were saved with.
+
 **Another strategy, added from the results (2026-10-19, issue #11)**
 
 - Results → "Juntar outra estratégia": one button per strategy not chosen yet. Picking one opens
@@ -388,7 +395,7 @@ VPS (system libraries need sudo), so Safari is untested.
   when longer (40 by default with a loan, up to 50);
   consecutive leases separated by a vacancy in months; its own condominium (25 €/month) and home
   insurance (20 €/month); yearly rent increase defaults to the latest legal rent update
-  coefficient (2026: 2.24 %, Aviso n.º 23174/2025/2).
+  coefficient (2027: 2.56 %, Aviso n.º 24199/2026/2).
 - **Rental results:** monthly, annual and lifetime cash flow and annual return on capital; no
   profit, ROI or IRR for a property that is kept.
 - **Financing:** none by default. With a loan: amount = most banks lend for the use (90 % own
@@ -522,8 +529,8 @@ VPS (system libraries need sudo), so Safari is untested.
 1. Record analytics events (`logEvent`) for searches, evaluations, saves and leads.
 2. Alerts engine (6.3.5).
 3. Accessibility audit (axe in the e2e tests) and Lighthouse / Core Web Vitals.
-4. When INE's 2027 rent update coefficient is published (by 30 October 2026): add it to
-   `packages/db/src/import/rentUpdate.ts` and run `npm run import:rents`.
+4. When INE's 2028 rent update coefficient is published (by 30 October 2027): add it to
+   `packages/db/src/import/rentUpdate.ts` and run `npm run import:rents`. (2027 is in: 2.56 %.)
 5. Buyers aged 35 or under: ask the buyer's age (or "35 or under") and, for an own permanent
    home, apply the young buyers' support: no IMT and no stamp duty on the purchase up to the
    legal price limit (partial above it), and up to 100 % financing with the State's public

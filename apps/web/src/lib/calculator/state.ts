@@ -145,7 +145,7 @@ export interface CalculatorState {
  * Used when no published rent update coefficient is available; normally the latest one
  * (reference rate "rent_update") is the default.
  */
-export const FALLBACK_RENT_UPDATE = 0.0224;
+export const FALLBACK_RENT_UPDATE = 0.0256;
 /**
  * Loan term: by default the 40 years Banco de Portugal recommends as the most for a new
  * mortgage (macroprudential measure); up to 50 for the few banks that go beyond it.

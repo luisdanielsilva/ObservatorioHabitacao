@@ -377,13 +377,13 @@ test("long-term rental: kept for good, consecutive leases, legal rent update", a
   await expect(field(page, "Duração de cada contrato")).toHaveValue("3");
 
   await page.getByRole("button", { name: "Mostrar pressupostos" }).last().click();
-  await expect(field(page, "Aumento anual da renda")).toHaveValue("2,24");
+  await expect(field(page, "Aumento anual da renda")).toHaveValue("2,56");
   await expect(field(page, "Vazio entre contratos")).toHaveValue("1");
   await expect(field(page, "Condomínio (mensal)")).toHaveValue("25");
   await expect(field(page, "Seguro multirriscos (mensal)")).toHaveValue("20");
   // The help next to the rent increase names the legal source.
   await page.getByRole("button", { name: /Aumento anual da renda/ }).click();
-  await expect(page.getByText(/Aviso n\.º 23174\/2025\/2/)).toBeVisible();
+  await expect(page.getByText(/Aviso n\.º 24199\/2026\/2/)).toBeVisible();
 
   await field(page, "Renda mensal esperada").fill("1600");
   await showResults(page);
