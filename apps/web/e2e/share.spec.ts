@@ -30,6 +30,12 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   await nextPanel(page);
   await field(page, "Preço de venda após obras").fill("480000");
   await showResults(page);
+  // A strategy added from the results is saved with the others, and is in the PDF (issue #11).
+  const add = step(page, "Resultados").getByRole("region", { name: "Juntar outra estratégia" });
+  await add.getByRole("button", { name: "Arrendamento de longa duração" }).click();
+  await field(page, "Renda mensal esperada").fill("1600");
+  await add.getByRole("button", { name: "Ver resultados" }).click();
+  await expect(page.getByRole("tab", { name: "Arrendamento de longa duração" })).toBeVisible();
   await saveSignedIn(page, email, LOG!);
 
   const results = step(page, "Resultados");
@@ -85,6 +91,7 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   expect((await pdf.body()).toString("latin1")).toContain(`/URI (${MAPS})`);
   // Every page names who made it and when, and links to the site (issue #13).
   const texts = await pdfText(await pdf.body());
+  expect(texts.join(" ")).toMatch(/Indicador\s+Revenda\s+Arrendamento/);
   for (const text of texts) {
     expect(text).toMatch(/Gerado em \d{1,2} de \S+ de \d{4}( às|,) \d{2}:\d{2}/);
     expect(text).toContain(`por Teste E2E · ${email}`);
@@ -98,7 +105,8 @@ test("sharing: read-only link by WhatsApp, email and the account email; PDF; lin
   const visitor = await browser.newPage();
   await visitor.goto(link.replace(/^https?:\/\/[^/]+/, ""));
   await expect(visitor.getByRole("heading", { name: /^Cenário partilhado: / })).toBeVisible();
-  await expect(visitor.getByRole("region", { name: "Preço de venda e lucro" })).toBeVisible();
+  // One sale chart per deal: the resale and the rental added from the results.
+  await expect(visitor.getByRole("region", { name: "Preço de venda e lucro" })).toHaveCount(2);
   await expect(visitor.getByRole("link", { name: "Abrir no Google Maps" })).toHaveAttribute(
     "href",
     MAPS,

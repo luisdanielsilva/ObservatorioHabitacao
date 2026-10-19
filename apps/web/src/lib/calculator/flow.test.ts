@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { detailsPanels, initialStep, missingDealFields, missingPropertyFields } from "./flow";
+import {
+  detailsPanels,
+  initialStep,
+  missingDealFields,
+  missingPropertyFields,
+  needsPurchaseFields,
+} from "./flow";
 import type { CalculatorOutput } from "./run";
 import { initialState } from "./state";
 
@@ -62,5 +68,16 @@ describe("missingDealFields / initialStep", () => {
     } as unknown as CalculatorOutput;
     expect(initialStep(both, output, 3)).toBe("details");
     expect(detailsPanels(both.deals)).toEqual(["common", "flip", "longTermRental"]);
+  });
+});
+
+describe("needsPurchaseFields", () => {
+  it("asks for the purchase only when no chosen deal buys the property", () => {
+    expect(needsPurchaseFields(["contractAssignment"], "flip")).toBe(true);
+    expect(needsPurchaseFields(["contractAssignment"], "longTermRental")).toBe(true);
+    expect(needsPurchaseFields(["flip"], "longTermRental")).toBe(false);
+    expect(needsPurchaseFields(["contractAssignment", "flip"], "shortTermRental")).toBe(false);
+    expect(needsPurchaseFields(["flip"], "contractAssignment")).toBe(false);
+    expect(needsPurchaseFields(["contractAssignment"], "contractAssignment")).toBe(false);
   });
 });

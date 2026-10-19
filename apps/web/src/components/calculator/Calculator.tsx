@@ -10,7 +10,6 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import { findAreaChain, type AreaTree } from "@/components/shared/AreaPicker";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import {
-  detailsPanels,
   hasTypology,
   initialStep,
   missingDealFields,
@@ -20,6 +19,7 @@ import {
 import { runCalculator } from "@/lib/calculator/run";
 import { initialState, normaliseDeals, type CalculatorState } from "@/lib/calculator/state";
 import { useFormat } from "@/lib/useFormat";
+import { AddDeal } from "./AddDeal";
 import { ComparablesSection } from "./ComparablesSection";
 import { DetailsStep, detailsSummary } from "./DealDetails";
 import { DealResults } from "./DealResults";
@@ -192,11 +192,10 @@ export function Calculator({
     setPanel(atPanel);
     setStep("details");
   };
-  // From the comparison: add a strategy and open its details.
-  const addDeal = (kind: ScenarioKind) => {
-    const next = normaliseDeals([...deals, kind]);
-    update({ deals: next });
-    openDetails(detailsPanels(next).indexOf(kind));
+  // From the results: a strategy filled in there joins the chosen deals.
+  const addDeal = (kind: ScenarioKind, patch: Partial<CalculatorState>) => {
+    if ("imiRate" in patch) setImiTouched(true);
+    setState((s) => ({ ...s, ...patch, deals: normaliseDeals([...s.deals, kind]) }));
   };
 
   const f = useFormat();
@@ -326,7 +325,24 @@ export function Calculator({
               state={state}
               params={params}
               startMonth={startMonth}
-              onAddDeal={addDeal}
+              addDeal={
+                <AddDeal
+                  deals={deals}
+                  state={state}
+                  output={output}
+                  params={params}
+                  startMonth={startMonth}
+                  fields={{
+                    reference,
+                    rentUpdate,
+                    euribor12m,
+                    spread: params?.financing.typicalSpread ?? null,
+                    nonResidentRule: params?.imt.nonResidentHousingRate !== undefined,
+                    locale,
+                  }}
+                  onAdd={addDeal}
+                />
+              }
               comparables={
                 <ComparablesSection
                   subject={state}

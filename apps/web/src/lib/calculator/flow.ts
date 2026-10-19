@@ -61,3 +61,10 @@ export function detailsPanels(deals: ScenarioKind[]): DetailsPanel[] {
 /** Whether any chosen deal buys the property (all but the contract position sale). */
 export const buysProperty = (deals: ScenarioKind[]) =>
   deals.some((d) => d !== "contractAssignment");
+
+/**
+ * Whether a deal added from the results needs the purchase and financing fields: step 3 left
+ * them out when only the contract position sale was chosen, which does not buy the property.
+ */
+export const needsPurchaseFields = (deals: ScenarioKind[], kind: ScenarioKind) =>
+  kind !== "contractAssignment" && !buysProperty(deals);

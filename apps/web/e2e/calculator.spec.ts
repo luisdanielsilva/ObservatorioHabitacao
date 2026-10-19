@@ -47,8 +47,12 @@ test("one deal: long-term rental, results and adding a strategy", async ({ page 
   for (const name of ["Revenda", "Arrendamento", "AL", "Cessão"]) {
     await expect(table.getByRole("columnheader", { name: new RegExp(name) })).toBeVisible();
   }
+  // "Preencher dados" opens the strategy's fields here, in the results (issue #11).
   await table.getByRole("button", { name: "Preencher dados" }).first().click();
-  await expect(page.getByRole("heading", { name: "2 de 3: Compra e revenda" })).toBeVisible();
+  const add = results.getByRole("region", { name: "Juntar outra estratégia" });
+  const form = add.getByRole("region", { name: "Dados para Compra e revenda" });
+  await expect(form).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^\d de \d: / })).toHaveCount(0);
   await field(page, "Preço de venda após obras").fill("480000");
   // The agency's commission is in view, with what it comes to at the sale price.
   const commission = field(page, "Comissão da agência na venda (sem IVA)");
@@ -56,8 +60,11 @@ test("one deal: long-term rental, results and adding a strategy", async ({ page 
   await expect(page.getByText(/^= 29\s520\s€ com IVA, numa venda a 480\s000\s€$/)).toBeVisible();
   await commission.fill("3");
   await expect(page.getByText(/^= 17\s712\s€ com IVA, numa venda a 480\s000\s€$/)).toBeVisible();
-  await nextPanel(page);
-  await showResults(page);
+  await form.getByRole("button", { name: "Ver resultados" }).click();
+  await expect(results.getByRole("tab", { name: "Compra e revenda" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
   await expect(page.getByText("Comissão da agência (3% + IVA)").first()).toBeVisible();
   await expect(step(page, "Tipo de negócio")).toContainText(
     "Compra e revenda, Arrendamento de longa duração",
@@ -185,6 +192,70 @@ test("contract position sale on its own", async ({ page }) => {
   await expect(
     step(page, "Resultados").getByRole("term").filter({ hasText: "Retorno sobre o sinal" }),
   ).toBeVisible();
+});
+
+test("adding a strategy from the results: cancel, required fields, purchase when needed", async ({
+  page,
+}) => {
+  const problems = watchProblems(page);
+  await page.goto("/avaliar");
+  await fillPropertyByHand(page);
+  await chooseDeals(page, "Cessão de posição contratual");
+  await nextPanel(page);
+  await field(page, "Sinal pago").fill("40000");
+  await field(page, "Preço da cessão").fill("60000");
+  await field(page, "Valor de mercado atual").fill("440000");
+  await showResults(page);
+
+  const results = step(page, "Resultados");
+  const add = results.getByRole("region", { name: "Juntar outra estratégia" });
+  const choices = add.getByRole("group", { name: "Estratégias a juntar" }).getByRole("button");
+  await expect(choices).toHaveText([
+    "Compra e revenda",
+    "Arrendamento de longa duração",
+    "Alojamento local",
+  ]);
+
+  // No deal chosen so far buys the property: the purchase and financing are asked here.
+  await choices.first().click();
+  const form = add.getByRole("region", { name: "Dados para Compra e revenda" });
+  await expect(field(page, "Preço de compra")).toBeVisible();
+  await expect(form.getByRole("switch", { name: "Com crédito habitação" })).toBeVisible();
+  await field(page, "Preço de venda após obras").fill("480000");
+
+  // Cancelling changes nothing, and forgets what was typed.
+  await form.getByRole("button", { name: "Cancelar" }).click();
+  await expect(form).toHaveCount(0);
+  await expect(results.getByRole("tab")).toHaveCount(0);
+  await expect(step(page, "Tipo de negócio")).not.toContainText("Compra e revenda");
+  await choices.first().click();
+  await expect(field(page, "Preço de venda após obras")).toHaveValue("");
+
+  // The required fields are asked for first.
+  await form.getByRole("button", { name: "Ver resultados" }).click();
+  await expect(form.getByRole("alert")).toContainText("preço de venda após obras");
+  await field(page, "Preço de venda após obras").fill("480000");
+  await form.getByRole("button", { name: "Ver resultados" }).click();
+
+  // Both deals side by side, the new one's tab open, without going back to the details.
+  await expect(form).toHaveCount(0);
+  await expect(results.getByRole("tab", { name: "Compra e revenda" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  const table = results.getByRole("table", { name: "Comparação de cenários" });
+  await expect(table.getByRole("columnheader", { name: /Revenda/ })).toBeVisible();
+  await expect(table.getByRole("columnheader", { name: /Cessão/ })).toBeVisible();
+  await expect(
+    results.getByRole("tabpanel").getByRole("term").filter({ hasText: "Lucro líquido" }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^\d de \d: / })).toHaveCount(0);
+  await expect(step(page, "Tipo de negócio")).toContainText(
+    "Compra e revenda, Cessão de posição contratual",
+  );
+  await expect(choices).toHaveCount(2);
+
+  expect(problems).toEqual([]);
 });
 
 test("sale price: lowest price without a loss, and profit in 5 % steps above it", async ({

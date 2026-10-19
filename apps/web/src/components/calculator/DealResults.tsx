@@ -1,11 +1,9 @@
 "use client";
 
 import type { ParameterSet, ScenarioKind } from "@observatorio-habitacao/engine";
-import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { HelpTip } from "@/components/shared/HelpTip";
 import {
@@ -49,7 +47,7 @@ const HEADLINE: Record<ScenarioKind, MetricKey[]> = {
 
 /**
  * Step 4: the chosen deals' results. With several deals, they are compared first and each has a
- * tab; with one, the comparison with the other strategies is offered on request.
+ * tab; another strategy can be added from here, and opens in its own tab.
  */
 export function DealResults({
   deals,
@@ -57,7 +55,7 @@ export function DealResults({
   state,
   params,
   startMonth,
-  onAddDeal,
+  addDeal,
   comparables,
   saveBar,
   photos,
@@ -68,8 +66,8 @@ export function DealResults({
   state: CalculatorState;
   params: ParameterSet | null;
   startMonth: number;
-  /** Adds a strategy to the chosen deals and opens its details. */
-  onAddDeal: (kind: ScenarioKind) => void;
+  /** Adding another strategy, and the four side by side. */
+  addDeal: React.ReactNode;
   /** Similar listings, compared with the property: first, as on the PDF's first page. */
   comparables: React.ReactNode;
   /** The scenario's name and save button, shown after the comparison. */
@@ -82,9 +80,23 @@ export function DealResults({
   const t = useTranslations("evaluate");
   const f = useFormat();
   const id = useId();
-  const [comparing, setComparing] = useState(false);
   const [tab, setTab] = useState<ScenarioKind>(deals[0]!);
   const shown = deals.includes(tab) ? tab : deals[0]!;
+  // A deal just added (from the results) opens in its tab, scrolled into view.
+  const [known, setKnown] = useState(deals);
+  const [added, setAdded] = useState<ScenarioKind | null>(null);
+  if (known !== deals) {
+    setKnown(deals);
+    const next = deals.find((d) => !known.includes(d)) ?? null;
+    setAdded(next);
+    if (next) setTab(next);
+  }
+  useEffect(() => {
+    if (!added) return;
+    const tab = document.getElementById(`${id}-tab-${added}`);
+    tab?.scrollIntoView({ behavior: "smooth", block: "start" });
+    tab?.focus({ preventScroll: true });
+  }, [added, id]);
 
   const outcomes = deals
     .map((d) => output?.outcomes.find((o) => o.kind === d))
@@ -93,6 +105,9 @@ export function DealResults({
     return <p className="text-sm text-muted-foreground">{t("noParameters")}</p>;
   }
   const several = deals.length > 1;
+  // The results follow the deals one render late (deferred), so a deal just added may have none
+  // yet: its tab then shows the first deal until they arrive.
+  const shownOutcome = outcomes.find((o) => o.kind === shown) ?? outcomes[0]!;
   const opportunity = output.opportunity;
 
   return (
@@ -149,7 +164,7 @@ export function DealResults({
                   }
                 }}
                 className={cn(
-                  "-mb-px flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  "-mb-px flex scroll-mt-20 items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
                   shown === d
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground",
@@ -166,10 +181,15 @@ export function DealResults({
           </div>
           <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-tab-${shown}`}>
             <DealOutcome
-              outcome={outcomes.find((o) => o.kind === shown)!}
+              outcome={shownOutcome}
               rentalYears={permanentRentalYears(state)}
               sale={
-                <SaleChart deal={shown} state={state} params={params} startMonth={startMonth} />
+                <SaleChart
+                  deal={shownOutcome.kind}
+                  state={state}
+                  params={params}
+                  startMonth={startMonth}
+                />
               }
             />
           </div>
@@ -184,29 +204,7 @@ export function DealResults({
         />
       )}
 
-      {deals.length < 4 && (
-        <div className="space-y-4 rounded-lg border p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-semibold">{t("compareTitle")}</h3>
-              <p className="text-sm text-muted-foreground">{t("compareHelp")}</p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              aria-expanded={comparing}
-              aria-controls={`${id}-compare`}
-              onClick={() => setComparing((c) => !c)}
-            >
-              {comparing ? t("hideComparison") : t("showComparison")}
-              <ChevronDown className={cn("transition-transform", comparing && "rotate-180")} />
-            </Button>
-          </div>
-          <div id={`${id}-compare`} hidden={!comparing}>
-            {comparing && <Results output={output} onFillMissing={onAddDeal} />}
-          </div>
-        </div>
-      )}
+      {addDeal}
 
       {/* The scenario (name and save), then sharing, after the comparison. */}
       {saveBar}

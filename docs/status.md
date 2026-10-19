@@ -6,12 +6,24 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 280 unit tests (64 engine, 96 db, 120 web) and 46 end-to-end tests (Playwright, Chromium;
+Tests: 281 unit tests (64 engine, 96 db, 121 web) and 47 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-19)
+
+**Another strategy, added from the results (2026-10-19, issue #11)**
+
+- Results → "Juntar outra estratégia": one button per strategy not chosen yet. Picking one opens
+  its fields right there (the same as in step 3); "Ver resultados" adds it to the deals and
+  opens its tab next to the others, without going back to the details. The PDF and the shared
+  link include it once saved, like any chosen deal.
+- When only the contract position sale was chosen, the purchase and financing are asked there
+  too (`needsPurchaseFields` in `lib/calculator/flow.ts`).
+- The fields edit a copy: the results on screen do not move while typing, and "Cancelar"
+  changes nothing. "Preencher dados" in the four-strategy table opens the same fields
+  (`AddDeal.tsx`, which now also holds "Comparar com as outras estratégias").
 
 **The sale price and profit chart, redrawn (2026-10-19, issue #10)**
 

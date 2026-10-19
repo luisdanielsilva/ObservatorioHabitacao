@@ -57,6 +57,12 @@ export interface DetailsStepProps {
   locale: string;
 }
 
+/** What the fields need: the step's props without its navigation. */
+export type FieldsProps = Omit<
+  DetailsStepProps,
+  "missing" | "panel" | "onPanelChange" | "onShowResults"
+>;
+
 /**
  * Step 3: the details, one panel at a time — first what the chosen deals share (purchase,
  * financing, taxes), then each deal's own inputs — and finally the results.
@@ -160,7 +166,7 @@ export function DetailsStep(props: DetailsStepProps) {
   );
 }
 
-function CommonPanel(props: DetailsStepProps) {
+function CommonPanel(props: FieldsProps) {
   const { deals, state, update, locale, nonResidentRule } = props;
   const t = useTranslations("evaluate");
   const f = useFormat();
@@ -168,38 +174,7 @@ function CommonPanel(props: DetailsStepProps) {
 
   return (
     <>
-      {buying && (
-        <fieldset className="space-y-4">
-          <legend className="text-sm font-medium">{t("purchase")}</legend>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <NumberField
-              label={t("purchasePrice")}
-              help={t("purchasePriceHelp")}
-              kind="money"
-              value={state.purchasePrice}
-              placeholder={state.askingPrice ? String(state.askingPrice) : undefined}
-              onChange={(purchasePrice) => update({ purchasePrice })}
-              locale={locale}
-            />
-            <div />
-            <NumberField
-              label={t("renovationBudget")}
-              kind="money"
-              value={state.renovationBudget}
-              onChange={(v) => update({ renovationBudget: v ?? 0 })}
-              locale={locale}
-            />
-            <NumberField
-              label={t("renovationMonths")}
-              kind="number"
-              suffix={t("monthsShort")}
-              value={state.renovationMonths}
-              onChange={(v) => update({ renovationMonths: Math.round(v ?? 0) })}
-              locale={locale}
-            />
-          </div>
-        </fieldset>
-      )}
+      {buying && <Purchase {...props} />}
 
       <PropertyUse {...props} />
 
@@ -250,11 +225,48 @@ function CommonPanel(props: DetailsStepProps) {
   );
 }
 
+/** The price paid and the works before the property is used or sold. */
+function Purchase({ state, update, locale }: FieldsProps) {
+  const t = useTranslations("evaluate");
+  return (
+    <fieldset className="space-y-4">
+      <legend className="text-sm font-medium">{t("purchase")}</legend>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <NumberField
+          label={t("purchasePrice")}
+          help={t("purchasePriceHelp")}
+          kind="money"
+          value={state.purchasePrice}
+          placeholder={state.askingPrice ? String(state.askingPrice) : undefined}
+          onChange={(purchasePrice) => update({ purchasePrice })}
+          locale={locale}
+        />
+        <div />
+        <NumberField
+          label={t("renovationBudget")}
+          kind="money"
+          value={state.renovationBudget}
+          onChange={(v) => update({ renovationBudget: v ?? 0 })}
+          locale={locale}
+        />
+        <NumberField
+          label={t("renovationMonths")}
+          kind="number"
+          suffix={t("monthsShort")}
+          value={state.renovationMonths}
+          onChange={(v) => update({ renovationMonths: Math.round(v ?? 0) })}
+          locale={locale}
+        />
+      </div>
+    </fieldset>
+  );
+}
+
 /**
  * The property use sets the IMT table and how much banks may lend (Banco de Portugal: 90 % for
  * an own permanent home, 80 % otherwise). Changing it resets the loan to that maximum.
  */
-function PropertyUse({ state, update, params }: DetailsStepProps) {
+function PropertyUse({ state, update, params }: FieldsProps) {
   const t = useTranslations("evaluate");
   const f = useFormat();
   const maxLtv = params?.financing.maxLtv;
@@ -290,7 +302,7 @@ function Financing({
   euribor12m,
   spread,
   locale,
-}: DetailsStepProps) {
+}: FieldsProps) {
   const t = useTranslations("evaluate");
   const f = useFormat();
   const maxLtv = params?.financing.maxLtv;
@@ -364,11 +376,32 @@ function Financing({
   );
 }
 
+/**
+ * A deal added from the results: its own fields, after the purchase and financing when no deal
+ * chosen before buys the property (`withPurchase`).
+ */
+export function NewDealFields({
+  withPurchase,
+  ...props
+}: FieldsProps & { deal: ScenarioKind; invalid: MissingField[]; withPurchase: boolean }) {
+  return (
+    <>
+      {withPurchase && (
+        <>
+          <Purchase {...props} />
+          <Financing {...props} />
+        </>
+      )}
+      <DealPanel {...props} />
+    </>
+  );
+}
+
 function DealPanel({
   deal,
   invalid,
   ...props
-}: DetailsStepProps & { deal: ScenarioKind; invalid: MissingField[] }) {
+}: FieldsProps & { deal: ScenarioKind; invalid: MissingField[] }) {
   const { state, update, locale } = props;
   const missingValue = (field: MissingField, value: number | null) =>
     invalid.includes(field) && !(value !== null && value > 0);
