@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { asLocale, initPageLocale } from "@/i18n/locale";
 import { getDb } from "@/lib/db";
 import { FEATURES } from "@/lib/features";
-import { requireUser } from "@/lib/session";
+import { canSave } from "@/lib/entitlements";
+import { getMember, requireUser } from "@/lib/session";
 import { normaliseValuation } from "@/lib/valuation/state";
 import { ValuationRoot } from "./ValuationRoot";
 
@@ -42,10 +43,13 @@ export default async function SellPage({ params, searchParams }: PageProps<"/[lo
         state: normaliseValuation(saved.input),
         savedId: saved.id,
         name: saved.name || null,
-        asSaved: true,
       };
     }
   }
+
+  // Signed in: a clean PDF and the email option; whether the plan saves (issue #5).
+  const user = await getMember();
+  const member = user?.email ? { email: user.email, canSave: canSave(user.plan) } : null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -58,6 +62,7 @@ export default async function SellPage({ params, searchParams }: PageProps<"/[lo
         tree={tree}
         params={parameterSet?.data ?? null}
         initialAreaId={Number.isInteger(requestedArea) && requestedArea > 0 ? requestedArea : null}
+        member={member}
       />
     </div>
   );

@@ -1,59 +1,54 @@
 "use client";
 
-import { Check, Copy, FileDown, Mail, Share2 } from "lucide-react";
+import { FileDown, Link2Off, Mail } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { emailReport, getSharing, setSharing, type EmailReportResult } from "./actions";
-import { SharePhotosOption } from "./SharePhotosOption";
 import { withBasePath } from "@/lib/basePath";
+import { disableSharing, emailReport, getSharing, type EmailReportResult } from "./actions";
 
-/** PDF download, public link (with X / Facebook / copy) and email for a saved scenario. */
+/**
+ * A saved scenario's PDF, and emailing it to the account's address and one more (issue #12).
+ * A read-only link made before can be turned off here; new ones are no longer made.
+ */
 export function ShareControls({
   scenarioId,
-  name,
+  email,
   size = "default",
 }: {
   scenarioId: number;
-  name: string;
+  /** The account's address, where the report always goes. */
+  email: string;
   size?: "default" | "sm";
 }) {
-  const t = useTranslations("share");
+  const t = useTranslations("reportShare");
   const locale = useLocale();
   const id = useId();
   const [token, setToken] = useState<string | null | undefined>(undefined);
-  const [copied, setCopied] = useState(false);
-  const [email, setEmail] = useState("");
-  const [emailResult, setEmailResult] = useState<EmailReportResult | null>(null);
+  const [extra, setExtra] = useState("");
+  const [result, setResult] = useState<EmailReportResult | null>(null);
   const [pending, start] = useTransition();
 
-  const prefix = locale === "pt" ? "" : `/${locale}`;
-  const shareUrl =
-    token && typeof window !== "undefined"
-      ? `${window.location.origin}${withBasePath(`${prefix}/partilha/${token}`)}`
-      : null;
-  const postText = t("postText", { name });
-
-  const emailMessage = emailResult
-    ? {
-        sent: t("sent"),
-        invalid: t("emailInvalid"),
-        limit: t("emailLimit"),
-        unavailable: t("notAvailable"),
-        error: t("emailError"),
-      }[emailResult.status]
-    : null;
+  const message = !result
+    ? null
+    : result.status === "sent"
+      ? t("sent", { to: result.to.join(` ${t("and")} `) })
+      : result.status === "limit"
+        ? result.window === "hour"
+          ? t("limitHour")
+          : t("limitDay")
+        : t(result.status);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button asChild size={size} variant="outline">
         <a href={withBasePath(`/api/scenarios/${scenarioId}/pdf?lang=${locale}`)} download>
           <FileDown />
-          <span className="sr-only sm:not-sr-only">{t("pdf")}</span>
-          <span className="sr-only">{t("downloadPdf")}</span>
+          <span className="sr-only sm:not-sr-only">PDF</span>
+          <span className="sr-only">{t("download")}</span>
         </a>
       </Button>
 
@@ -66,122 +61,67 @@ export function ShareControls({
       >
         <PopoverTrigger asChild>
           <Button size={size} variant="outline">
-            <Share2 />
-            {t("share")}
+            <Mail />
+            {t("send")}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 space-y-4" align="end">
-          <div className="space-y-1">
-            <p className="font-medium">{t("shareTitle")}</p>
-            <p className="text-xs text-muted-foreground">{t("shareHelp")}</p>
-          </div>
-
-          {token === undefined ? (
-            <p className="text-sm text-muted-foreground">{t("loading")}</p>
-          ) : shareUrl ? (
-            <div className="space-y-2">
-              <Label htmlFor={`${id}-link`}>{t("link")}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id={`${id}-link`}
-                  readOnly
-                  value={shareUrl}
-                  onFocus={(e) => e.target.select()}
-                />
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  aria-label={t("copy")}
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(shareUrl);
-                    setCopied(true);
-                  }}
-                >
-                  {copied ? <Check /> : <Copy />}
-                </Button>
-              </div>
-              <p className="sr-only" aria-live="polite">
-                {copied ? t("copied") : ""}
-              </p>
-              <SharePhotosOption key={token} scenarioId={scenarioId} />
-              <div className="flex flex-wrap gap-2">
-                <Button asChild size="sm" variant="secondary">
-                  <a
-                    href={`https://x.com/intent/post?${new URLSearchParams({ text: postText, url: shareUrl })}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t("shareX")}
-                  </a>
-                </Button>
-                <Button asChild size="sm" variant="secondary">
-                  <a
-                    href={`https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: shareUrl })}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t("shareFacebook")}
-                  </a>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={pending}
-                  onClick={() =>
-                    start(async () => {
-                      setToken((await setSharing(scenarioId, false))?.token ?? null);
-                      setCopied(false);
-                    })
-                  }
-                >
-                  {t("disable")}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              disabled={pending}
-              onClick={() =>
-                start(async () => setToken((await setSharing(scenarioId, true))?.token ?? null))
-              }
-            >
-              {t("enable")}
-            </Button>
-          )}
-
           <form
-            className="space-y-2 border-t pt-4"
+            noValidate
+            className="space-y-2"
             onSubmit={(e) => {
               e.preventDefault();
               start(async () => {
-                const result = await emailReport(scenarioId, email, locale === "en" ? "en" : "pt");
-                setEmailResult(result);
-                if (result.status === "sent") setEmail("");
+                const r = await emailReport(
+                  { kind: "saved", id: scenarioId },
+                  extra,
+                  locale === "en" ? "en" : "pt",
+                );
+                setResult(r);
+                if (r.status === "sent") setExtra("");
               });
             }}
           >
-            <Label htmlFor={`${id}-email`}>{t("emailTitle")}</Label>
+            <p className="font-medium">{t("emailTitle")}</p>
+            <p className="text-xs text-muted-foreground">{t("emailTo", { email })}</p>
+            <Label htmlFor={`${id}-extra`}>{t("extra")}</Label>
             <div className="flex gap-2">
               <Input
-                id={`${id}-email`}
+                id={`${id}-extra`}
                 type="email"
-                required
                 maxLength={200}
-                placeholder={t("emailTo")}
-                aria-label={t("emailTo")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="off"
+                placeholder={t("extraPlaceholder")}
+                value={extra}
+                onChange={(e) => setExtra(e.target.value)}
               />
               <Button type="submit" size="sm" disabled={pending}>
-                <Mail />
-                {pending ? t("sending") : t("send")}
+                {t("send")}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground" aria-live="polite">
-              {emailMessage}
+              {pending ? t("working") : message}
             </p>
           </form>
+
+          {token && (
+            <div className="space-y-2 border-t pt-4">
+              <p className="text-xs text-muted-foreground">{t("oldLink")}</p>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={pending}
+                onClick={() =>
+                  start(async () => {
+                    if (await disableSharing(scenarioId)) setToken(null);
+                  })
+                }
+              >
+                <Link2Off />
+                {t("disableLink")}
+              </Button>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </div>

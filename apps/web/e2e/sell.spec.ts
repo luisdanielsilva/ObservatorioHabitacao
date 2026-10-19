@@ -1,11 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
+  clearRateLimits,
+  downloadReport,
   expectNoHorizontalScroll,
   field,
-  pdfText,
+  setPlan,
   signInWithLink,
   step,
   watchProblems,
+  WATERMARK,
 } from "./helpers";
 
 const LOG = process.env.E2E_SERVER_LOG;
@@ -82,35 +85,45 @@ test("vender: value from the INE median and similar listings, asking price, what
   expect(problems).toEqual([]);
 });
 
-test("vender: saved to the account, reopened, with its PDF report", async ({ page }) => {
+test("vender: the PDF, watermarked signed out; saved to the account on the paid plan", async ({
+  page,
+}) => {
   test.skip(!LOG, "needs E2E_SERVER_LOG for the sign-in link");
   const email = `e2e+sell${Date.now()}@example.pt`;
+  clearRateLimits("report-pdf:");
   await fillProperty(page);
   await addListings(page);
   await step(page, "A venda").getByRole("button", { name: "Saltar" }).click();
 
-  // Signed out, saving asks to sign in, then comes back to the valuation and saves it.
-  await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await page.getByRole("link", { name: "Guardar →" }).click();
-  await signInWithLink(page, email, LOG!);
-  await expect(page).toHaveURL(/avaliacao=\d+/);
-  const pdf = page.getByRole("link", { name: "Ver PDF" });
-  await expect(pdf).toBeVisible();
-  const href = await pdf.getAttribute("href");
-  const response = await page.request.get(href!);
-  expect(response.headers()["content-type"]).toBe("application/pdf");
-  expect(response.headers()["content-disposition"]).toMatch(
-    /^inline; filename="observatorio-habitacao-apartamento-t2-em-arroios\.pdf"$/,
-  );
-  expect((await pdfText(await response.body()))[0]).toContain(`por Teste E2E · ${email}`);
+  // Signed out, the report can be downloaded, with the watermark (issue #12).
+  const result = step(page, "Resultado");
+  const share = result.getByRole("region", { name: "Partilhar resultados" });
+  const anonymous = await downloadReport(page, share);
+  expect(anonymous.name).toBe("observatorio-habitacao-apartamento-t2-em-arroios.pdf");
+  for (const text of anonymous.texts) expect(text).toContain(WATERMARK);
 
-  // Listed in the account, and opened again at its result.
+  // Saving asks to sign in; back on the free plan it is refused: it is part of the paid plan.
+  const bar = page.getByRole("region", { name: "Guardar avaliação" });
+  await expect(bar.getByText("Plano pago")).toBeVisible();
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
+  await bar.getByRole("link", { name: "Entrar →" }).click();
+  await signInWithLink(page, email, LOG!);
+  await expect(bar.getByText("Guardar avaliações faz parte do plano pago.")).toBeVisible();
+  // Signed in, the report is clean and names who made it.
+  const clean = await downloadReport(page, share);
+  expect(clean.texts[0]).toContain(`por Teste E2E · ${email}`);
+  expect(clean.texts.join(" ")).not.toContain(WATERMARK);
+
+  // On the paid plan it is saved, listed in the account and opened again at its result.
+  setPlan(email, "premium");
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(page).toHaveURL(/avaliacao=\d+/);
   await page.goto("/conta");
   const saved = page.getByRole("link", { name: "Apartamento T2 em Arroios" });
   await expect(saved).toBeVisible();
   await saved.click();
   await expect(step(page, "Resultado").getByText("Valor provável")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Ver PDF" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Descarregar PDF" })).toBeVisible();
 });
 
 test.describe("vender on a phone", () => {

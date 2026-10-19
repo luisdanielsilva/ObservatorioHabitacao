@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import {
   chooseDeals,
+  clearRateLimits,
+  downloadReport,
+  WATERMARK,
   field,
   fillPropertyByHand,
   fillRental,
@@ -288,27 +291,31 @@ test("sale price: lowest price without a loss, and profit in 5 % steps above it"
   await expect(sale.getByText("Lucro líquido", { exact: true })).toBeVisible();
   await expect(sale.getByRole("group", { name: "Preço de venda a mostrar" })).toHaveCount(0);
 
-  // Sharing comes after the scenario's name and save; signed out, it asks to sign in first.
+  // The report comes after the scenario's name and save (issues #5 and #12): signed out, the
+  // PDF can be downloaded, with a watermark, and emailing it needs signing in. No other channels.
   const share = results.getByRole("region", { name: "Partilhar resultados" });
-  for (const name of [
-    "Email",
-    "WhatsApp",
-    "Facebook Messenger",
-    "Enviar para o email da conta",
-    "Ver PDF",
-  ]) {
-    await expect(share.getByRole("button", { name, exact: true })).toBeEnabled();
+  await expect(share.getByRole("button", { name: "Descarregar PDF" })).toBeEnabled();
+  for (const name of ["WhatsApp", "Email", "Ver PDF", "Enviar"]) {
+    await expect(share.getByRole("button", { name, exact: true })).toHaveCount(0);
   }
-  const saveBox = await results.getByRole("button", { name: "Guardar", exact: true }).boundingBox();
+  await expect(share.getByText(/o PDF leva uma marca de água/)).toBeVisible();
+  await expect(share.getByRole("link", { name: "Entrar →" })).toHaveAttribute(
+    "href",
+    /\/entrar\?voltar=%2Favaliar$/,
+  );
+  const saveBar = results.getByRole("region", { name: "Guardar cenário" });
+  await expect(saveBar.getByText("Plano pago")).toBeVisible();
+  const saveBox = await saveBar.boundingBox();
   const shareBox = await share.boundingBox();
   expect(shareBox!.y).toBeGreaterThan(saveBox!.y);
 
-  await share.getByRole("button", { name: "Email", exact: true }).click();
-  await expect(share.getByText("Entra na tua conta para guardar e partilhar")).toBeVisible();
-  await expect(share.getByRole("link", { name: "Entrar →" })).toHaveAttribute(
-    "href",
-    /\/entrar\?voltar=.*rascunho/,
-  );
+  clearRateLimits("report-pdf:");
+  const report = await downloadReport(page, share);
+  expect(report.name).toMatch(/^observatorio-habitacao-.*\.pdf$/);
+  for (const text of report.texts) {
+    expect(text).toContain(WATERMARK);
+    expect(text).not.toContain("@"); // nobody named on it
+  }
 });
 
 test("a listing link is read and fills the property (reader mocked)", async ({ page }) => {
@@ -471,7 +478,9 @@ test("the evaluation is kept while moving around the site, until a new one", asy
   ).toBeVisible();
   // Also after trying to save without an account and coming back.
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await expect(page.getByText(/Para guardar precisas de entrar/)).toBeVisible();
+  await expect(
+    page.getByText(/Guardar cenários faz parte do plano pago\. Se já o tens/),
+  ).toBeVisible();
   await page.goBack();
   await page.goto("/avaliar?manual=1");
   await expect(step(page, "Imóvel")).toContainText("400 000 €");

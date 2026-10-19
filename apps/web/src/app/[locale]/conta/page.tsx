@@ -115,7 +115,7 @@ export default async function AccountPage({ params }: PageProps<"/[locale]/conta
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <ShareControls scenarioId={s.id} name={s.name} size="sm" />
+                      <ShareControls scenarioId={s.id} email={user.email} size="sm" />
                       <Button asChild size="sm" variant="outline">
                         <Link href={{ pathname: "/avaliar", query: { cenario: String(s.id) } }}>
                           {t("open")}

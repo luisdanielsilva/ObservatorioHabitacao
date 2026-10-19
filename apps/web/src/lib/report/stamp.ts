@@ -12,12 +12,13 @@ export interface ReportAuthor {
 
 /**
  * When and by whom a report was made, and the site's address, for every page's header and
- * footer (issue #13). No author when the report is made without signing in (a shared link).
+ * footer (issue #13). No author when the report is made without signing in; then the report
+ * has the watermark (issue #12), unless `watermark` is false (the home page's example).
  */
 export async function reportStamp(
   locale: AppLocale,
   author: ReportAuthor | null,
-  now = new Date(),
+  { now = new Date(), watermark = author === null }: { now?: Date; watermark?: boolean } = {},
 ): Promise<ReportStamp> {
   const t = await getTranslations({ locale, namespace: "share.report" });
   const date = new Intl.DateTimeFormat(locale === "en" ? "en-IE" : "pt-PT", {
@@ -33,5 +34,6 @@ export async function reportStamp(
       ? t("generatedBy", { who: name ? `${name} · ${author.email}` : author.email })
       : null,
     site: { href, label: href.replace(/^https?:\/\//, "") },
+    watermark: watermark ? t("watermark") : null,
   };
 }

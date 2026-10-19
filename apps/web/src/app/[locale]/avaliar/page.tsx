@@ -9,7 +9,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { exampleAreaId, exampleState } from "@/lib/calculator/example";
 import { normaliseState } from "@/lib/calculator/state";
-import { requireUser } from "@/lib/session";
+import { canSave } from "@/lib/entitlements";
+import { getMember, requireUser } from "@/lib/session";
 import { CalculatorRoot } from "./CalculatorRoot";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { asLocale, initPageLocale } from "@/i18n/locale";
@@ -58,6 +59,10 @@ export default async function EvaluatePage({
     }
   }
 
+  // Signed in: a clean PDF and the email option; whether the plan saves (issue #5).
+  const user = await getMember();
+  const member = user?.email ? { email: user.email, canSave: canSave(user.plan) } : null;
+
   // Development only: a complete example, to check the layout without typing it all in.
   const devTools = process.env.NODE_ENV === "development";
   if (devTools && !initial && exemplo !== undefined) {
@@ -81,6 +86,7 @@ export default async function EvaluatePage({
         initialLink={initial ? null : requestedLink}
         startManual={manual !== undefined}
         devTools={devTools}
+        member={member}
       />
     </div>
   );

@@ -1,98 +1,120 @@
 "use server";
 
-import {
-  cacheGet,
-  cacheSet,
-  getScenario,
-  setScenarioSharePhotos,
-  setScenarioSharing,
-} from "@observatorio-habitacao/db";
+import { getScenario, rateLimit, setScenarioSharing } from "@observatorio-habitacao/db";
 import { getTranslations } from "next-intl/server";
-import { z } from "zod";
 import type { AppLocale } from "@/i18n/routing";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { entitlementsFor } from "@/lib/entitlements";
-import { renderScenarioPdf, reportFilename } from "@/lib/report/render";
+import { FEATURES } from "@/lib/features";
+import { reportRecipients } from "@/lib/report/recipients";
+import { renderScenarioPdf, reportFilename, sourceFromState } from "@/lib/report/render";
+import { renderValuationPdf } from "@/lib/report/valuation";
 import { getMember } from "@/lib/session";
+import { localizedUrl } from "@/lib/urls";
 
-export interface Sharing {
-  /** The read-only link's token; null when the link is off. */
-  token: string | null;
-  /** Whether the link and its PDF show the property's photos. */
-  photos: boolean;
-}
-
-/** The scenario's sharing settings, or undefined if it is not the user's. */
-export async function getSharing(id: number): Promise<Sharing | undefined> {
+/** The scenario's read-only link token (null when off), or undefined if it is not the user's. */
+export async function getSharing(id: number): Promise<{ token: string | null } | undefined> {
   const user = await getMember();
   if (!user) return undefined;
   const scenario = getScenario(getDb(), id, user.id);
-  return scenario ? { token: scenario.shareToken, photos: scenario.sharePhotos } : undefined;
-}
-
-/** Shows or hides the photos on the read-only link and its PDF; undefined if not the user's. */
-export async function setSharePhotos(
-  id: number,
-  photos: boolean,
-): Promise<{ photos: boolean } | undefined> {
-  const user = await getMember();
-  if (!user) return undefined;
-  const result = setScenarioSharePhotos(getDb(), id, user.id, photos);
-  return result === undefined ? undefined : { photos: result };
+  return scenario ? { token: scenario.shareToken } : undefined;
 }
 
 /**
- * Turns the public link on or off (WBS 6.3.4). Turning it off makes the old link 404 and hides
- * the photos again.
+ * Turns a read-only link off. New links are no longer made (issue #12); links shared before
+ * keep working until their owner turns them off here.
  */
-export async function setSharing(
-  id: number,
-  shared: boolean,
-): Promise<{ token: string | null } | undefined> {
+export async function disableSharing(id: number): Promise<boolean> {
   const user = await getMember();
-  if (!user) return undefined;
-  const token = setScenarioSharing(getDb(), id, user.id, shared);
-  return token === undefined ? undefined : { token };
+  if (!user) return false;
+  return setScenarioSharing(getDb(), id, user.id, false) !== undefined;
 }
 
-export type EmailReportResult = { status: "sent" | "invalid" | "limit" | "unavailable" | "error" };
+/** What to make the emailed report from: the evaluation or valuation on screen, or a saved one. */
+export type ReportInput =
+  | { kind: "scenario"; name: string; state: unknown; savedId?: number | null }
+  | { kind: "valuation"; name: string; state: unknown }
+  | { kind: "saved"; id: number };
 
-/** Reports a user may email per day, to keep the feature from being used for spam. */
-const DAILY_LIMIT = 10;
+export type EmailReportResult =
+  | { status: "sent"; to: string[] }
+  | { status: "limit"; window: "hour" | "day" }
+  | { status: "signin" | "invalid" | "error" };
 
-/** Emails the scenario's PDF report to any address the owner chooses. */
+const MAX_INPUT_BYTES = 100_000;
+
+/**
+ * Emails the PDF report (issue #12) to the account's address and, optionally, one more. Only
+ * for signed-in users, within their plan's limit (5 an hour on the free plan). The email has
+ * the PDF and a few words about the site; no link to the simulation.
+ */
 export async function emailReport(
-  id: number,
-  to: string,
+  input: ReportInput,
+  extra: string,
   locale: AppLocale,
 ): Promise<EmailReportResult> {
   const user = await getMember();
-  if (!user) return { status: "error" };
-  if (!entitlementsFor(user.plan).pdfReports) return { status: "unavailable" };
-  const address = z.email().max(200).safeParse(to.trim());
-  if (!address.success) return { status: "invalid" };
+  if (!user) return { status: "signin" };
+  if (!user.email) return { status: "error" };
+  const to = reportRecipients(user.email, extra);
+  if (!to || JSON.stringify(input).length > MAX_INPUT_BYTES) return { status: "invalid" };
 
   const db = getDb();
-  const scenario = getScenario(db, id, user.id);
-  if (!scenario) return { status: "error" };
-
-  const key = `report-email:${user.id}:${new Date().toISOString().slice(0, 10)}`;
-  const sent = cacheGet<number>(db, key) ?? 0;
-  if (sent >= DAILY_LIMIT) return { status: "limit" };
+  const { limit, windowSeconds } = entitlementsFor(user.plan).reportEmails;
+  if (!rateLimit(db, `report-email:${user.id}`, limit, windowSeconds).allowed) {
+    return { status: "limit", window: windowSeconds <= 3600 ? "hour" : "day" };
+  }
 
   try {
-    const pdf = await renderScenarioPdf(scenario, locale, { photos: true, author: user });
-    if (!pdf) return { status: "error" };
-    const t = await getTranslations({ locale, namespace: "share" });
+    let report: { name: string; pdf: Buffer | undefined };
+    if (input.kind === "valuation") {
+      if (!FEATURES.sell) return { status: "error" };
+      const name = input.name.trim().slice(0, 120);
+      const valuation = { name, input: (input.state ?? {}) as Record<string, unknown> };
+      report = { name, pdf: await renderValuationPdf(valuation, locale, user) };
+    } else {
+      const saved =
+        input.kind === "saved"
+          ? getScenario(db, input.id, user.id)
+          : input.savedId
+            ? getScenario(db, input.savedId, user.id)
+            : undefined;
+      const source =
+        input.kind === "saved"
+          ? saved
+          : sourceFromState(input, saved ? { id: saved.id, userId: user.id } : null);
+      if (!source) return { status: "error" };
+      const pdf = await renderScenarioPdf(source, locale, { photos: true, author: user });
+      report = { name: source.name, pdf };
+    }
+    if (!report.pdf) return { status: "error" };
+
+    const t = await getTranslations({ locale, namespace: "reportEmail" });
+    const site = localizedUrl(locale, "/");
+    const name = report.name || t("untitled");
+    const attachments = [{ filename: reportFilename(name), content: report.pdf }];
+    const body = (intro: string) =>
+      [intro, t("about", { site }), t("disclaimer"), `Observatório Habitação\n${site}`].join(
+        "\n\n",
+      );
     await sendEmail({
-      to: address.data,
-      subject: t("emailSubject", { name: scenario.name }),
-      text: t("emailText", { name: scenario.name }),
-      attachments: [{ filename: reportFilename(scenario.name), content: pdf }],
+      to: user.email,
+      subject: t("subject", { name }),
+      text: body(t("toSelf", { name })),
+      attachments,
     });
-    cacheSet(db, key, sent + 1, 24 * 3600);
-    return { status: "sent" };
+    if (to[1]) {
+      const sender = user.name?.trim() ? `${user.name.trim()} (${user.email})` : user.email;
+      await sendEmail({
+        to: to[1],
+        subject: t("subject", { name }),
+        text: body(t("toOther", { name, sender })),
+        replyTo: user.email,
+        attachments,
+      });
+    }
+    return { status: "sent", to };
   } catch (error) {
     console.error("emailReport failed", error);
     return { status: "error" };

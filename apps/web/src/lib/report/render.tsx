@@ -1,5 +1,5 @@
 import "server-only";
-import { listPhotos, type ScenarioRow } from "@observatorio-habitacao/db";
+import { getActiveParameterSet, listPhotos } from "@observatorio-habitacao/db";
 import type { ScenarioKind } from "@observatorio-habitacao/engine";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTranslations } from "next-intl/server";
@@ -18,7 +18,7 @@ import { isListingPhotoUrl } from "@/lib/listingPhotos";
 import { googleMapsUrl } from "@/lib/mapsLink";
 import { photoFilePath } from "@/lib/photos";
 import { BREAKDOWN_ROWS, type BreakdownRow } from "./breakdown";
-import { buildReportData, type ReportData } from "./data";
+import { buildReportData, type ReportData, type ReportSource } from "./data";
 import { reportStamp, type ReportAuthor } from "./stamp";
 import {
   REPORT_METRICS,
@@ -35,6 +35,7 @@ export async function reportLabels(
   data: ReportData,
   locale: AppLocale,
   author: ReportAuthor | null = null,
+  watermark = author === null,
 ): Promise<ReportLabels> {
   const t = await getTranslations({ locale, namespace: "share.report" });
   const te = await getTranslations({ locale, namespace: "evaluate" });
@@ -63,7 +64,7 @@ export async function reportLabels(
 
   return {
     title: t("title"),
-    stamp: await reportStamp(locale, author),
+    stamp: await reportStamp(locale, author, { watermark }),
     property: t("property"),
     location: t("location"),
     marketReference: te("marketReference"),
@@ -259,18 +260,43 @@ export async function reportLabels(
 }
 
 /**
- * Renders the PDF report of a saved scenario, or undefined if it cannot be calculated. The
+ * The evaluation on screen as a report source, calculated with today's tax parameters. `saved`,
+ * the user's saved scenario it was opened from, gives it that scenario's photos.
+ */
+export function sourceFromState(
+  input: { name: string; state: unknown },
+  saved: { id: number; userId: string } | null = null,
+): ReportSource | undefined {
+  const params = getActiveParameterSet(getDb(), "continente", new Date().getFullYear());
+  if (!params) return undefined;
+  return {
+    id: saved?.id ?? null,
+    userId: saved?.userId ?? null,
+    name: input.name.trim().slice(0, 120) || "Cenário",
+    inputs: normaliseState(input.state) as unknown as Record<string, unknown>,
+    parameterSetId: params.id,
+    updatedAt: new Date().toISOString().replace("T", " ").slice(0, 19),
+  };
+}
+
+/**
+ * Renders the PDF report of a scenario, or undefined if it cannot be calculated. The
  * property's photos are private: in the owner's report, and in the shared one only when the
- * owner chose to show them. `author`, the signed-in person it is made for, is named on it.
+ * owner chose to show them. `author`, the signed-in person it is made for, is named on it;
+ * without one the report has the watermark (issue #12), unless `watermark` is false.
  */
 export async function renderScenarioPdf(
-  scenario: ScenarioRow,
+  scenario: ReportSource,
   locale: AppLocale,
-  { photos = false, author = null }: { photos?: boolean; author?: ReportAuthor | null } = {},
+  {
+    photos = false,
+    author = null,
+    watermark = author === null,
+  }: { photos?: boolean; author?: ReportAuthor | null; watermark?: boolean } = {},
 ): Promise<Buffer | undefined> {
   const data = buildReportData(scenario);
   if (!data) return undefined;
-  const labels = await reportLabels(data, locale, author);
+  const labels = await reportLabels(data, locale, author, watermark);
   return renderToBuffer(
     <ScenarioReport
       data={data}
@@ -312,10 +338,14 @@ const REPORT_PHOTOS = 6;
  * The photos for the report, as JPEG (the PDF format has no WebP), small enough for it: the
  * photos the owner uploaded, or else the listing's own photos. The first is the main photo.
  */
-async function reportPhotos(scenario: ScenarioRow): Promise<ReportPhoto[]> {
-  const rows = (listPhotos(getDb(), scenario.id, scenario.userId) ?? []).slice(0, REPORT_PHOTOS);
+async function reportPhotos(scenario: ReportSource): Promise<ReportPhoto[]> {
+  const { id, userId } = scenario;
+  const rows =
+    id !== null && userId !== null
+      ? (listPhotos(getDb(), id, userId) ?? []).slice(0, REPORT_PHOTOS)
+      : [];
   const sources: (() => Promise<Buffer | null>)[] = rows.length
-    ? rows.map((row) => async () => readFile(photoFilePath(scenario.id, row.fileName)))
+    ? rows.map((row) => async () => readFile(photoFilePath(id!, row.fileName)))
     : normaliseState(scenario.inputs)
         .listingPhotos.slice(0, REPORT_PHOTOS)
         .map((url) => () => downloadListingPhoto(url));

@@ -29,11 +29,12 @@ import { ValuationReport, type ValuationReportContent } from "./ValuationReport"
 const SERIES_POINTS = 9;
 
 /**
- * Renders the PDF report of a saved valuation, recalculated from what the seller entered with
- * today's INE data; undefined when it cannot be valued.
+ * Renders the PDF report of a valuation, saved or on screen, recalculated from what the seller
+ * entered with today's INE data; undefined when it cannot be valued. Without `author` (not
+ * signed in) it has the watermark (issue #12).
  */
 export async function renderValuationPdf(
-  row: ValuationRow,
+  row: Pick<ValuationRow, "name" | "input">,
   locale: AppLocale,
   author: ReportAuthor | null,
 ): Promise<Buffer | undefined> {

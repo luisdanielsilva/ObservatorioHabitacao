@@ -60,7 +60,7 @@ export default async function ProfilePage({
         </CardHeader>
         <CardContent className="space-y-6">
           <ul className="space-y-2 rounded-xl bg-mint-soft p-4 text-sm">
-            {(["save", "pdf", "anywhere"] as const).map((key) => (
+            {(["pdf", "email", "save"] as const).map((key) => (
               <li key={key} className="flex gap-2">
                 <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                 {t(`benefits.${key}`)}

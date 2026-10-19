@@ -54,6 +54,8 @@ export interface ReportStamp {
   generated: string;
   by: string | null;
   site: { href: string; label: string };
+  /** Across every page when the report is made without signing in (issue #12); else null. */
+  watermark: string | null;
 }
 
 export interface ReportLabels {
@@ -258,7 +260,11 @@ export function PdfHeader({ stamp }: { stamp: ReportStamp }) {
   );
 }
 
-/** Every page's footer: the site's name and address, and the page number. */
+/**
+ * Every page's footer: the site's name and address, and the page number; and, made without
+ * signing in, the site's name in large red letters diagonally across the page (issue #12).
+ * Fixed elements are drawn before the page's content, so the listing photos cover it.
+ */
 export function PdfFooter({
   stamp,
   page,
@@ -267,15 +273,26 @@ export function PdfFooter({
   page: (page: number, total: number) => string;
 }) {
   return (
-    <View style={s.footer} fixed>
-      <Text>
-        Observatório Habitação ·{" "}
-        <Link src={stamp.site.href} style={s.link}>
-          {stamp.site.label}
-        </Link>
-      </Text>
-      <Text render={({ pageNumber, totalPages }) => pdfSafe(page(pageNumber, totalPages))} />
-    </View>
+    <>
+      <View style={s.footer} fixed>
+        <Text>
+          Observatório Habitação ·{" "}
+          <Link src={stamp.site.href} style={s.link}>
+            {stamp.site.label}
+          </Link>
+        </Text>
+        <Text render={({ pageNumber, totalPages }) => pdfSafe(page(pageNumber, totalPages))} />
+      </View>
+      {stamp.watermark && (
+        <View style={s.watermark} fixed>
+          {[0, 1, 2].map((i) => (
+            <Text key={i} style={s.watermarkText}>
+              {pdfSafe(stamp.watermark!)}
+            </Text>
+          ))}
+        </View>
+      )}
+    </>
   );
 }
 
@@ -297,6 +314,24 @@ export const s = StyleSheet.create({
   brandAccent: { color: C.brand },
   muted: { color: C.muted },
   stamp: { color: C.muted, alignItems: "flex-end", gap: 1 },
+  // A4 is 595 × 842 pt; three lines along the diagonal, over the whole page.
+  watermark: {
+    position: "absolute",
+    top: 0,
+    left: -150,
+    width: 895,
+    height: 842,
+    justifyContent: "space-around",
+    alignItems: "center",
+    transform: "rotate(-52deg)",
+  },
+  watermarkText: {
+    fontSize: 58,
+    fontFamily: "Helvetica-Bold",
+    color: C.bad,
+    opacity: 0.16,
+    letterSpacing: 2,
+  },
   h1: { fontSize: 15, fontFamily: "Helvetica-Bold", marginBottom: 2 },
   h2: {
     fontSize: 11,

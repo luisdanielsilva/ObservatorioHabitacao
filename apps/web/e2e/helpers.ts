@@ -1,7 +1,9 @@
 import Database from "better-sqlite3";
 import path from "node:path";
 import { readFileSync } from "node:fs";
-import { expect, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 /** Collects CSP violations and uncaught errors on a page. */
@@ -101,22 +103,75 @@ export async function completeProfileIfAsked(page: Page) {
   await page.waitForURL((url) => !url.pathname.includes("/conta/perfil"));
 }
 
-/** From the results: save the scenario, signing in when asked. */
+/**
+ * From the results: save the scenario as a paid user. Signed out, saving asks to sign in; back
+ * on the free plan, the save is refused (issue #5) until the account is moved to the paid plan.
+ */
 export async function saveSignedIn(page: Page, email: string, log: string) {
-  await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await page.getByRole("link", { name: "Guardar →" }).click();
+  const bar = page.getByRole("region", { name: "Guardar cenário" });
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
+  await bar.getByRole("link", { name: "Entrar →" }).click();
   await signInWithLink(page, email, log);
+  await expect(bar.getByText("Guardar cenários faz parte do plano pago.")).toBeVisible();
+  setPlan(email, "premium");
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page).toHaveURL(/cenario=\d+/);
 }
+
+/** Opens the database the dev server uses, for a test to set things up directly. */
+function openDb() {
+  return new Database(
+    process.env.DATABASE_PATH ?? path.join(process.cwd(), "../../data/observatorio-habitacao.db"),
+  );
+}
+
+/** Moves an account to a plan (an admin does this until payments exist). */
+export function setPlan(email: string, plan: "free" | "premium") {
+  const db = openDb();
+  try {
+    db.prepare("update users set plan = ? where email = ?").run(plan, email);
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Turns a saved scenario's read-only link on, as links made before issue #12 are; the site no
+ * longer makes new ones. Returns the link's token.
+ */
+export function shareInDb(scenarioId: number | string, photos = false): string {
+  const token = randomBytes(12).toString("base64url");
+  const db = openDb();
+  try {
+    db.prepare("update scenarios set share_token = ?, share_photos = ? where id = ?").run(
+      token,
+      photos ? 1 : 0,
+      Number(scenarioId),
+    );
+  } finally {
+    db.close();
+  }
+  return token;
+}
+
+/** Downloads the report from a "Partilhar resultados" box: its file name and text by page. */
+export async function downloadReport(page: Page, box: Locator) {
+  const download = page.waitForEvent("download");
+  await box.getByRole("button", { name: "Descarregar PDF" }).click();
+  const file = await download;
+  const raw = await readFile((await file.path())!);
+  return { name: file.suggestedFilename(), raw, texts: await pdfText(raw) };
+}
+
+/** The report's watermark when it is made without signing in (issue #12). */
+export const WATERMARK = "OBSERVATÓRIO HABITAÇÃO";
 
 /**
  * Clears the rate-limit counters starting with `prefix` (e.g. "contact:") in the database the
  * dev server uses, so tests that send forms can run again on the same day.
  */
 export function clearRateLimits(prefix: string) {
-  const db = new Database(
-    process.env.DATABASE_PATH ?? path.join(process.cwd(), "../../data/observatorio-habitacao.db"),
-  );
+  const db = openDb();
   try {
     db.prepare("delete from cache where key like ?").run(`ratelimit:${prefix}%`);
   } finally {

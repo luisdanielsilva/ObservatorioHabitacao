@@ -8,6 +8,7 @@ import {
   fillPropertyByHand,
   nextPanel,
   saveSignedIn,
+  shareInDb,
   showResults,
   step,
 } from "./helpers";
@@ -94,45 +95,31 @@ test("photos: added to a saved scenario, listed, deleted, and gone with the scen
   );
   expect(pdf.startsWith("%PDF")).toBe(true);
   expect(pdf.match(/\/Subtype \/Image/g)).toHaveLength(3);
-  const popup = page.waitForEvent("popup");
-  await page.context().route("https://wa.me/**", (r) => r.fulfill({ body: "WhatsApp" }));
-  await step(page, "Resultados").getByRole("button", { name: "WhatsApp" }).click();
-  await (await popup).close();
-  const link = await step(page, "Resultados").getByLabel("Link só de leitura").inputValue();
-  const token = link.split("/partilha/")[1];
+  // A read-only link made before issue #12, without photos: its PDF has none.
+  const token = shareInDb(scenarioId);
   const shared = (await (await page.request.get(`/api/partilha/${token}/pdf`)).body()).toString(
     "latin1",
   );
   expect(shared.startsWith("%PDF")).toBe(true);
   expect(shared).not.toContain("/Subtype /Image");
 
-  // Unless the owner chooses to show them: then the read-only page and its PDF have them too.
+  // One whose owner chose to show them: the read-only page and its PDF have them too.
   const photoId = /\/photos\/(\d+)$/.exec(src!)![1];
-  const sharedPhoto = `/api/partilha/${token}/photos/${photoId}`;
   const visitor = await browser.newPage();
-  expect((await visitor.request.get(sharedPhoto)).status()).toBe(404);
-  const option = step(page, "Resultados").getByRole("checkbox", {
-    name: "Mostrar as fotografias do imóvel no link e no teu PDF",
-  });
-  await expect(option).not.toBeChecked();
-  await option.click();
-  await expect(option).toBeChecked();
-  await visitor.goto(`/partilha/${token}`);
+  expect((await visitor.request.get(`/api/partilha/${token}/photos/${photoId}`)).status()).toBe(
+    404,
+  );
+  const withPhotosToken = shareInDb(scenarioId, true);
+  await visitor.goto(`/partilha/${withPhotosToken}`);
   const gallery = visitor.getByRole("region", { name: "Fotografias do imóvel" });
   await expect(gallery.getByRole("img")).toHaveCount(3);
-  expect((await visitor.request.get(sharedPhoto)).status()).toBe(200);
+  expect(
+    (await visitor.request.get(`/api/partilha/${withPhotosToken}/photos/${photoId}`)).status(),
+  ).toBe(200);
   const withPhotos = (
-    await (await visitor.request.get(`/api/partilha/${token}/pdf`)).body()
+    await (await visitor.request.get(`/api/partilha/${withPhotosToken}/pdf`)).body()
   ).toString("latin1");
   expect(withPhotos.match(/\/Subtype \/Image/g)).toHaveLength(3);
-
-  // Unticking hides them again at once.
-  await option.click();
-  await expect(option).not.toBeChecked();
-  expect((await visitor.request.get(sharedPhoto)).status()).toBe(404);
-  await visitor.reload();
-  await expect(visitor.getByRole("heading", { name: /^Cenário partilhado: / })).toBeVisible();
-  await expect(visitor.getByRole("region", { name: "Fotografias do imóvel" })).toHaveCount(0);
   await visitor.close();
 
   // Delete one; it stays deleted after a reload.

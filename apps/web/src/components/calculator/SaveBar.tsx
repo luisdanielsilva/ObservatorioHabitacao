@@ -23,7 +23,10 @@ export function signInToSaveHref(locale: string) {
   };
 }
 
-/** Saves the current inputs as a scenario, or duplicates the saved one. */
+/**
+ * Saves the current inputs as a scenario, or duplicates the saved one. Saving is part of the
+ * paid plan (issue #5): marked as such when the user cannot save (or is not signed in).
+ */
 export function SaveBar({
   state,
   name,
@@ -31,9 +34,12 @@ export function SaveBar({
   saved,
   currentKey,
   onSaved,
+  canSave,
   autoSave = false,
   children,
 }: {
+  /** Whether the signed-in user's plan saves; null when not signed in. */
+  canSave: boolean | null;
   /** Save as soon as the bar appears (the user signed in to save). */
   autoSave?: boolean;
   state: CalculatorState;
@@ -116,6 +122,11 @@ export function SaveBar({
           <Save />
           {pending ? t("saving") : savedId ? t("saveChanges") : t("save")}
         </Button>
+        {canSave !== true && (
+          <span className="self-center rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+            {t("paidPlan")}
+          </span>
+        )}
         {savedId && (
           <Button variant="outline" onClick={duplicate} disabled={pending}>
             <Copy />
@@ -137,7 +148,14 @@ export function SaveBar({
           <>
             {t("signinToSave")}{" "}
             <Link href={signInToSaveHref(locale)} className="font-medium text-primary underline">
-              {t("save")} →
+              {t("signinToSaveLink")} →
+            </Link>
+          </>
+        ) : result?.status === "plan" ? (
+          <>
+            {t("savePaidOnly")}{" "}
+            <Link href="/contactos" className="font-medium text-primary underline">
+              {t("paidPlanContact")} →
             </Link>
           </>
         ) : (

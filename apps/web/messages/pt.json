@@ -57,7 +57,7 @@
     "step4Title": "Vê os resultados",
     "step4Text": "IMT, Imposto do Selo, IRS e financiamento calculados, e a comparação com as outras estratégias.",
     "step5Title": "Leva o relatório e partilha-o",
-    "step5Text": "Descarrega o relatório PDF com todas as contas, ou envia um link só de leitura a quem te ajuda a decidir: o banco, um sócio ou a família.",
+    "step5Text": "Descarrega o relatório PDF com todas as contas, ou envia-o por email a quem te ajuda a decidir: o banco, um sócio ou a família.",
     "pricesTitle": "Preços por distrito",
     "pricesText": "Mediana de venda e de renda por m² em todos os distritos, concelhos e freguesias.",
     "pricesLink": "Explorar preços",
@@ -316,7 +316,7 @@
       },
       {
         "q": "Como guardo ou partilho um cenário?",
-        "a": "Entra com o teu email (sem palavra-passe) e usa «Guardar». Os cenários guardados ficam em «Conta»."
+        "a": "Em «Partilhar resultados» descarregas o relatório PDF ou envias-o por email. Sem sessão iniciada, o PDF leva uma marca de água; entra com o teu email (sem palavra-passe) para o teres sem ela e para o enviares. Guardar cenários em «Conta» faz parte do plano pago."
       },
       {
         "q": "Encontrei um erro. Como o comunico?",
@@ -577,7 +577,7 @@
     "saveChanges": "Guardar alterações",
     "duplicate": "Duplicar",
     "duplicated": "Cópia criada.",
-    "signinToSave": "Para guardar precisas de entrar na tua conta. A avaliação fica guardada neste navegador e é guardada na conta assim que entrares.",
+    "signinToSave": "Guardar cenários faz parte do plano pago. Se já o tens, entra na tua conta: a avaliação fica neste navegador e é guardada assim que entrares.",
     "limitReached": "Atingiste o limite de cenários guardados do teu plano.",
     "saveError": "Não foi possível guardar. Tenta novamente.",
     "copySuffix": "(cópia)",
@@ -691,7 +691,11 @@
       "insurance": "Seguro multirriscos",
       "maintenance": "Manutenção"
     },
-    "newEvaluation": "Nova avaliação"
+    "newEvaluation": "Nova avaliação",
+    "paidPlan": "Plano pago",
+    "paidPlanContact": "Fala connosco para aderir",
+    "savePaidOnly": "Guardar cenários faz parte do plano pago.",
+    "signinToSaveLink": "Entrar"
   },
   "prices": {
     "title": "Preços das casas em Portugal",
@@ -868,10 +872,8 @@
     "proceedsNote": "Não inclui o IMI do ano nem outras dívidas do imóvel. Confirma os impostos com um contabilista e o crédito com o banco.",
     "saveTitle": "Guardar avaliação",
     "valuationName": "Nome da avaliação",
-    "viewPdf": "Ver PDF",
     "myValuations": "As minhas avaliações",
-    "signinToSave": "Entra na tua conta para guardar a avaliação e ver o relatório PDF.",
-    "saveForPdf": "Guarda as alterações para ver o PDF atualizado.",
+    "signinToSave": "Guardar avaliações faz parte do plano pago. Se já o tens, entra na tua conta para a guardar.",
     "noEstimate": "Não há dados para avaliar este imóvel: sem mediana do INE para a zona. Junta pelo menos um anúncio semelhante com preço e área.",
     "loading": "A carregar os dados da zona…",
     "disclaimer": "Os valores são estimativas e não constituem uma avaliação bancária nem aconselhamento financeiro ou fiscal.",
@@ -883,12 +885,13 @@
     "pdfOpenMap": "Abrir no Google Maps",
     "pdfDetails": "Características",
     "pdfPage": "Página {n} de {total}",
-    "trendSeries": "Mediana do INE"
+    "trendSeries": "Mediana do INE",
+    "savePaidOnly": "Guardar avaliações faz parte do plano pago."
   },
   "signIn": {
     "title": "Entra ou cria a tua conta",
     "text": "As contas do Observatório Habitação (guardar cenários, relatórios PDF e alertas) chegam numa próxima fase.",
-    "intro": "A conta é gratuita: guarda os teus cenários e exporta relatórios PDF. Sem palavra-passe: enviamos um link para o teu email.",
+    "intro": "A conta é gratuita: descarrega relatórios PDF sem marca de água e envia-os por email. Sem palavra-passe: enviamos um link para o teu email.",
     "email": "Email",
     "submit": "Enviar link de acesso",
     "google": "Continuar com Google",
@@ -971,36 +974,10 @@
     "settingsInvalid": "Corrige os campos assinalados."
   },
   "share": {
-    "pdf": "PDF",
     "downloadPdf": "Descarregar relatório PDF",
-    "share": "Partilhar",
-    "shareTitle": "Partilhar cenário",
-    "shareHelp": "Qualquer pessoa com o link pode ver este cenário, só para leitura. Podes desativar o link a qualquer momento.",
-    "enable": "Criar link público",
-    "disable": "Desativar link público",
-    "link": "Link público",
-    "copy": "Copiar link",
-    "copied": "Link copiado.",
-    "sharePhotos": "Mostrar as fotografias do imóvel no link e no teu PDF",
-    "sharePhotosError": "Não foi possível alterar esta opção. Tenta novamente.",
-    "shareX": "Partilhar no X",
-    "shareFacebook": "Partilhar no Facebook",
-    "loading": "A carregar…",
-    "emailTitle": "Enviar relatório por email",
-    "emailTo": "Email do destinatário",
-    "send": "Enviar",
-    "sending": "A enviar…",
-    "sent": "Relatório enviado.",
-    "emailInvalid": "Indica um email válido.",
-    "emailLimit": "Atingiste o limite de 10 envios por dia.",
-    "emailError": "Não foi possível enviar o relatório.",
-    "emailSubject": "Relatório Observatório Habitação: {name}",
-    "emailText": "Segue em anexo o relatório do Observatório Habitação do cenário «{name}».\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nobservatoriohabitacao.pt",
-    "notAvailable": "Os relatórios PDF estão incluídos no plano Premium.",
     "sharedTitle": "Cenário partilhado: {name}",
     "sharedIntro": "Análise de investimento partilhada através do Observatório Habitação, só para leitura. Os valores de mercado foram indicados por quem partilhou.",
     "calculateYourOwn": "Calcula o teu próprio cenário",
-    "postText": "Análise de investimento imobiliário no Observatório Habitação: {name}",
     "ogNoResults": "Análise de investimento imobiliário",
     "report": {
       "title": "Relatório de investimento",
@@ -1059,7 +1036,8 @@
       },
       "holdingNote": "Na revenda, os custos contam só os meses até à venda.",
       "map": "Mapa",
-      "openListing": "Abrir anúncio ({site})"
+      "openListing": "Abrir anúncio ({site})",
+      "watermark": "OBSERVATÓRIO HABITAÇÃO"
     }
   },
   "admin": {
@@ -1235,33 +1213,6 @@
       "noUsers": "Nenhum utilizador encontrado."
     }
   },
-  "shareResults": {
-    "title": "Partilhar resultados",
-    "intro": "Envia um link para esta simulação no Observatório Habitação, só de leitura: quem o abrir vê os resultados mas não os pode alterar. Para criar o link, a simulação é guardada na tua conta tal como está.",
-    "email": "Email",
-    "whatsapp": "WhatsApp",
-    "messenger": "Facebook Messenger",
-    "account": "Enviar para o email da conta",
-    "pdf": "Relatório em PDF",
-    "viewPdf": "Ver PDF",
-    "working": "A guardar a simulação…",
-    "link": "Link só de leitura",
-    "copy": "Copiar link",
-    "copied": "Link copiado.",
-    "linkOutdated": "Tens alterações por guardar: o link mostra a última versão guardada. Ao partilhar de novo, as alterações são guardadas.",
-    "disable": "Desativar link",
-    "disabled": "Link desativado: quem o tiver já não consegue abrir a simulação.",
-    "signin": "Entra na tua conta para guardar e partilhar esta simulação.",
-    "signinLink": "Entrar",
-    "limit": "Atingiste o limite de cenários guardados no teu plano.",
-    "emailLimit": "Atingiste o limite de 10 emails por dia.",
-    "error": "Não foi possível partilhar a simulação. Tenta novamente.",
-    "sent": "Link enviado para {email}.",
-    "messageText": "Simulação de investimento imobiliário no Observatório Habitação: {name}",
-    "emailSubject": "Simulação Observatório Habitação: {name}",
-    "emailText": "Vê a simulação «{name}» no Observatório Habitação, só de leitura:\n\n{url}\n\nOs resultados são estimativas e não constituem aconselhamento financeiro ou fiscal.\n\nobservatoriohabitacao.pt",
-    "messengerCopied": "Link copiado. Cola-o numa conversa do Messenger, que abriu num novo separador."
-  },
   "sale": {
     "title": "Preço de venda e lucro",
     "help": {
@@ -1342,7 +1293,8 @@
       "too_large": "Atingiste o limite de 5 MB de fotografias neste cenário.",
       "signin": "Entra na tua conta para adicionar fotografias.",
       "not_found": "Cenário não encontrado.",
-      "rate_limited": "Demasiados envios seguidos. Aguarda um pouco e tenta novamente."
+      "rate_limited": "Demasiados envios seguidos. Aguarda um pouco e tenta novamente.",
+      "plan": "Juntar fotografias faz parte do plano pago."
     },
     "loadError": "Não foi possível carregar as fotografias.",
     "deleteError": "Não foi possível apagar a fotografia.",
@@ -1363,7 +1315,8 @@
     "cancel": "Cancelar",
     "signinToUpload": "Entra na tua conta para guardar o cenário e enviar as fotografias. Depois, escolhe-as de novo.",
     "signinLink": "Entrar",
-    "fromListing": "{count, plural, one {A fotografia do anúncio é usada} other {As # fotografias do anúncio são usadas}} no relatório PDF enquanto não adicionares as tuas."
+    "fromListing": "{count, plural, one {A fotografia do anúncio é usada} other {As # fotografias do anúncio são usadas}} no relatório PDF enquanto não adicionares as tuas.",
+    "paidOnly": "Juntar as tuas fotografias ao cenário faz parte do plano pago. As fotografias do anúncio entram no PDF na mesma."
   },
   "comparables": {
     "title": "Negócios semelhantes",
@@ -1436,9 +1389,9 @@
     "title": "Completa o teu perfil",
     "intro": "A tua conta gratuita está criada ({email}). Falta só o teu nome; o telefone e a data de nascimento são opcionais.",
     "benefits": {
-      "save": "Guarda os teus cenários e avaliações e volta a eles quando quiseres",
-      "pdf": "Exporta relatórios PDF com todas as contas do negócio",
-      "anywhere": "Abre-os em qualquer dispositivo, com o mesmo email"
+      "pdf": "Descarrega relatórios PDF sem marca de água, com o teu nome",
+      "email": "Envia o relatório por email, para ti e para mais uma pessoa",
+      "save": "Com o plano pago, guarda os teus cenários e avaliações e volta a eles em qualquer dispositivo"
     },
     "fields": {
       "name": "Nome",
@@ -1475,7 +1428,7 @@
         "basis": "Execução do contrato (al. b)"
       },
       {
-        "purpose": "Guardar cenários e avaliações, gerar relatórios PDF e links de partilha",
+        "purpose": "Guardar cenários e avaliações, gerar relatórios PDF e enviá-los por email a quem indicares",
         "data": "O que introduzes, fotografias",
         "basis": "Execução do contrato (al. b)"
       },
@@ -1663,5 +1616,38 @@
     "button": "Doar {amount} €",
     "opening": "A abrir o pagamento…",
     "error": "Não foi possível abrir o pagamento. Nada foi cobrado. Tenta novamente daqui a pouco."
+  },
+  "reportShare": {
+    "title": "Partilhar resultados",
+    "intro": "Descarrega o relatório em PDF com todas as contas, ou envia-o por email a quem te ajuda a decidir: o banco, um sócio ou a família.",
+    "download": "Descarregar PDF",
+    "watermark": "Sem sessão iniciada, o PDF leva uma marca de água. Entra (é gratuito) para o descarregares sem ela e o enviares por email.",
+    "signIn": "Entrar",
+    "emailTitle": "Enviar o PDF por email",
+    "emailTo": "Vai para {email} e, se quiseres, para mais um endereço.",
+    "extra": "Outro email (opcional)",
+    "extraPlaceholder": "nome@exemplo.pt",
+    "send": "Enviar",
+    "working": "A preparar o relatório…",
+    "sent": "Relatório enviado para {to}.",
+    "and": "e",
+    "invalid": "Esse email não parece válido. Indica só um endereço.",
+    "limitHour": "Chegaste ao limite de 5 envios por hora. No plano pago não há limite.",
+    "limitDay": "Chegaste ao limite de envios de hoje. Tenta amanhã.",
+    "signin": "Para enviar o relatório por email, entra na tua conta (é gratuita).",
+    "error": "Não foi possível enviar o relatório. Tenta novamente.",
+    "pdfLimit": "Pediste muitos relatórios na última hora. Tenta mais tarde, ou entra na tua conta.",
+    "pdfError": "Não foi possível preparar o PDF. Tenta novamente.",
+    "paidPlanContact": "Fala connosco para aderir",
+    "oldLink": "Este cenário tem um link só de leitura criado antes. Continua a funcionar até o desativares.",
+    "disableLink": "Desativar link"
+  },
+  "reportEmail": {
+    "subject": "Relatório do Observatório Habitação: {name}",
+    "untitled": "Cenário",
+    "toSelf": "Olá,\n\nSegue em anexo o relatório em PDF de «{name}», feito no Observatório Habitação.",
+    "toOther": "Olá,\n\n{sender} enviou-te o relatório em PDF de «{name}», feito no Observatório Habitação. Para responder, basta responderes a este email.",
+    "about": "O Observatório Habitação ajuda-te a decidir antes de comprar casa ou investir: a partir do anúncio, vês os impostos, o financiamento e o resultado de revender, arrendar ou fazer alojamento local, com dados do INE. Experimenta, é gratuito: {site}",
+    "disclaimer": "Os resultados são estimativas baseadas nos valores introduzidos e não constituem aconselhamento financeiro ou fiscal."
   }
 }

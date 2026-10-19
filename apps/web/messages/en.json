@@ -57,7 +57,7 @@
     "step4Title": "See the results",
     "step4Text": "IMT, stamp duty, income tax and financing worked out, and the comparison with the other strategies.",
     "step5Title": "Take the report and share it",
-    "step5Text": "Download the PDF report with all the figures, or send a read-only link to whoever helps you decide: the bank, a partner or family.",
+    "step5Text": "Download the PDF report with all the figures, or email it to whoever helps you decide: the bank, a partner or family.",
     "pricesTitle": "Prices by district",
     "pricesText": "Median sale price and rent per m² in every district, municipality and parish.",
     "pricesLink": "Explore prices",
@@ -316,7 +316,7 @@
       },
       {
         "q": "How do I save or share a scenario?",
-        "a": "Sign in with your email (no password) and use “Save”. Saved scenarios are under “Account”."
+        "a": "Under “Share the results” you download the PDF report or email it. Without signing in, the PDF has a watermark; sign in with your email (no password) to get it without one and to email it. Saving scenarios under “Account” is part of the paid plan."
       },
       {
         "q": "I found a mistake. How do I report it?",
@@ -577,7 +577,7 @@
     "saveChanges": "Save changes",
     "duplicate": "Duplicate",
     "duplicated": "Copy created.",
-    "signinToSave": "To save, you need to sign in. The evaluation stays in this browser and is saved to your account as soon as you sign in.",
+    "signinToSave": "Saving scenarios is part of the paid plan. If you have it, sign in: the evaluation stays in this browser and is saved as soon as you sign in.",
     "limitReached": "You have reached your plan's limit of saved scenarios.",
     "saveError": "Could not save. Please try again.",
     "copySuffix": "(copy)",
@@ -691,7 +691,11 @@
       "insurance": "Home insurance",
       "maintenance": "Maintenance"
     },
-    "newEvaluation": "New evaluation"
+    "newEvaluation": "New evaluation",
+    "paidPlan": "Paid plan",
+    "paidPlanContact": "Contact us to join",
+    "savePaidOnly": "Saving scenarios is part of the paid plan.",
+    "signinToSaveLink": "Sign in"
   },
   "prices": {
     "title": "House prices in Portugal",
@@ -868,10 +872,8 @@
     "proceedsNote": "Does not include the year's IMI or other debts on the property. Confirm the taxes with an accountant and the loan with your bank.",
     "saveTitle": "Save valuation",
     "valuationName": "Valuation name",
-    "viewPdf": "View PDF",
     "myValuations": "My valuations",
-    "signinToSave": "Sign in to save the valuation and see the PDF report.",
-    "saveForPdf": "Save the changes to see the updated PDF.",
+    "signinToSave": "Saving valuations is part of the paid plan. If you have it, sign in to save this one.",
     "noEstimate": "There is no data to value this property: no INE median for the area. Add at least one similar listing with a price and area.",
     "loading": "Loading the area's data…",
     "disclaimer": "Values are estimates and are neither a bank valuation nor financial or tax advice.",
@@ -883,12 +885,13 @@
     "pdfOpenMap": "Open in Google Maps",
     "pdfDetails": "Details",
     "pdfPage": "Page {n} of {total}",
-    "trendSeries": "INE median"
+    "trendSeries": "INE median",
+    "savePaidOnly": "Saving valuations is part of the paid plan."
   },
   "signIn": {
     "title": "Sign in or create your account",
     "text": "Observatório Habitação accounts (saved scenarios, PDF reports and alerts) come in a later phase.",
-    "intro": "The account is free: save your scenarios and export PDF reports. No password: we email you a link.",
+    "intro": "The account is free: download PDF reports without a watermark and email them. No password: we email you a link.",
     "email": "Email",
     "submit": "Email me a sign-in link",
     "google": "Continue with Google",
@@ -971,36 +974,10 @@
     "settingsInvalid": "Fix the fields marked."
   },
   "share": {
-    "pdf": "PDF",
     "downloadPdf": "Download PDF report",
-    "share": "Share",
-    "shareTitle": "Share scenario",
-    "shareHelp": "Anyone with the link can view this scenario, read-only. You can turn the link off at any time.",
-    "enable": "Create public link",
-    "disable": "Turn off public link",
-    "link": "Public link",
-    "copy": "Copy link",
-    "copied": "Link copied.",
-    "sharePhotos": "Show the property photos on the link and in its PDF",
-    "sharePhotosError": "Could not change this option. Please try again.",
-    "shareX": "Share on X",
-    "shareFacebook": "Share on Facebook",
-    "loading": "Loading…",
-    "emailTitle": "Email the report",
-    "emailTo": "Recipient's email",
-    "send": "Send",
-    "sending": "Sending…",
-    "sent": "Report sent.",
-    "emailInvalid": "Enter a valid email address.",
-    "emailLimit": "You have reached the limit of 10 emails per day.",
-    "emailError": "Could not send the report.",
-    "emailSubject": "Observatório Habitação report: {name}",
-    "emailText": "Attached is the Observatório Habitação report for the scenario “{name}”.\n\nResults are estimates and do not constitute financial or tax advice.\n\nobservatoriohabitacao.pt",
-    "notAvailable": "PDF reports are included in the Premium plan.",
     "sharedTitle": "Shared scenario: {name}",
     "sharedIntro": "Investment analysis shared through Observatório Habitação, read-only. The market values were entered by the person who shared it.",
     "calculateYourOwn": "Calculate your own scenario",
-    "postText": "Property investment analysis on Observatório Habitação: {name}",
     "ogNoResults": "Property investment analysis",
     "report": {
       "title": "Investment report",
@@ -1059,7 +1036,8 @@
       },
       "holdingNote": "For the resale, costs cover only the months until the sale.",
       "map": "Map",
-      "openListing": "Open listing ({site})"
+      "openListing": "Open listing ({site})",
+      "watermark": "OBSERVATÓRIO HABITAÇÃO"
     }
   },
   "admin": {
@@ -1235,33 +1213,6 @@
       "noUsers": "No users found."
     }
   },
-  "shareResults": {
-    "title": "Share the results",
-    "intro": "Send a read-only link to this evaluation on Observatório Habitação: whoever opens it sees the results but cannot change them. To create the link, the evaluation is saved to your account as it is.",
-    "email": "Email",
-    "whatsapp": "WhatsApp",
-    "messenger": "Facebook Messenger",
-    "account": "Send to my account email",
-    "pdf": "PDF report",
-    "viewPdf": "View PDF",
-    "working": "Saving the evaluation…",
-    "link": "Read-only link",
-    "copy": "Copy link",
-    "copied": "Link copied.",
-    "linkOutdated": "You have unsaved changes: the link shows the last saved version. Sharing again saves the changes.",
-    "disable": "Turn off link",
-    "disabled": "Link turned off: anyone who has it can no longer open the evaluation.",
-    "signin": "Sign in to save and share this evaluation.",
-    "signinLink": "Sign in",
-    "limit": "You have reached the number of saved scenarios in your plan.",
-    "emailLimit": "You have reached the limit of 10 emails per day.",
-    "error": "Could not share the evaluation. Please try again.",
-    "sent": "Link sent to {email}.",
-    "messageText": "Property investment evaluation on Observatório Habitação: {name}",
-    "emailSubject": "Observatório Habitação evaluation: {name}",
-    "emailText": "See the evaluation “{name}” on Observatório Habitação, read-only:\n\n{url}\n\nResults are estimates and do not constitute financial or tax advice.\n\nobservatoriohabitacao.pt",
-    "messengerCopied": "Link copied. Paste it into a Messenger chat, opened in a new tab."
-  },
   "sale": {
     "title": "Sale price and profit",
     "help": {
@@ -1342,7 +1293,8 @@
       "too_large": "You have reached the 5 MB photo limit for this scenario.",
       "signin": "Sign in to add photos.",
       "not_found": "Scenario not found.",
-      "rate_limited": "Too many uploads in a row. Wait a moment and try again."
+      "rate_limited": "Too many uploads in a row. Wait a moment and try again.",
+      "plan": "Adding photos is part of the paid plan."
     },
     "loadError": "The photos could not be loaded.",
     "deleteError": "The photo could not be deleted.",
@@ -1363,7 +1315,8 @@
     "cancel": "Cancel",
     "signinToUpload": "Sign in to save the scenario and send the photos. Then choose them again.",
     "signinLink": "Sign in",
-    "fromListing": "{count, plural, one {The listing's photo is used} other {The listing's # photos are used}} in the PDF report until you add your own."
+    "fromListing": "{count, plural, one {The listing's photo is used} other {The listing's # photos are used}} in the PDF report until you add your own.",
+    "paidOnly": "Adding your own photos to the scenario is part of the paid plan. The listing's photos still go in the PDF."
   },
   "comparables": {
     "title": "Similar deals",
@@ -1436,9 +1389,9 @@
     "title": "Complete your profile",
     "intro": "Your free account is set up ({email}). We only need your name; phone and date of birth are optional.",
     "benefits": {
-      "save": "Save your scenarios and valuations and come back to them whenever you like",
-      "pdf": "Export PDF reports with all the figures of the deal",
-      "anywhere": "Open them on any device, with the same email"
+      "pdf": "Download PDF reports without a watermark, with your name",
+      "email": "Email the report to yourself and one more person",
+      "save": "With the paid plan, save your scenarios and valuations and come back to them on any device"
     },
     "fields": {
       "name": "Name",
@@ -1475,7 +1428,7 @@
         "basis": "Performance of a contract (b)"
       },
       {
-        "purpose": "Saving scenarios and valuations, producing PDF reports and share links",
+        "purpose": "Saving scenarios and valuations, producing PDF reports and emailing them to whoever you choose",
         "data": "What you enter, photos",
         "basis": "Performance of a contract (b)"
       },
@@ -1663,5 +1616,38 @@
     "button": "Donate €{amount}",
     "opening": "Opening checkout…",
     "error": "Could not open the checkout. Nothing has been charged. Try again in a moment."
+  },
+  "reportShare": {
+    "title": "Share the results",
+    "intro": "Download the PDF report with all the figures, or email it to whoever helps you decide: the bank, a partner or family.",
+    "download": "Download PDF",
+    "watermark": "Without signing in, the PDF has a watermark. Sign in (it's free) to download it without one and to email it.",
+    "signIn": "Sign in",
+    "emailTitle": "Email the PDF",
+    "emailTo": "It goes to {email} and, if you like, one more address.",
+    "extra": "Another email (optional)",
+    "extraPlaceholder": "name@example.com",
+    "send": "Send",
+    "working": "Preparing the report…",
+    "sent": "Report sent to {to}.",
+    "and": "and",
+    "invalid": "That email doesn't look valid. Enter just one address.",
+    "limitHour": "You've reached the limit of 5 emails per hour. The paid plan has no limit.",
+    "limitDay": "You've reached today's email limit. Try again tomorrow.",
+    "signin": "To email the report, sign in to your account (it's free).",
+    "error": "The report couldn't be sent. Please try again.",
+    "pdfLimit": "You've asked for many reports in the last hour. Try later, or sign in.",
+    "pdfError": "The PDF couldn't be prepared. Please try again.",
+    "paidPlanContact": "Contact us to join",
+    "oldLink": "This scenario has a read-only link made earlier. It keeps working until you turn it off.",
+    "disableLink": "Turn off link"
+  },
+  "reportEmail": {
+    "subject": "Observatório Habitação report: {name}",
+    "untitled": "Scenario",
+    "toSelf": "Hello,\n\nAttached is the PDF report of “{name}”, made on Observatório Habitação.",
+    "toOther": "Hello,\n\n{sender} sent you the PDF report of “{name}”, made on Observatório Habitação. To answer, just reply to this email.",
+    "about": "Observatório Habitação helps you decide before buying a home or investing: from the listing, you see the taxes, the financing and the result of reselling, letting or short-term renting, with INE data. Try it, it's free: {site}",
+    "disclaimer": "The results are estimates based on the values entered and are not financial or tax advice."
   }
 }

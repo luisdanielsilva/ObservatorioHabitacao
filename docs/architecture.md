@@ -49,8 +49,11 @@ added later if ML training (automatic estimates, Phase 4) needs it.
    browser. Admins come from `ADMIN_EMAILS`. Transactional email goes through Resend's HTTP API
    (`RESEND_API_KEY`); without a key, emails are written to the server log (development).
 8. **Freemium by entitlements.** `src/lib/entitlements.ts` lists what each plan includes
-   (saved-scenario limit, PDF, sale-price analysis, alerts). Limits only apply with `ENFORCE_PLANS=true`;
-   during the beta everything is open.
+   (issues #5 and #12): simulations and PDF reports for everyone (watermarked when not signed
+   in), report emails for signed-in users (5 an hour on the free plan), saving scenarios and
+   valuations (and so photos) on the paid plan only. Limits only apply with
+   `ENFORCE_PLANS=true` (set on the preview); without it everyone gets the paid plan. Users are
+   moved to the paid plan by an admin until payments exist.
 
 ## Data flow for Avaliar anúncio
 

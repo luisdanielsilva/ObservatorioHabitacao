@@ -46,8 +46,11 @@ export function PhotosSection({
   scenarioId,
   ensureSaved,
   listingPhotoCount = 0,
+  paidOnly = false,
 }: {
   scenarioId: number | null;
+  /** Signed in on the free plan: photos need a saved scenario, part of the paid plan. */
+  paidOnly?: boolean;
   /** Photos of the listing read from the link, used in the PDF when none are uploaded. */
   listingPhotoCount?: number;
   /** Saves the evaluation as on screen, unless it already is. */
@@ -157,7 +160,12 @@ export function PhotosSection({
     if (saved.status !== "saved") {
       return setStatus({
         kind: "message",
-        text: saved.status === "limit" ? te("limitReached") : te("saveError"),
+        text:
+          saved.status === "plan"
+            ? t("paidOnly")
+            : saved.status === "limit"
+              ? te("limitReached")
+              : te("saveError"),
         error: true,
       });
     }
@@ -223,7 +231,7 @@ export function PhotosSection({
               : t("intro")}
           </p>
         </div>
-        {status.kind !== "loading" && status.kind !== "signin" && (
+        {status.kind !== "loading" && status.kind !== "signin" && !paidOnly && (
           <>
             <input
               ref={input}
@@ -247,8 +255,16 @@ export function PhotosSection({
         )}
       </div>
 
-      {!scenarioId && picks.length === 0 && (
-        <p className="text-sm text-muted-foreground">{t("saveFirst")}</p>
+      {paidOnly ? (
+        <p className="text-sm text-muted-foreground">
+          {t("paidOnly")}{" "}
+          <Link href="/contactos" className="font-medium text-primary underline">
+            {te("paidPlanContact")} →
+          </Link>
+        </p>
+      ) : (
+        !scenarioId &&
+        picks.length === 0 && <p className="text-sm text-muted-foreground">{t("saveFirst")}</p>
       )}
       {photos.length === 0 && listingPhotoCount > 0 && (
         <p className="text-sm text-muted-foreground">

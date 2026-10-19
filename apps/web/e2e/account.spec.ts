@@ -4,6 +4,7 @@ import {
   field,
   fillPropertyByHand,
   nextPanel,
+  setPlan,
   showResults,
   signInWithLink,
   step,
@@ -26,16 +27,24 @@ test("sign in, save a scenario, export and delete the account", async ({ page })
   await nextPanel(page);
   await field(page, "Preço de venda após obras").fill("300000");
   await showResults(page);
-  await page.getByRole("button", { name: "Guardar", exact: true }).click();
-  await expect(page.getByText(/Para guardar precisas de entrar/)).toBeVisible();
-  await page.getByRole("link", { name: "Guardar →" }).click();
+  const bar = page.getByRole("region", { name: "Guardar cenário" });
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(
+    bar.getByText(/Guardar cenários faz parte do plano pago\. Se já o tens/),
+  ).toBeVisible();
+  await bar.getByRole("link", { name: "Entrar →" }).click();
 
   await signInWithLink(page, email, LOG!);
 
-  // The inputs typed before signing in are restored, and the page opens at the results.
+  // The inputs typed before signing in are restored, and the page opens at the results. The
+  // save asked for is tried straight away: refused on the free plan.
   await expect(step(page, "Imóvel")).toContainText("250 000 €");
   await expect(step(page, "Tipo de negócio")).toContainText("Compra e revenda");
-  // The save the user asked for is finished without clicking again.
+  await expect(bar.getByText("Guardar cenários faz parte do plano pago.")).toBeVisible();
+
+  // On the paid plan (set by an admin until payments exist) it goes through.
+  setPlan(email, "premium");
+  await bar.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page).toHaveURL(/cenario=\d+/);
 
   await page.goto("/conta");

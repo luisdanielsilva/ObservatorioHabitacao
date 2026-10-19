@@ -27,11 +27,20 @@ export interface ReportData {
 }
 
 /**
- * Everything a report or shared page needs for a saved scenario. Results are recalculated
+ * What a report is made from: a saved scenario, or the evaluation on screen (`id` null, made
+ * without saving it, issue #12). `id` and `userId` give the saved scenario's photos.
+ */
+export type ReportSource = Pick<ScenarioRow, "name" | "inputs" | "parameterSetId" | "updatedAt"> & {
+  id: number | null;
+  userId: string | null;
+};
+
+/**
+ * Everything a report or shared page needs for a scenario. Results are recalculated
  * from the stored inputs with the parameter set the scenario was saved with, never taken
  * from the stored results cache.
  */
-export function buildReportData(scenario: ScenarioRow): ReportData | undefined {
+export function buildReportData(scenario: ReportSource): ReportData | undefined {
   const db = getDb();
   const params = db
     .select()

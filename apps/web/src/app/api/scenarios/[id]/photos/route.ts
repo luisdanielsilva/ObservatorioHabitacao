@@ -9,6 +9,7 @@ import {
 } from "@observatorio-habitacao/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb } from "@/lib/db";
+import { canSave } from "@/lib/entitlements";
 import {
   InvalidImageError,
   MAX_UPLOAD_BYTES,
@@ -37,7 +38,8 @@ export type PhotosResponse = {
 export type UploadResponse =
   | { status: "added"; photo: PhotoInfo; usage: { count: number; bytes: number } }
   | {
-      status: "signin" | "not_found" | "too_many" | "too_large" | "invalid" | "rate_limited";
+      status:
+        "signin" | "plan" | "not_found" | "too_many" | "too_large" | "invalid" | "rate_limited";
     };
 
 /** Per user: each upload decodes and re-encodes an image on the server. */
@@ -85,6 +87,10 @@ export async function POST(
 ) {
   const user = await getMember();
   if (!user) return NextResponse.json<UploadResponse>({ status: "signin" }, { status: 401 });
+  // Photos belong to saved scenarios, which are part of the paid plan (issue #5).
+  if (!canSave(user.plan)) {
+    return NextResponse.json<UploadResponse>({ status: "plan" }, { status: 403 });
+  }
   const scenarioId = await scenarioIdOf(params);
   if (!scenarioId)
     return NextResponse.json<UploadResponse>({ status: "not_found" }, { status: 404 });

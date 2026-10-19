@@ -28,9 +28,9 @@ import { ListingStep } from "./ListingStep";
 import { PhotosSection } from "./PhotosSection";
 import { SaveBar } from "./SaveBar";
 import { scenarioKey, type SavedScenario } from "./saved";
-import { ShareSection } from "./ShareSection";
 import { StepCard, type StepStatus } from "./StepCard";
 import { withBasePath } from "@/lib/basePath";
+import { ReportShare, type ReportMember } from "@/components/share/ReportShare";
 
 export type Update = (patch: Partial<CalculatorState>) => void;
 
@@ -62,6 +62,8 @@ export interface CalculatorProps {
   autoSave?: boolean;
   /** Development only: shows "Preencher exemplo". */
   devTools?: boolean;
+  /** The signed-in user (with a profile) and whether their plan saves; null when signed out. */
+  member: (ReportMember & { canSave: boolean }) | null;
 }
 
 export function Calculator({
@@ -76,6 +78,7 @@ export function Calculator({
   onReset,
   autoSave,
   devTools,
+  member,
 }: CalculatorProps) {
   const locale = useLocale();
   const te = useTranslations("evaluate");
@@ -126,6 +129,9 @@ export function Calculator({
       : null,
   );
   const savedId = saved?.id ?? null;
+  // Whether the user's plan saves: as the page was opened, or since a save went through (e.g.
+  // moved to the paid plan meanwhile). Null when signed out.
+  const canSave = member ? member.canSave || savedId !== null : null;
   const onSaved = useCallback((next: SavedScenario) => {
     setSaved(next);
     // The address opens this scenario again, without reloading the page.
@@ -362,10 +368,12 @@ export function Calculator({
                   scenarioId={savedId}
                   ensureSaved={ensureSaved}
                   listingPhotoCount={state.listingPhotos.length}
+                  paidOnly={canSave === false}
                 />
               }
               saveBar={
                 <SaveBar
+                  canSave={canSave}
                   autoSave={autoSave}
                   state={state}
                   name={shownName}
@@ -376,13 +384,10 @@ export function Calculator({
                 />
               }
               share={
-                <ShareSection
-                  state={state}
-                  name={shownName}
-                  saved={saved}
-                  currentKey={currentKey}
-                  onSaved={onSaved}
-                  ensureSaved={ensureSaved}
+                <ReportShare
+                  input={() => ({ kind: "scenario", name: shownName, state, savedId })}
+                  member={member}
+                  returnTo="/avaliar"
                 />
               }
             />

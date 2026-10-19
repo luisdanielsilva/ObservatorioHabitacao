@@ -6,12 +6,32 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 281 unit tests (64 engine, 96 db, 121 web) and 47 end-to-end tests (Playwright, Chromium;
+Tests: 285 unit tests (64 engine, 96 db, 125 web) and 48 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
 ## Latest changes (2026-10-04 – 2026-10-19)
+
+**What needs an account, and sharing by PDF and email (2026-10-19, issues #5 and #12)**
+
+- Simulations need no account. The report ("Partilhar resultados", in Avaliar anúncio and
+  Vender) is made from what is on screen, without saving it (`POST /api/report`,
+  `/api/report/valuation`): signed out, the PDF has "OBSERVATÓRIO HABITAÇÃO" in large red
+  letters diagonally across every page (the listing photos on page 1 cover it); signed in it
+  is clean and names who made it. Anonymous PDFs: 10 an hour per IP; signed in, 60.
+- Signed in, the report can be emailed (the PDF attached, a few words about the site, no link
+  to the simulation) to the account's address and one more: 5 an hour on the free plan, 50 a
+  day on the paid one (`emailReport`, `lib/report/recipients.ts`). Over the limit, the message
+  points to the contact form to join the paid plan.
+- Saving scenarios and valuations, and so uploading photos, is part of the paid plan
+  (`canSave` in `lib/entitlements.ts`; "Plano pago" next to "Guardar"). There is no payment
+  yet: an admin moves a user to the paid plan; "Fala connosco para aderir" opens the contact
+  page. `ENFORCE_PLANS=true` in `apps/web/.env.local` (dev and preview).
+- WhatsApp, Messenger, the mailto link and new read-only links are gone. Links made before
+  keep working (their PDF is watermarked for visitors not signed in) until their owner turns
+  them off in "Conta" (the email button's menu). Texts on the home page ("Como funciona"),
+  FAQ, sign-in, profile and privacy policy say the same.
 
 **Rent update coefficient for 2027 (2026-10-19)**
 
@@ -502,8 +522,10 @@ VPS (system libraries need sudo), so Safari is untested.
   policy does not load images from other servers. They are used in the owner's PDF.
 - **Listing photos are not on the read-only page** even when photos are shared (same content
   security policy); only uploaded ones are. Its PDF has them.
-- **Messenger on a computer** cannot be pre-filled without a Facebook app id: the link is copied
-  and messenger.com opened for the user to paste it.
+- **No payment for the paid plan yet:** an admin moves a user to it (Admin → Utilizadores); the
+  site's "Fala connosco para aderir" goes to the contact page.
+- **The watermark does not cover the listing photos** on the PDF's first page (the PDF library
+  draws fixed elements before the page's content).
 - **Default interest rate is an estimate** (Euribor + typical spread), lower than a real TAEG.
 - **IMI uses the price when the VPT is unknown,** which overstates it (a warning is shown).
 - **Long-term rental horizon of 30 years** (or the loan term, up to 50) is an assumption; its

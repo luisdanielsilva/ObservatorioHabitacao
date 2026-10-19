@@ -7,7 +7,7 @@ import {
   updateValuation,
 } from "@observatorio-habitacao/db";
 import { getDb } from "@/lib/db";
-import { entitlementsFor } from "@/lib/entitlements";
+import { canSave, entitlementsFor } from "@/lib/entitlements";
 import { FEATURES } from "@/lib/features";
 import { getMember } from "@/lib/session";
 import { estimateValue } from "@/lib/valuation/estimate";
@@ -15,8 +15,9 @@ import { ineBase } from "@/lib/valuation/ine";
 import { CONFIDENCE, MODEL_VERSION } from "@/lib/valuation/model";
 import { normaliseValuation } from "@/lib/valuation/state";
 
+/** "plan": saving is part of the paid plan (issue #5). */
 export type SaveValuationResult =
-  { status: "saved"; id: number } | { status: "signin" | "limit" | "invalid" | "error" };
+  { status: "saved"; id: number } | { status: "signin" | "plan" | "limit" | "invalid" | "error" };
 
 const MAX_STATE_BYTES = 100_000;
 
@@ -32,6 +33,7 @@ export async function saveValuation(input: {
   if (!FEATURES.sell) return { status: "error" };
   const user = await getMember();
   if (!user) return { status: "signin" };
+  if (!canSave(user.plan)) return { status: "plan" };
   if (JSON.stringify(input.state ?? null).length > MAX_STATE_BYTES) return { status: "invalid" };
 
   const db = getDb();

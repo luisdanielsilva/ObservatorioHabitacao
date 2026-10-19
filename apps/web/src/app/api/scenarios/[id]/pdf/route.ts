@@ -1,7 +1,6 @@
 import { getScenario } from "@observatorio-habitacao/db";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { entitlementsFor } from "@/lib/entitlements";
 import { reportLocale } from "@/lib/report/locale";
 import { pdfResponse, renderScenarioPdf, reportFilename } from "@/lib/report/render";
 import { getMember } from "@/lib/session";
@@ -10,9 +9,6 @@ import { getMember } from "@/lib/session";
 export async function GET(request: Request, { params }: RouteContext<"/api/scenarios/[id]/pdf">) {
   const user = await getMember();
   if (!user) return NextResponse.json({ error: "not signed in" }, { status: 401 });
-  if (!entitlementsFor(user.plan).pdfReports) {
-    return NextResponse.json({ error: "not included in your plan" }, { status: 403 });
-  }
   const id = Number((await params).id);
   const scenario = Number.isInteger(id) ? getScenario(getDb(), id, user.id) : undefined;
   if (!scenario) return NextResponse.json({ error: "not found" }, { status: 404 });

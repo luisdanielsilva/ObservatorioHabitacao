@@ -1,19 +1,20 @@
 "use client";
 
 import type { ParameterSet } from "@observatorio-habitacao/engine";
-import { FileText, FolderOpen, RotateCcw, Save } from "lucide-react";
+import { FolderOpen, RotateCcw, Save } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import type { ReferenceResponse } from "@/app/api/reference/route";
 import { saveValuation, type SaveValuationResult } from "@/app/[locale]/vender/actions";
 import { ComparablesSection } from "@/components/calculator/ComparablesSection";
+import { ReportShare, type ReportMember } from "@/components/share/ReportShare";
+import { withBasePath } from "@/lib/basePath";
 import { StepCard, type StepStatus } from "@/components/calculator/StepCard";
 import { findAreaChain, type AreaTree } from "@/components/shared/AreaPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
-import { withBasePath } from "@/lib/basePath";
 import { hasTypology } from "@/lib/calculator/flow";
 import { useFormat } from "@/lib/useFormat";
 import { writeValuationDraft } from "@/lib/valuation/draft";
@@ -35,12 +36,12 @@ export interface ValuationProps {
     state: ValuationState;
     savedId: number | null;
     name: string | null;
-    /** Opened from the account: on screen exactly as saved, so its PDF can be opened. */
-    asSaved?: boolean;
   };
   /** Save straight away (back from signing in to save). */
   autoSave?: boolean;
   onReset?: () => void;
+  /** The signed-in user (with a profile) and whether their plan saves; null when signed out. */
+  member: (ReportMember & { canSave: boolean }) | null;
 }
 
 /**
@@ -55,6 +56,7 @@ export function Valuation({
   initial,
   autoSave,
   onReset,
+  member,
 }: ValuationProps) {
   const t = useTranslations("sell");
   const te = useTranslations("evaluate");
@@ -245,7 +247,12 @@ export function Valuation({
                 window.history.replaceState(null, "", `?avaliacao=${id}`);
               }}
               autoSave={autoSave}
-              asSaved={Boolean(initial?.asSaved)}
+              canSave={member ? member.canSave || savedId !== null : null}
+            />
+            <ReportShare
+              input={() => ({ kind: "valuation", name: shownName, state })}
+              member={member}
+              returnTo="/vender"
             />
           </>
         ) : (
@@ -259,7 +266,7 @@ export function Valuation({
   );
 }
 
-/** Saves the valuation to the account; once saved, its PDF report can be opened. */
+/** Saves the valuation to the account, part of the paid plan (issue #5). */
 function ValuationSaveBar({
   state,
   name,
@@ -267,7 +274,7 @@ function ValuationSaveBar({
   savedId,
   onSaved,
   autoSave = false,
-  asSaved,
+  canSave,
 }: {
   state: ValuationState;
   name: string;
@@ -275,27 +282,21 @@ function ValuationSaveBar({
   savedId: number | null;
   onSaved: (id: number) => void;
   autoSave?: boolean;
-  asSaved: boolean;
+  /** Whether the signed-in user's plan saves; null when not signed in. */
+  canSave: boolean | null;
 }) {
   const t = useTranslations("sell");
   const te = useTranslations("evaluate");
   const locale = useLocale();
   const id = useId();
   const [result, setResult] = useState<SaveValuationResult | null>(null);
-  const current = JSON.stringify({ name, state });
-  // The state as last saved, so the PDF is only offered for what is on screen.
-  const [savedState, setSavedState] = useState<string | null>(() => (asSaved ? current : null));
   const [pending, startTransition] = useTransition();
 
   const save = () =>
     startTransition(async () => {
-      const snapshot = current;
       const r = await saveValuation({ id: savedId, name, state });
       setResult(r);
-      if (r.status === "saved") {
-        onSaved(r.id);
-        setSavedState(snapshot);
-      }
+      if (r.status === "saved") onSaved(r.id);
     });
 
   const autoSaved = useRef(false);
@@ -307,7 +308,6 @@ function ValuationSaveBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const upToDate = savedId !== null && savedState === current;
   const message =
     result?.status === "saved"
       ? te("saved")
@@ -337,17 +337,10 @@ function ValuationSaveBar({
           <Save />
           {pending ? te("saving") : savedId ? te("saveChanges") : te("save")}
         </Button>
-        {upToDate && (
-          <Button asChild variant="outline">
-            <a
-              href={withBasePath(`/api/valuations/${savedId}/pdf?lang=${locale}`)}
-              target="_blank"
-              rel="noopener"
-            >
-              <FileText />
-              {t("viewPdf")}
-            </a>
-          </Button>
+        {canSave !== true && (
+          <span className="self-center rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+            {te("paidPlan")}
+          </span>
         )}
         {savedId && (
           <Button asChild variant="ghost">
@@ -366,11 +359,18 @@ function ValuationSaveBar({
               href={{ pathname: "/entrar", query: { voltar: back } }}
               className="font-medium text-primary underline"
             >
-              {te("save")} →
+              {te("signinToSaveLink")} →
+            </Link>
+          </>
+        ) : result?.status === "plan" ? (
+          <>
+            {t("savePaidOnly")}{" "}
+            <Link href="/contactos" className="font-medium text-primary underline">
+              {te("paidPlanContact")} →
             </Link>
           </>
         ) : (
-          (message ?? (savedId && !upToDate ? t("saveForPdf") : null))
+          message
         )}
       </p>
     </section>
