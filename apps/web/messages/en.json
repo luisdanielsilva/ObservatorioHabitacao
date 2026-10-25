@@ -339,7 +339,7 @@
     "monthlyCashFlow": "Monthly cash flow",
     "monthlyCashFlowHelp": "What is left (or missing) each month in the first full year, after costs, taxes and loan payments.",
     "paybackYears": "Payback",
-    "paybackYearsHelp": "Years until cash flow pays back your own capital, not counting the sale.",
+    "paybackYearsHelp": "Years until cash flow pays back your own capital, not counting the sale. For a long-term rental, counted month by month from the purchase, with the works, rent increases, vacancies and IRS.",
     "returnOnDeposit": "Return on deposit",
     "returnOnDepositHelp": "Net profit of the assignment divided by the deposit paid on the CPCV.",
     "acquisitionCosts": "Acquisition costs",
@@ -349,7 +349,7 @@
     "annualCashFlow": "Annual cash flow",
     "annualCashFlowHelp": "What is left each year after costs, taxes and loan payments: the monthly cash flow × 12.",
     "lifetimeCashFlow": "Lifetime cash flow",
-    "lifetimeCashFlowHelp": "Rent minus costs, taxes and loan payments over the whole period (for a rental kept for good, 30 years or the loan term), without the purchase or a sale.",
+    "lifetimeCashFlowHelp": "Net cash flow (rent minus costs, taxes and loan payments), without the purchase or a sale. For a long-term rental, counted only until the month your own capital is recovered (the payback period); without a payback, it is not worked out.",
     "cashOnCash": "Annual return on capital",
     "cashOnCashHelp": "Annual cash flow ÷ own capital invested: what the money you put in earns each year."
   },
@@ -668,7 +668,7 @@
     "rentGrowthHelp": "By default, the rent update coefficient for {year} ({rate}), the latest set by law: {source}, published in the Diário da República from INE's price index. Landlords may raise the rent once a year up to this amount.",
     "rentGrowthHelpNoSource": "Yearly rent increase. The legal limit is the rent update coefficient published every year in the Diário da República.",
     "permanentRentalNote": "The property is let for good, without a sale. Results show the monthly, annual and lifetime cash flow over {years} years.",
-    "permanentRentalResults": "Let for good, without a sale: lifetime cash flow over {years} years; no sale profit or IRR.",
+    "permanentRentalResults": "Let for good, without a sale: worked out over {years} years, no sale profit or IRR. The lifetime cash flow counts until the capital is recovered.",
     "loanTermHelp": "{recommended} years by default: the longest term Banco de Portugal recommends for a new mortgage (macroprudential measure). You can enter up to {max} years if your bank accepts it.",
     "loanTermAboveRecommended": "Above the {recommended} years Banco de Portugal recommends: few banks accept it.",
     "loanFees": "Loan charges",
@@ -1212,7 +1212,7 @@
     "help": {
       "flip": "The lowest sale price without a loss, after all purchase costs, works, holding costs, selling commission and taxes. Above it, it shows how much you earn at each 5 % step.",
       "shortTermRental": "The lowest price you can sell for at the end of the short-term rental period without a loss, counting what the rental earned. Above it, it shows how much you earn at each 5 % step.",
-      "longTermRental": "The rental is kept for good; here a sale after {years} years is assumed. It shows the lowest price without a loss, counting the rent received, and how much you earn above it.",
+      "longTermRental": "The rental is kept for good; here a sale after {years} years is assumed. The lowest price is what the property cost you to let: the purchase price, the purchase costs, the works, furniture and licences. From it, the net profit at each 5 % step, with the rent received.",
       "contractAssignment": "The lowest assignment price without a loss, after the deposit, commission, other costs and taxes. Above it, it shows how much you earn at each 5 % step."
     },
     "breakEven": {

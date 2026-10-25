@@ -93,5 +93,25 @@ export function runLongTermRental(
     acquisitionCost: input.purchasePrice + sim.acquisition.total,
   });
   result.annualMaintenance = averageRent * 12 * input.maintenanceRate;
+  // The capital comes back from the rents as they grow, not at the first year's pace; the
+  // cash flow is counted until then.
+  const recovered = payback(result);
+  result.paybackYears = recovered && recovered.months / 12;
+  result.lifetimeCashFlow = recovered && recovered.cashFlow;
   return result;
+}
+
+/**
+ * Month by month from the purchase, with the rent increases, the vacancies and the yearly tax:
+ * the first month whose net cash flow (rent less costs, taxes and loan payments) adds up to the
+ * own capital. Null when that does not happen within the period.
+ */
+function payback(result: ScenarioResult): { months: number; cashFlow: number } | null {
+  let cashFlow = 0;
+  for (const l of result.months) {
+    if (l.month < 1) continue;
+    cashFlow += l.income - l.operatingCosts - l.incomeTax - l.debtService;
+    if (cashFlow >= result.ownCapital) return { months: l.month, cashFlow };
+  }
+  return null;
 }

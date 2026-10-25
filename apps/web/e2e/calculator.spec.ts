@@ -395,7 +395,9 @@ test("long-term rental: kept for good, consecutive leases, legal rent update", a
   await field(page, "Renda mensal esperada").fill("1600");
   await showResults(page);
   await expect(
-    step(page, "Resultados").getByText(/sem venda: cash flow acumulado em 30 anos/),
+    step(page, "Resultados").getByText(
+      /sem venda: contas a 30 anos.*cash flow acumulado conta até recuperares o capital/,
+    ),
   ).toBeVisible();
 });
 

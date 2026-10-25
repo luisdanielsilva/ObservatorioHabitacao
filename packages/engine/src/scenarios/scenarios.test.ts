@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { params2025 as params } from "../__fixtures__/params2025";
-import type { PropertyInputs } from "../simulation";
+import type { PropertyInputs, ScenarioResult } from "../simulation";
 import { runContractAssignment, suggestAssignmentPrice } from "./contractAssignment";
 import { runFlip } from "./flip";
 import {
@@ -111,7 +111,8 @@ describe("runLongTermRental", () => {
     expect(rental.grossYield).toBeCloseTo(12_000 / BOUGHT, 10);
     expect(rental.netYield).toBeCloseTo((12_000 - 12 * 145 - tax) / BOUGHT, 10);
     expect(rental.monthlyCashFlow).toBeCloseTo((10_260 - tax) / 12, 6);
-    expect(rental.paybackYears).toBeCloseTo(BOUGHT / (10_260 - tax), 6);
+    // Kept only 2 years: the capital does not come back within them.
+    expect(rental.paybackYears).toBeNull();
   });
 
   it("shows the yearly maintenance", () => {
@@ -152,9 +153,43 @@ describe("runLongTermRental", () => {
     expect(kept.netProfit).toBeNull();
     expect(kept.gainTax).toBeNull();
     expect(kept.irr).toBeNull();
-    expect(kept.lifetimeCashFlow).toBeCloseTo(18 * 855 - 2_565 - 6 * 855 * 0.25, 2);
+    // 18 months do not bring the capital back, so no lifetime cash flow either.
+    expect(kept.lifetimeCashFlow).toBeNull();
     expect(kept.annualCashFlow).toBeCloseTo(12 * 855 * 0.75, 6);
     expect(kept.cashOnCash).toBeCloseTo((12 * 855 * 0.75) / BOUGHT, 10);
+  });
+
+  it("recovers the capital month by month, and counts the cash flow until then", () => {
+    // Kept for 40 years, 3 months of works first; 7 695 a year after tax at the first rent.
+    const keep = (rentGrowthRate: number) =>
+      runLongTermRental(
+        { ...input, rentGrowthRate, renovationMonths: 3, holdingMonths: 40 * 12, exitPrice: null },
+        params,
+      );
+    const net = (r: ScenarioResult, to: number) =>
+      r.months
+        .filter((l) => l.month >= 1 && l.month <= to)
+        .reduce((s, l) => s + l.income - l.operatingCosts - l.incomeTax - l.debtService, 0);
+
+    const flat = keep(0);
+    const months = flat.paybackYears! * 12;
+    expect(Number.isInteger(months)).toBe(true);
+    // The first month the net cash flow reaches the own capital, works included.
+    expect(net(flat, months)).toBeGreaterThanOrEqual(flat.ownCapital);
+    expect(net(flat, months - 1)).toBeLessThan(flat.ownCapital);
+    expect(flat.lifetimeCashFlow).toBeCloseTo(net(flat, months), 6);
+    // Without rent increases, close to own capital ÷ the first year's cash flow.
+    expect(flat.paybackYears).toBeCloseTo(BOUGHT / 7_695, 0);
+
+    // Rents that grow bring the capital back sooner.
+    const growing = keep(0.03);
+    expect(growing.paybackYears!).toBeLessThan(flat.paybackYears! - 2);
+    expect(growing.lifetimeCashFlow! - growing.ownCapital).toBeLessThan(growing.annualCashFlow!);
+
+    // Never recovered: neither figure.
+    const losing = runLongTermRental({ ...input, monthlyRent: 100, exitPrice: null }, params);
+    expect(losing.paybackYears).toBeNull();
+    expect(losing.lifetimeCashFlow).toBeNull();
   });
 
   it("charges only the early repayment fee and loan costs for a 0 % loan", () => {

@@ -339,7 +339,7 @@
     "monthlyCashFlow": "Cash flow mensal",
     "monthlyCashFlowHelp": "O que sobra (ou falta) por mês no primeiro ano completo, depois de custos, impostos e prestação do empréstimo.",
     "paybackYears": "Retorno do capital",
-    "paybackYearsHelp": "Anos até o cash flow recuperar o capital próprio, sem contar com a venda.",
+    "paybackYearsHelp": "Anos até o cash flow recuperar o capital próprio, sem contar com a venda. No arrendamento de longa duração, conta-se mês a mês desde a compra, com as obras, o aumento das rendas, os vazios e o IRS.",
     "returnOnDeposit": "Retorno sobre o sinal",
     "returnOnDepositHelp": "Lucro líquido da cessão a dividir pelo sinal pago no CPCV.",
     "acquisitionCosts": "Custos de aquisição",
@@ -349,7 +349,7 @@
     "annualCashFlow": "Cash flow anual",
     "annualCashFlowHelp": "O que fica por ano depois de despesas, impostos e prestações do empréstimo: o cash flow mensal × 12.",
     "lifetimeCashFlow": "Cash flow acumulado",
-    "lifetimeCashFlowHelp": "Renda menos despesas, impostos e prestações ao longo de todo o período (no arrendamento permanente, 30 anos ou o prazo do empréstimo), sem contar a compra nem a venda.",
+    "lifetimeCashFlowHelp": "Cash flow líquido (renda menos despesas, impostos e prestações do empréstimo), sem contar a compra nem a venda. No arrendamento de longa duração, conta só até ao mês em que recuperas o capital próprio (o retorno do capital); sem retorno do capital, não se calcula.",
     "cashOnCash": "Retorno anual do capital",
     "cashOnCashHelp": "Cash flow anual ÷ capital próprio investido: quanto rende por ano o dinheiro que puseste no negócio."
   },
@@ -668,7 +668,7 @@
     "rentGrowthHelp": "Por omissão, o coeficiente de atualização das rendas para {year} ({rate}), o último fixado por lei: {source}, publicado no Diário da República com base no índice de preços do INE. O senhorio pode atualizar a renda uma vez por ano até este valor.",
     "rentGrowthHelpNoSource": "Aumento anual da renda. O limite legal é o coeficiente de atualização das rendas publicado todos os anos no Diário da República.",
     "permanentRentalNote": "O imóvel fica arrendado de forma permanente, sem venda. Os resultados mostram o cash flow mensal, anual e acumulado em {years} anos.",
-    "permanentRentalResults": "Arrendamento permanente, sem venda: cash flow acumulado em {years} anos; sem lucro de venda nem TIR.",
+    "permanentRentalResults": "Arrendamento permanente, sem venda: contas a {years} anos, sem lucro de venda nem TIR. O cash flow acumulado conta até recuperares o capital.",
     "loanTermHelp": "Por omissão, {recommended} anos: o prazo máximo que o Banco de Portugal recomenda para um novo crédito habitação (medida macroprudencial). Podes indicar até {max} anos, se o teu banco aceitar.",
     "loanTermAboveRecommended": "Acima dos {recommended} anos recomendados pelo Banco de Portugal: poucos bancos o aceitam.",
     "loanFees": "Encargos do crédito",
@@ -1212,7 +1212,7 @@
     "help": {
       "flip": "O preço de venda mais baixo sem prejuízo, depois de todos os custos de compra, obras, encargos durante a detenção, comissão de venda e impostos. Acima desse preço, mostra quanto ganhas a cada subida de 5 %.",
       "shortTermRental": "O preço mais baixo a que podes vender o imóvel no fim do período de alojamento local sem prejuízo, contando com o que o AL rendeu. Acima desse preço, mostra quanto ganhas a cada subida de 5 %.",
-      "longTermRental": "O arrendamento é permanente; aqui supõe-se uma venda ao fim de {years} anos. Mostra o preço mais baixo sem prejuízo, contando com as rendas recebidas, e quanto ganhas acima dele.",
+      "longTermRental": "O arrendamento é permanente; aqui supõe-se uma venda ao fim de {years} anos. O preço mínimo é o que o imóvel te custou para o arrendar: o preço de compra, os custos de aquisição, as obras, o mobiliário e as licenças. A partir dele, mostra o lucro líquido a cada subida de 5 %, já com as rendas recebidas.",
       "contractAssignment": "O preço da cessão mais baixo sem prejuízo, depois do sinal, da comissão, de outros custos e dos impostos. Acima desse preço, mostra quanto ganhas a cada subida de 5 %."
     },
     "breakEven": {

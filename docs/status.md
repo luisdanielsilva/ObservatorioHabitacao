@@ -6,12 +6,27 @@ point: git tag `good-2026-10-04` (`git rev-parse good-2026-10-04` shows its comm
 Legend: ✅ done · 🟡 partly done · ⬜ not started · ⏩ done ahead of its phase · 👤 needs the
 project owner or an outside expert
 
-Tests: 285 unit tests (64 engine, 96 db, 125 web) and 48 end-to-end tests (Playwright, Chromium;
+Tests: 286 unit tests (65 engine, 96 db, 125 web) and 48 end-to-end tests (Playwright, Chromium;
 sign-in and photo tests need `E2E_SERVER_LOG`; the Preços one is skipped while it is dormant), all
 passing. Safari/WebKit cannot run on the
 VPS (system libraries need sudo), so Safari is untested.
 
-## Latest changes (2026-10-04 – 2026-10-19)
+## Latest changes (2026-10-04 – 2026-10-25)
+
+**Long-term rental results: payback, lifetime cash flow and minimum sale price (2026-10-25)**
+
+- "Retorno do capital" is worked out month by month from the purchase: the first month whose net
+  cash flow (rent less costs, IRS and loan payments, with the works, rent increases and
+  vacancies) adds up to the own capital, over the 30 years or the loan term. Before, it was own
+  capital ÷ the first year's cash flow, which ignored the rent increases (with the example at
+  1 800 € of rent: 18.6 years then, 10.9 now). "—" when the capital does not come back.
+- "Cash flow acumulado" is the net cash flow until that month, so about the own capital; "—"
+  without a payback (`payback` in `packages/engine/src/scenarios/longTermRental.ts`).
+- "Preço de venda e lucro": the minimum sale price is what the property cost to let, its total
+  investment (price, purchase costs, works, furniture, licences), leaving the rents aside; the
+  5 % steps start from it (`costToLet` in `lib/calculator/sale.ts`, also in the PDF).
+- Alojamento local and the other deals are unchanged; so is "Rentabilidade líquida" (owner: the
+  loan payments in it to be decided later).
 
 **What needs an account, and sharing by PDF and email (2026-10-19, issues #5 and #12)**
 

@@ -5,11 +5,16 @@ import type { CalculatorState } from "./state";
 /**
  * What the sale must bring in (WBS 5.3.7, replacing the sensitivity sliders): the lowest sale
  * price without a loss, and the net profit in 5 % steps above it. For the long-term rental,
- * which is kept, it is a sale at the end of its horizon; for the contract assignment, the
- * assignment price.
+ * which is kept, it is a sale at the end of its horizon, and the lowest price is what the
+ * property cost to buy and make ready to let; for the contract assignment, the assignment
+ * price.
  */
 export interface SaleAnalysis {
-  /** Lowest sale price with a net profit ≥ 0; null when no price up to the search limit is. */
+  /**
+   * Lowest sale price with a net profit ≥ 0; null when no price up to the search limit is.
+   * Long-term rental: the total investment (price, purchase costs, works, furniture, licences),
+   * leaving the rents aside.
+   */
   breakEven: number | null;
   /** The price the user expects (resale price, market value, assignment price), if any. */
   expected: number | null;
@@ -72,7 +77,47 @@ export function saleAnalysis(
   // A price of 0 counts as "not entered", so the lowest price tried is 1 €.
   if (profit(1) === null) return null;
   const expected = expectedPrice(state, deal);
+  const breakEven =
+    deal === "longTermRental"
+      ? costToLet(state, params, startMonth)
+      : lowestPriceWithoutLoss(state, expected, profit);
 
+  // Profitable at any price (a break-even of 1 €): steps from the price the user expects.
+  const stepsFrom =
+    breakEven === null ? null : breakEven > 1 ? "breakEven" : expected ? "expected" : null;
+  const base = stepsFrom === "breakEven" ? breakEven! : stepsFrom === "expected" ? expected! : 0;
+  const steps = stepsFrom
+    ? SALE_STEPS.map((change) => {
+        const price = Math.round(base * (1 + change));
+        return { change, price, profit: profit(price) ?? 0 };
+      })
+    : [];
+
+  return {
+    breakEven,
+    expected,
+    steps,
+    stepsFrom,
+    years: deal === "longTermRental" ? permanentRentalYears(state) : null,
+  };
+}
+
+/** What the long-term rental cost to buy and make ready to let: its total investment. */
+function costToLet(
+  state: CalculatorState,
+  params: ParameterSet,
+  startMonth: number,
+): number | null {
+  const outcome = runCalculator(state, params, startMonth, { only: "longTermRental" }).outcomes[0];
+  return outcome?.result ? Math.ceil(outcome.result.totalInvestment) : null;
+}
+
+/** The lowest sale price with a net profit ≥ 0; null when none up to the search limit is. */
+function lowestPriceWithoutLoss(
+  state: CalculatorState,
+  expected: number | null,
+  profit: (price: number) => number | null,
+): number | null {
   // Profit grows with the price: find where it crosses zero by bisection.
   const scale = Math.max(
     expected ?? 0,
@@ -96,25 +141,7 @@ export function saleAnalysis(
       breakEven = Math.ceil(high);
     }
   }
-
-  // Profitable at any price (a break-even of 1 €): steps from the price the user expects.
-  const stepsFrom =
-    breakEven === null ? null : breakEven > 1 ? "breakEven" : expected ? "expected" : null;
-  const base = stepsFrom === "breakEven" ? breakEven! : stepsFrom === "expected" ? expected! : 0;
-  const steps = stepsFrom
-    ? SALE_STEPS.map((change) => {
-        const price = Math.round(base * (1 + change));
-        return { change, price, profit: profit(price) ?? 0 };
-      })
-    : [];
-
-  return {
-    breakEven,
-    expected,
-    steps,
-    stepsFrom,
-    years: deal === "longTermRental" ? permanentRentalYears(state) : null,
-  };
+  return breakEven;
 }
 
 /**

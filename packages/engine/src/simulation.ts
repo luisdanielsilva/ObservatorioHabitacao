@@ -127,10 +127,15 @@ export interface ScenarioResult {
   cashOnCash: number | null;
   /**
    * Rental scenarios: income − operating costs − income tax − debt service over the whole
-   * holding period, without the purchase, renovation or sale.
+   * holding period, without the purchase, renovation or sale. Long-term rental: only until the
+   * own capital is recovered (the payback period); null when it never is.
    */
   lifetimeCashFlow: number | null;
-  /** Own capital ÷ annual cash flow, in years; null when cash flow is not positive. */
+  /**
+   * Own capital ÷ annual cash flow, in years; null when cash flow is not positive. Long-term
+   * rental: months until the net cash flow adds up to the own capital, ÷ 12; null when it does
+   * not within the period.
+   */
   paybackYears: number | null;
   /** Contract assignment only: net profit ÷ deposit (sinal). */
   returnOnDeposit: number | null;

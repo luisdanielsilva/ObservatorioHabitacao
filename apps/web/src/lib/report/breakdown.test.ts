@@ -22,12 +22,16 @@ describe("cashBreakdown", () => {
     expect(b.rows.income).toBe(0);
   });
 
-  it("for a kept rental: the initial payment plus the lifetime cash flow, no sale", () => {
+  it("for a kept rental: the initial payment plus the rents, costs and loan payments, no sale", () => {
     const rental = result("longTermRental", { askingPrice: 200_000, monthlyRent: 1_000 });
     const b = cashBreakdown(rental);
     expect(b.rows.saleProceeds).toBe(0);
     expect(b.rows.income).toBeGreaterThan(0);
-    expect(b.total).toBeCloseTo(b.rows.initial + rental.lifetimeCashFlow!, 2);
+    const net = rental.months.reduce(
+      (s, l) => s + l.income - l.operatingCosts - l.incomeTax - l.debtService,
+      0,
+    );
+    expect(b.total).toBeCloseTo(b.rows.initial + net, 2);
     expect(b.total).toBeCloseTo(rental.months.at(-1)!.cumulative, 2);
     expect(b.months).toBe(rental.months.length - 1);
   });

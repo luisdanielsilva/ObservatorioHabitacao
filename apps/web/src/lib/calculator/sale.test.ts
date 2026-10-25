@@ -1,6 +1,7 @@
 import type { ParameterSet } from "@observatorio-habitacao/engine";
 import { describe, expect, it } from "vitest";
 import { params2025 } from "../../../../../packages/engine/src/__fixtures__/params2025";
+import { runCalculator } from "./run";
 import { nearStep, profitAtSale, saleAnalysis } from "./sale";
 import { initialState } from "./state";
 
@@ -39,18 +40,32 @@ describe("saleAnalysis", () => {
   });
 
   it("steps from the expected price when there is a profit at any price", () => {
-    // Rents that pay off the property: no sale price makes a loss.
-    const rich = initialState({ askingPrice: 100_000, monthlyRent: 3_000, marketValue: 150_000 });
-    const sale = saleAnalysis(rich, params, 1, "longTermRental")!;
+    // Stays that pay off the property: no sale price makes a loss.
+    const rich = initialState({
+      askingPrice: 100_000,
+      marketValue: 150_000,
+      nightlyRate: { high: 400, mid: 350, low: 300 },
+      occupancy: { high: 0.9, mid: 0.9, low: 0.9 },
+    });
+    const sale = saleAnalysis(rich, params, 1, "shortTermRental")!;
     expect(sale.breakEven).toBe(1);
     expect(sale.stepsFrom).toBe("expected");
     expect(sale.steps[0]!.price).toBe(150_000);
   });
 
-  it("sells the long-term rental at the end of its horizon", () => {
-    const sale = saleAnalysis(state, params, 1, "longTermRental")!;
+  it("sells the long-term rental at the end of its horizon, from what it cost to let", () => {
+    const withWorks = { ...state, renovationBudget: 25_000, renovationMonths: 2 };
+    const sale = saleAnalysis(withWorks, params, 1, "longTermRental")!;
     expect(sale.years).toBe(30);
-    expect(sale.breakEven).not.toBeNull();
+    // The price, the purchase costs and the works, whatever the rents brought in.
+    const rental = runCalculator(withWorks, params, 1, { only: "longTermRental" }).outcomes[0]!;
+    expect(sale.breakEven).toBe(Math.ceil(rental.result!.totalInvestment));
+    expect(sale.breakEven!).toBeGreaterThan(200_000 + 25_000);
+    expect(sale.stepsFrom).toBe("breakEven");
+    expect(sale.steps[0]!.price).toBe(sale.breakEven);
+    // Even when the rents alone pay the property off.
+    const rich = initialState({ askingPrice: 100_000, monthlyRent: 3_000, marketValue: 150_000 });
+    expect(saleAnalysis(rich, params, 1, "longTermRental")!.stepsFrom).toBe("breakEven");
   });
 
   it("uses the assignment price for the contract position sale", () => {
