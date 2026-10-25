@@ -6,13 +6,13 @@ test("home page in Portuguese and English, with the language switch", async ({ p
   const problems = watchProblems(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Queres comprar um imóvel e não sabes se é um bom investimento?",
+    "Viste um anúncio e não sabes se vale o preço?",
   );
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-PT");
   await page.getByRole("button", { name: /English/ }).click();
   await expect(page).toHaveURL(/\/en$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Buying a property and not sure it's a good investment?",
+    "Saw a listing and not sure it's worth the price?",
   );
   expect(problems).toEqual([]);
 });
@@ -34,10 +34,13 @@ test("home page: the situation picked sets the question and the way in", async (
     situations.getByRole("tab", { name: /Quero arrendar|Quero vender/ }).first(),
   ).toBeFocused();
 
-  await situations.getByRole("tab", { name: /Vi um anúncio/ }).click();
+  // Buying and checking a listing are one situation: both start from the listing link.
+  await expect(situations.getByRole("tab")).toHaveCount(FEATURES.sell ? 3 : 2);
+  await situations.getByRole("tab", { name: /Quero arrendar/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Viste um anúncio e não sabes se o preço é justo?",
+    "Arrendar compensa? Longa duração ou alojamento local?",
   );
+  await expect(panel.getByRole("textbox", { name: "Link do anúncio" })).toBeVisible();
   test.skip(!FEATURES.sell, "Vender is dormant");
   await situations.getByRole("tab", { name: /Quero vender/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
@@ -97,7 +100,7 @@ test("home page: the owners' banner opens Vender, and its link Avaliar anúncio"
     "1 minuto",
     "Sem compromisso",
   ]);
-  await banner.getByRole("link", { name: "Viste um anúncio? Vê se o preço é justo" }).click();
+  await banner.getByRole("link", { name: "Viste um anúncio? Vê se vale o preço" }).click();
   await expect(page).toHaveURL(/\/avaliar$/);
   await page.goBack();
   await banner.getByRole("link", { name: "Avaliar a minha casa" }).click();

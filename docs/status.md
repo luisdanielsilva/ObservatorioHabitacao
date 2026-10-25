@@ -150,10 +150,12 @@ VPS (system libraries need sudo), so Safari is untested.
 **Home page led by questions, over a map of Portugal (2026-10-17, issue #4)**
 
 - Chosen by the owner (design B): the hero asks the question for the visitor's situation, picked
-  from four ("Vou comprar", "Quero vender", "Quero arrendar", "Vi um anúncio"; tabs, arrow keys).
-  The key words of each question are in pine with a hand-drawn sand underline that follows
-  the words when they wrap. Buying, renting and checking a listing start from the link box;
-  selling from "Avaliar a minha casa" (`components/home/QuestionHero.tsx`).
+  from three ("Vou comprar", "Quero vender", "Quero arrendar"; tabs, arrow keys). "Vi um
+  anúncio" was merged into "Vou comprar" on 2026-10-25: both started from the link box and led
+  to the same evaluation, which checks the price and runs the deals. The key words of each
+  question are in pine with a hand-drawn sand underline that follows the words when they wrap.
+  Buying and renting start from the link box; selling from "Avaliar a minha casa"
+  (`components/home/QuestionHero.tsx`). On phones the situations are one row of three.
 - Behind it, mainland Portugal by district, faint, from the CAOP boundaries already in the
   database (CAOP 2025, DGT, CC BY 4.0): `scripts/district-map.mjs` writes
   `components/home/districtMap.ts` (18 districts, about 30 KB); run it again after a new CAOP
@@ -209,7 +211,7 @@ VPS (system libraries need sudo), so Safari is untested.
   "Entrar") were already neutral. The English site is unchanged.
 - Home page, between the strategies and "Como funciona": a banner for owners ("Para
   proprietários", "Quanto vale a minha casa?") on the brand colour, with "Avaliar a minha casa"
-  to `/vender` and "Viste um anúncio? Vê se o preço é justo" to `/avaliar`. Shown while Vender
+  to `/vender` and "Viste um anúncio? Vê se vale o preço" to `/avaliar`. Shown while Vender
   is on (`components/home/SellBanner.tsx`).
 
 **Vender is back, as the seller's valuation (2026-10-17)**

@@ -30,7 +30,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     <>
       <section className="relative overflow-hidden bg-linear-to-b from-mint-soft to-background">
         <div className="relative mx-auto max-w-6xl px-4 py-12 sm:py-16">
-          {/* Behind the four situations on large screens; behind the top of the hero on phones. */}
+          {/* Behind the situations on large screens; behind the top of the hero on phones. */}
           <DistrictMap className="pointer-events-none absolute top-4 left-1/2 h-[30rem] w-auto -translate-x-1/2 opacity-60 lg:top-1/2 lg:right-[23%] lg:left-auto lg:h-[96%] lg:translate-x-1/2 lg:-translate-y-1/2 lg:opacity-100" />
           <QuestionHero showSell={FEATURES.sell} />
         </div>

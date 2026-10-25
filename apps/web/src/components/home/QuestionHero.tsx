@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Home, KeyRound, Search, Tag } from "lucide-react";
+import { ArrowRight, Home, KeyRound, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,14 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { LinkBox } from "./LinkBox";
 
-/** The situations a visitor can be in, each with its own colour of the palette. */
+/**
+ * The situations a visitor can be in, each with its own colour of the palette. Buying covers a
+ * listing seen, whose price is checked: both start from the listing link.
+ */
 const SITUATIONS = [
   { key: "buy", icon: Home, tile: "bg-mint text-primary" },
   { key: "sell", icon: Tag, tile: "bg-sand-soft text-brand-accent-foreground" },
   { key: "rent", icon: KeyRound, tile: "bg-moss-soft text-moss" },
-  { key: "check", icon: Search, tile: "bg-secondary text-pine-deep dark:text-primary" },
 ] as const;
 type Situation = (typeof SITUATIONS)[number]["key"];
 
@@ -89,7 +91,10 @@ export function QuestionHero({ showSell }: { showSell: boolean }) {
         role="tablist"
         aria-label={t("situationsLabel")}
         aria-orientation="vertical"
-        className="order-first grid grid-cols-2 gap-2 lg:order-none lg:grid-cols-1 lg:gap-2.5"
+        className={cn(
+          "order-first grid gap-2 lg:order-none lg:grid-cols-1 lg:gap-2.5",
+          situations.length === 3 ? "grid-cols-3" : "grid-cols-2",
+        )}
       >
         {situations.map(({ key, icon: Icon, tile }, i) => {
           const selected = key === current;
@@ -108,7 +113,7 @@ export function QuestionHero({ showSell }: { showSell: boolean }) {
               onClick={() => setCurrent(key)}
               onKeyDown={(e) => onKeyDown(e, i)}
               className={cn(
-                "grid w-full grid-cols-[auto_1fr] items-center gap-2.5 rounded-2xl border bg-background/85 p-3 text-left transition lg:grid-cols-[auto_1fr_auto] lg:gap-3.5 lg:p-4 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none",
+                "grid w-full justify-items-center gap-1.5 rounded-2xl border bg-background/85 p-3 text-center transition lg:grid-cols-[auto_1fr_auto] lg:items-center lg:justify-items-stretch lg:gap-3.5 lg:p-4 lg:text-left focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none",
                 selected
                   ? "border-2 border-primary p-[11px] shadow-[0_0_0_5px_var(--mint)] lg:p-[15px]"
                   : "hover:border-primary/50",
